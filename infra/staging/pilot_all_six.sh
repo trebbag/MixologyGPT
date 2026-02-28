@@ -380,7 +380,7 @@ if [[ "${RUN_WEB_E2E}" == "true" ]]; then
       if [[ "'"${INSTALL_PLAYWRIGHT}"'" == "true" ]]; then
         npx playwright install --with-deps chromium
       fi
-      E2E_BASE_URL="'"${WEB_BASE_URL}"'" STAGING_E2E_ACCESS_TOKEN="'"${STAGING_E2E_ACCESS_TOKEN}"'" npm run test:e2e:staging
+      E2E_BASE_URL="'"${WEB_BASE_URL}"'" STAGING_API_BASE_URL="'"${API_BASE_URL}"'" STAGING_E2E_ACCESS_TOKEN="'"${STAGING_E2E_ACCESS_TOKEN}"'" npm run test:e2e:staging
     '; then
     OVERALL=1
   fi

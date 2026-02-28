@@ -38,12 +38,13 @@ DEFAULT_LOW_SAMPLE_DOMAINS = (
 # without mutating policy seed_urls, to increase sampling diversity.
 EXTRA_SEEDS_BY_DOMAIN: dict[str, list[str]] = {
     "allrecipes.com": [
-        "https://www.allrecipes.com/",
         "https://www.allrecipes.com/recipes/77/drinks/",
         "https://www.allrecipes.com/recipes/77/drinks/cocktails/",
         "https://www.allrecipes.com/recipes/13322/drinks/",
         "https://www.allrecipes.com/recipes/13322/drinks/spirits/",
         "https://www.allrecipes.com/recipes/13322/drinks/whiskey/",
+        "https://www.allrecipes.com/recipes/13322/drinks/vodka-drinks/",
+        "https://www.allrecipes.com/recipe/162397/classic-old-fashioned/",
     ],
     "bbcgoodfood.com": [
         "https://www.bbcgoodfood.com/recipes/collection/gin-cocktail-recipes",

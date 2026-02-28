@@ -77,6 +77,9 @@
 - How to obtain: provide the approved domains and exact seed URLs you want the crawler to start from
 - Safe handling: no secrets required, but confirm legal/compliance approvals for each source
 
+Current decision captured:
+- `allrecipes.com` is approved for the Drinks section only. Use Drinks-focused seeds (for example `/recipes/77/drinks/`, `/recipes/77/drinks/cocktails/`, `/recipes/13322/drinks/`) and avoid non-drink seed URLs.
+
 ## Source compliance sign-off
 - What is needed: legal/compliance confirmation for each approved source domain
 - Why: crawler now enforces robots/meta/canonical/paywall compliance checks and should only run against approved sources

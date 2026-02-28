@@ -1,15 +1,21 @@
 import { expect, test } from '@playwright/test'
 
 const STAGING_ACCESS_TOKEN = process.env.STAGING_E2E_ACCESS_TOKEN || ''
+const STAGING_API_BASE_URL =
+  process.env.STAGING_API_BASE_URL || process.env.API_BASE_URL || process.env.STAGING_BASE_URL || ''
 const hasStagingToken = Boolean(STAGING_ACCESS_TOKEN)
 
 test.describe('staging tertiary smoke', () => {
   test.skip(!hasStagingToken, 'Set STAGING_E2E_ACCESS_TOKEN to run non-mocked staging web E2E.')
 
   test.beforeEach(async ({ page }) => {
-    await page.addInitScript((token) => {
+    await page.addInitScript(({ token, apiBaseUrl }) => {
       window.localStorage.setItem('bartenderai.access_token', token)
-    }, STAGING_ACCESS_TOKEN)
+      window.localStorage.removeItem('bartenderai.refresh_token')
+      if (apiBaseUrl) {
+        window.localStorage.setItem('bartenderai.api_base_url', apiBaseUrl)
+      }
+    }, { token: STAGING_ACCESS_TOKEN, apiBaseUrl: STAGING_API_BASE_URL })
   })
 
   test('studio sessions refresh transitions to offline mode and disables tertiary actions', async ({ page }) => {
