@@ -89,6 +89,25 @@ probe_web_base_url() {
   return 1
 }
 
+probe_access_token() {
+  local api_base_url="$1"
+  local access_token="$2"
+  local probe_url="${api_base_url%/}/v1/auth/sessions"
+  local status
+  if ! status="$(curl -sS -o /dev/null -w "%{http_code}" \
+    -H "Authorization: Bearer ${access_token}" \
+    "${probe_url}")"; then
+    echo "fail|curl-error|${probe_url}"
+    return 1
+  fi
+  if [[ "${status}" -ge 200 && "${status}" -lt 300 ]]; then
+    echo "pass|${status}|${probe_url}"
+    return 0
+  fi
+  echo "fail|${status}|${probe_url}"
+  return 1
+}
+
 run_step() {
   local label="$1"
   local log_file="$2"
@@ -171,6 +190,20 @@ if [[ "${RUN_WEB_E2E}" == "true" && -n "${WEB_BASE_URL}" ]]; then
     PRECHECK_ITEMS+=("- PASS: \`WEB_BASE_URL\` serves HTML (status ${WEB_PROBE_CODE})")
   else
     PRECHECK_ITEMS+=("- FAIL: \`WEB_BASE_URL\` does not appear to serve the web app (status ${WEB_PROBE_CODE}, content-type ${WEB_PROBE_TYPE:-unknown})")
+    MISSING=1
+  fi
+fi
+
+if [[ ("${RUN_WEB_E2E}" == "true" || "${RUN_MOBILE_E2E}" == "true") && -n "${STAGING_E2E_ACCESS_TOKEN}" && -n "${API_BASE_URL}" ]]; then
+  TOKEN_PROBE_RESULT="$(probe_access_token "${API_BASE_URL}" "${STAGING_E2E_ACCESS_TOKEN}" || true)"
+  TOKEN_PROBE_STATUS="${TOKEN_PROBE_RESULT%%|*}"
+  TOKEN_PROBE_REST="${TOKEN_PROBE_RESULT#*|}"
+  TOKEN_PROBE_CODE="${TOKEN_PROBE_REST%%|*}"
+  TOKEN_PROBE_URL="${TOKEN_PROBE_REST#*|}"
+  if [[ "${TOKEN_PROBE_STATUS}" == "pass" ]]; then
+    PRECHECK_ITEMS+=("- PASS: \`STAGING_E2E_ACCESS_TOKEN\` accepted by \`${TOKEN_PROBE_URL}\` (status ${TOKEN_PROBE_CODE})")
+  else
+    PRECHECK_ITEMS+=("- FAIL: \`STAGING_E2E_ACCESS_TOKEN\` rejected by \`${TOKEN_PROBE_URL}\` (status ${TOKEN_PROBE_CODE})")
     MISSING=1
   fi
 fi
