@@ -12,7 +12,7 @@ on:
       domains:
         description: "Comma-separated domains to boost (optional)."
         required: false
-        default: "allrecipes.com,bbcgoodfood.com,diffordsguide.com,food.com,imbibemagazine.com,punchdrink.com"
+        default: "bbcgoodfood.com,diffordsguide.com,food.com,imbibemagazine.com,punchdrink.com,liquor.com"
 
 jobs:
   sustain-volume-and-calibrate:
@@ -42,7 +42,7 @@ jobs:
           API_BASE_URL: ${{ secrets.STAGING_BASE_URL }}
           INTERNAL_TOKEN: ${{ secrets.STAGING_INTERNAL_TOKEN }}
           MIN_JOBS: ${{ github.event.inputs.min_jobs || '20' }}
-          TARGET_DOMAINS: ${{ github.event.inputs.domains || 'allrecipes.com,bbcgoodfood.com,diffordsguide.com,food.com,imbibemagazine.com,punchdrink.com' }}
+          TARGET_DOMAINS: ${{ github.event.inputs.domains || 'bbcgoodfood.com,diffordsguide.com,food.com,imbibemagazine.com,punchdrink.com,liquor.com' }}
           APPLY_CALIBRATION: "true"
           MAX_ROUNDS: "4"
           DRAIN_CYCLES: "8"
