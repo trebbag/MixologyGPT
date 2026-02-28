@@ -1,5 +1,15 @@
 # Needs From You
 
+## Current active blocker from latest all-six run (`2026-02-28`)
+- Latest run: GitHub Actions `Staging Pilot All-Six` (`22527705001`)
+- Result: precheck failed before signoff/E2E execution
+- Failure details:
+  - `STAGING_E2E_ACCESS_TOKEN` returned `401` from `GET /v1/auth/sessions`
+  - role lookup returned `401` from `GET /v1/users/me`
+- Required fix:
+  - rotate/regenerate `STAGING_E2E_ACCESS_TOKEN` for a `power` or `admin` user
+  - update the GitHub secret and rerun all-six
+
 ## Pilot cutover blockers (as of 2026-02-24)
 - What is needed: real staging API access and internal auth for signoff + E2E execution
 - Why: pilot sign-off now allows alert smoke to be skipped when alert infrastructure is not wired; external forwarding is optional
