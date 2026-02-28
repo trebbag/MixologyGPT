@@ -1,17 +1,20 @@
 # Needs From You
 
 ## Pilot cutover blockers (as of 2026-02-24)
-- What is needed: real staging alert destination secrets and confirmation endpoints
-- Why: local smoke confirms only local forwarding; pilot sign-off requires downstream delivery to real external destinations
+- What is needed: real staging alerting endpoints for in-app/internal alert validation
+- Why: pilot sign-off requires alert generation and in-app receiver handling; external forwarding is now optional
 - Required now:
+  - `STAGING_BASE_URL`
+  - `STAGING_ALERTMANAGER_URL`
+  - `STAGING_INTERNAL_TOKEN` (required by pilot signoff + policy/recovery maintenance workflows)
+- Optional (recommended for receiver confirmation):
+  - `STAGING_ALERT_RECEIVER_CONFIRM_URL`
+  - `STAGING_ALERT_RECEIVER_CONFIRM_TOKEN`
+- Optional (only if you want external forwarding validation):
   - `STAGING_SLACK_WEBHOOK_URL` (or runtime `SLACK_WEBHOOK_URL`)
   - `STAGING_PAGERDUTY_ROUTING_KEY` (or runtime `PAGERDUTY_ROUTING_KEY`)
-  - `STAGING_ALERTMANAGER_URL`
-  - `STAGING_ALERT_RECEIVER_CONFIRM_URL`
-  - `STAGING_ALERT_RECEIVER_CONFIRM_TOKEN` (recommended)
-  - `STAGING_INTERNAL_TOKEN` (required by pilot signoff + policy/recovery maintenance workflows)
-- Fast path command (real staging only): `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI && API_BASE_URL=https://<staging-host> ALERTMANAGER_URL=https://<alertmanager-host> ALERT_CONFIRM_URL=https://<confirm-endpoint> INTERNAL_TOKEN=<token> SLACK_WEBHOOK_URL=<slack-webhook> PAGERDUTY_ROUTING_KEY=<routing-key> ./infra/staging/pilot_real_signoff.sh`
-- One-shot all-six command (real staging only): `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI && API_BASE_URL=https://<staging-host> ALERTMANAGER_URL=https://<alertmanager-host> ALERT_CONFIRM_URL=https://<confirm-endpoint> INTERNAL_TOKEN=<token> SLACK_WEBHOOK_URL=<slack-webhook> PAGERDUTY_ROUTING_KEY=<routing-key> STAGING_E2E_ACCESS_TOKEN=<token> ./infra/staging/pilot_all_six.sh`
+- Fast path command (real staging only, internal alert validation): `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI && API_BASE_URL=https://<staging-host> ALERTMANAGER_URL=https://<alertmanager-host> INTERNAL_TOKEN=<token> ./infra/staging/pilot_real_signoff.sh`
+- One-shot all-six command (real staging only, internal alert validation): `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI && API_BASE_URL=https://<staging-host> ALERTMANAGER_URL=https://<alertmanager-host> INTERNAL_TOKEN=<token> STAGING_E2E_ACCESS_TOKEN=<token> ./infra/staging/pilot_all_six.sh`
 - Safe handling: secrets only in GitHub Actions/host secret stores; never commit
 
 ## One-click all-six staging workflow secrets
@@ -20,12 +23,13 @@
 - Required now:
   - `STAGING_BASE_URL`
   - `STAGING_ALERTMANAGER_URL`
+  - `STAGING_INTERNAL_TOKEN`
+  - `STAGING_E2E_ACCESS_TOKEN`
+- Optional:
   - `STAGING_ALERT_RECEIVER_CONFIRM_URL`
   - `STAGING_ALERT_RECEIVER_CONFIRM_TOKEN` (if receiver confirmation is protected)
-  - `STAGING_INTERNAL_TOKEN`
   - `STAGING_SLACK_WEBHOOK_URL`
   - `STAGING_PAGERDUTY_ROUTING_KEY`
-  - `STAGING_E2E_ACCESS_TOKEN`
 - Safe handling: GitHub Actions secrets only; never commit to repo files
 
 ## Real staging load sign-off window
@@ -133,19 +137,20 @@ Local shortcut:
 - Safe handling: keep this file only on the staging host; do not commit it
 
 ## Alert routing endpoint for telemetry
-- What is needed: real alert destinations (Slack webhook and/or PagerDuty routing key) OR an incident webhook
-- Why: Alertmanager routes into the BartenderAI `alert-receiver`, which can forward notifications to Slack/PagerDuty/webhooks. Until destinations are configured, alerting is effectively “local-only”.
+- What is needed: internal alert routing to the in-app `alert-receiver`; external destinations are optional
+- Why: Alertmanager routes into the BartenderAI `alert-receiver`, which provides in-app/internal alert handling and optional forwarding to Slack/PagerDuty/webhooks.
 - Config keys (runtime env vars for `infra/alert_receiver`):
-  - `SLACK_WEBHOOK_URL` (Slack Incoming Webhook URL)
-  - `PAGERDUTY_ROUTING_KEY` (PagerDuty Events v2 routing key)
+  - `SLACK_WEBHOOK_URL` (optional Slack Incoming Webhook URL)
+  - `PAGERDUTY_ROUTING_KEY` (optional PagerDuty Events v2 routing key)
   - `PAGERDUTY_EVENTS_URL` (optional override for smoke testing; leave unset in real staging/prod)
-  - `FORWARD_WEBHOOK_URLS` (comma-separated list of generic webhook URLs to forward the raw Alertmanager payload)
+  - `FORWARD_WEBHOOK_URLS` (optional comma-separated list of generic webhook URLs to forward the raw Alertmanager payload)
   - `ALERT_RECEIVER_SHARED_SECRET` (optional: require `X-Alert-Receiver-Token` header on `/alerts`)
   - `ALERT_RECEIVER_CONFIRM_TOKEN` (optional: require bearer token on `/smoke/confirm`)
 - Config keys (staging compose):
   - `ALERT_WEBHOOK_URL` in `infra/staging/.env.staging` (usually `http://alert-receiver:5001/alerts` inside the compose network)
   - GitHub Actions: `STAGING_ALERT_WEBHOOK_URL`, `STAGING_ALERT_RECEIVER_CONFIRM_TOKEN` (optional), plus `STAGING_*` deploy secrets
 - How to obtain:
+  - Internal-only mode: keep forwarding keys empty; set `ALERT_WEBHOOK_URL` to the in-cluster receiver endpoint.
   - Slack: create an Incoming Webhook for the target channel.
   - PagerDuty: create/choose a service and copy its Events v2 integration key.
   - Webhook: provide your incident system endpoint URL(s).

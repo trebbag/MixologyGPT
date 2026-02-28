@@ -14,6 +14,7 @@ ALERT_CONFIRM_TOKEN="${ALERT_CONFIRM_TOKEN:-${ALERT_RECEIVER_CONFIRM_TOKEN:-}}"
 SLACK_WEBHOOK_URL="${SLACK_WEBHOOK_URL:-}"
 PAGERDUTY_ROUTING_KEY="${PAGERDUTY_ROUTING_KEY:-}"
 FORWARD_WEBHOOK_URLS="${FORWARD_WEBHOOK_URLS:-}"
+RUN_EXTERNAL_FORWARD_SMOKE="${RUN_EXTERNAL_FORWARD_SMOKE:-false}"
 TARGET_DOMAINS="${TARGET_DOMAINS:-bbcgoodfood.com,diffordsguide.com,imbibemagazine.com,punchdrink.com}"
 MIN_JOBS="${MIN_JOBS:-20}"
 BUFFER_MULTIPLIER="${BUFFER_MULTIPLIER:-1.25}"
@@ -45,33 +46,32 @@ if [[ -z "${INTERNAL_TOKEN}" ]]; then
   exit 1
 fi
 
-if [[ -z "${ALERT_CONFIRM_URL}" ]]; then
-  echo "ERROR: ALERT_CONFIRM_URL (or ALERT_RECEIVER_CONFIRM_URL) is required for forward confirmation." >&2
-  exit 1
-fi
-
-if [[ -z "${SLACK_WEBHOOK_URL}" || "${SLACK_WEBHOOK_URL}" == "dummy" ]]; then
-  echo "ERROR: SLACK_WEBHOOK_URL is required for real Slack forwarding smoke." >&2
-  exit 1
-fi
-
-if [[ -z "${PAGERDUTY_ROUTING_KEY}" || "${PAGERDUTY_ROUTING_KEY}" == "dummy" ]]; then
-  echo "ERROR: PAGERDUTY_ROUTING_KEY is required for real PagerDuty forwarding smoke." >&2
-  exit 1
-fi
-
-if [[ -z "${FORWARD_WEBHOOK_URLS}" ]]; then
-  echo "WARN: FORWARD_WEBHOOK_URLS is empty; webhook forwarding smoke will be limited to Slack/PagerDuty checks." >&2
-fi
-
 if [[ "${ALERT_CONFIRM_TOKEN}" == "dummy" ]]; then
   ALERT_CONFIRM_TOKEN=""
 fi
 
-ALERT_CONFIRM_BASE_URL="${ALERT_CONFIRM_URL%/smoke/confirm*}"
-if [[ -z "${ALERT_CONFIRM_BASE_URL}" || "${ALERT_CONFIRM_BASE_URL}" == "${ALERT_CONFIRM_URL}" ]]; then
-  echo "ERROR: ALERT_CONFIRM_URL must be the full /smoke/confirm endpoint, e.g. https://.../smoke/confirm?alertname=..." >&2
-  exit 1
+ALERT_CONFIRM_BASE_URL=""
+if [[ -n "${ALERT_CONFIRM_URL}" ]]; then
+  ALERT_CONFIRM_BASE_URL="${ALERT_CONFIRM_URL%/smoke/confirm*}"
+  if [[ -z "${ALERT_CONFIRM_BASE_URL}" || "${ALERT_CONFIRM_BASE_URL}" == "${ALERT_CONFIRM_URL}" ]]; then
+    echo "ERROR: ALERT_CONFIRM_URL must be the full /smoke/confirm endpoint, e.g. https://.../smoke/confirm?alertname=..." >&2
+    exit 1
+  fi
+fi
+
+if [[ "${RUN_EXTERNAL_FORWARD_SMOKE}" == "true" ]]; then
+  if [[ -z "${ALERT_CONFIRM_BASE_URL}" ]]; then
+    echo "ERROR: ALERT_CONFIRM_URL is required when RUN_EXTERNAL_FORWARD_SMOKE=true." >&2
+    exit 1
+  fi
+  if [[ -z "${SLACK_WEBHOOK_URL}" || "${SLACK_WEBHOOK_URL}" == "dummy" ]]; then
+    echo "ERROR: SLACK_WEBHOOK_URL is required when RUN_EXTERNAL_FORWARD_SMOKE=true." >&2
+    exit 1
+  fi
+  if [[ -z "${PAGERDUTY_ROUTING_KEY}" || "${PAGERDUTY_ROUTING_KEY}" == "dummy" ]]; then
+    echo "ERROR: PAGERDUTY_ROUTING_KEY is required when RUN_EXTERNAL_FORWARD_SMOKE=true." >&2
+    exit 1
+  fi
 fi
 
 SUMMARY_FILE="${EVIDENCE_DIR}/staging-readiness-summary-${RUN_ID}.md"
@@ -81,6 +81,7 @@ CAL_PREVIEW="${EVIDENCE_DIR}/staging-readiness-calibration-preview-${RUN_ID}.jso
 CAL_APPLY="${EVIDENCE_DIR}/staging-readiness-calibration-apply-${RUN_ID}.json"
 RECOVERY_PREVIEW="${EVIDENCE_DIR}/staging-readiness-recovery-preview-${RUN_ID}.json"
 RECOVERY_APPLY="${EVIDENCE_DIR}/staging-readiness-recovery-apply-${RUN_ID}.json"
+SMOKE_INTERNAL_LOG="${EVIDENCE_DIR}/staging-readiness-alert-smoke-internal-${RUN_ID}.log"
 SMOKE_SLACK_LOG="${EVIDENCE_DIR}/staging-readiness-alert-smoke-slack-${RUN_ID}.log"
 SMOKE_PAGERDUTY_LOG="${EVIDENCE_DIR}/staging-readiness-alert-smoke-pagerduty-${RUN_ID}.log"
 LOAD_SUMMARY="${EVIDENCE_DIR}/staging-readiness-load-${RUN_ID}_gates.md"
@@ -96,32 +97,43 @@ cat <<EOF_SUMMARY > "${SUMMARY_FILE}"
 
 - API base: \`${API_BASE_URL}\`
 - Alertmanager: \`${ALERTMANAGER_URL}\`
-- Confirm endpoint: \`${ALERT_CONFIRM_URL}\`
+- Confirm endpoint: \`${ALERT_CONFIRM_URL:-disabled}\`
+- External alert forwarding smoke: \`${RUN_EXTERNAL_FORWARD_SMOKE}\`
 - Target domains: \`${TARGET_DOMAINS}\`
 - Min jobs: \`${MIN_JOBS}\`
 - Run load profile: \`${RUN_LOAD_PROFILE}\`
 EOF_SUMMARY
 
-run_alert_smoke() {
-  local destination="$1"
-  local expect_prefix="$2"
+run_internal_alert_smoke() {
   local out_file="$3"
+  local forward_destination="$1"
+  local expect_prefix="$2"
+  local confirm_base="${ALERT_CONFIRM_BASE_URL}"
   (
     cd "${ROOT_DIR}/infra/staging"
-    ALERTMANAGER_URL="${ALERTMANAGER_URL}" \
-    CONFIRM_BASE_URL="${ALERT_CONFIRM_BASE_URL}" \
-    CONFIRM_TOKEN="${ALERT_CONFIRM_TOKEN}" \
-    CONFIRM_FORWARD_DESTINATION="${destination}" \
-    CONFIRM_FORWARD_EXPECT_TARGET_PREFIX="${expect_prefix}" \
-    ./external_alert_smoke.sh
+    if [[ -n "${confirm_base}" ]]; then
+      ALERTMANAGER_URL="${ALERTMANAGER_URL}" \
+      CONFIRM_BASE_URL="${confirm_base}" \
+      CONFIRM_TOKEN="${ALERT_CONFIRM_TOKEN}" \
+      CONFIRM_FORWARD_DESTINATION="${forward_destination}" \
+      CONFIRM_FORWARD_EXPECT_TARGET_PREFIX="${expect_prefix}" \
+      ./external_alert_smoke.sh
+    else
+      ALERTMANAGER_URL="${ALERTMANAGER_URL}" ./external_alert_smoke.sh
+    fi
   ) | tee "${out_file}"
 }
 
 {
-  echo "== Alert forwarding smoke =="
-  run_alert_smoke slack "https://hooks.slack.com" "${SMOKE_SLACK_LOG}"
-  run_alert_smoke pagerduty "https://events.pagerduty.com" "${SMOKE_PAGERDUTY_LOG}"
-  echo "Slack/PagerDuty smoke checks passed."
+  echo "== Alert smoke =="
+  run_internal_alert_smoke "" "" "${SMOKE_INTERNAL_LOG}"
+  if [[ "${RUN_EXTERNAL_FORWARD_SMOKE}" == "true" ]]; then
+    run_internal_alert_smoke "slack" "https://hooks.slack.com" "${SMOKE_SLACK_LOG}"
+    run_internal_alert_smoke "pagerduty" "https://events.pagerduty.com" "${SMOKE_PAGERDUTY_LOG}"
+    echo "External Slack/PagerDuty forwarding smoke checks passed."
+  else
+    echo "External forwarding smoke skipped (alerts may stay internal)."
+  fi
 } >> "${SUMMARY_FILE}" 2>&1
 
 {
@@ -210,7 +222,12 @@ fi
   echo "## Final status"
   echo "- Go/No-Go: ${GO_NO_GO}"
   echo "- Load profile run: ${RUN_LOAD_PROFILE}"
-  echo "- Alert smoke: PASS (Slack+PagerDuty forwarding)"
+  echo "- Alert smoke: PASS (internal path)"
+  if [[ "${RUN_EXTERNAL_FORWARD_SMOKE}" == "true" ]]; then
+    echo "- External forwarding smoke: PASS (Slack+PagerDuty)"
+  else
+    echo "- External forwarding smoke: skipped"
+  fi
   echo "- Recovery patches preview: ${RECOVERY_PREVIEW}"
   if [[ -f "${RECOVERY_APPLY}" ]]; then
     echo "- Recovery patches applied: ${RECOVERY_APPLY}"

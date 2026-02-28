@@ -13,11 +13,11 @@ Last updated: `2026-02-24` (post all-six continuation automation pass)
 | Web UI readiness (Figma parity) | 99% | Web shell covers all major nav sections, deep-link harvest tertiary states, and now explicit offline-disabled behavior for Studio Sessions/Session actions and Knowledge actions. Remaining work is cosmetic parity polish and design-system consistency sweep. |
 | Mobile UI readiness (Figma parity) | 98% | Mobile harvest/review/studio/knowledge long-tail permutations (retry/deferred/offline/error and deep-link entry paths) are covered in mocked E2E. Remaining work is final visual micro-polish in tertiary action surfaces. |
 | QA automation (unit/integration/contract/E2E) | 99% | API unit/integration harvest suites pass, web Playwright includes tertiary offline paths, and non-mocked staging suites are wired for web+mobile execution (`test:e2e:staging`) and integrated into full all-six orchestration. Remaining work is executing those suites against real staging credentials. |
-| Staging deploy + observability | 99% | Staging stack, dashboards, alert rules, calibration, and smoke scripts are operational; dedicated workflows now include one-shot all-six orchestration (`staging-pilot-all-six.yml`) in addition to alert smoke, policy maintenance, recovery maintenance, E2E matrix, and real signoff. Latest local checkpoint: `docs/runbooks/evidence/pilot-readiness-mvp8-local-2026-02-24.md`. Remaining work is real destination wiring validation in true staging. |
+| Staging deploy + observability | 99% | Staging stack, dashboards, alert rules, calibration, and smoke scripts are operational; dedicated workflows now include one-shot all-six orchestration (`staging-pilot-all-six.yml`) in addition to alert smoke, policy maintenance, recovery maintenance, E2E matrix, and real signoff. Latest local checkpoint: `docs/runbooks/evidence/pilot-readiness-mvp8-local-2026-02-24.md`. Remaining work is internal staging validation under representative traffic; external forwarding is optional. |
 | Performance readiness for pilot load | 98% | Additional tuned local profile (`local_second_profile_20260224_161736`) passed against locked gates. Remaining work is explicit go/no-go on a representative **non-local** staging traffic window. |
 
 ## Remaining Work Before Pilot
-1. Populate real staging secrets and run `.github/workflows/staging-pilot-all-six.yml` (or `infra/staging/pilot_all_six.sh`) for one-shot execution of all six items with evidence artifacts.
+1. Populate real staging secrets and run `.github/workflows/staging-pilot-all-six.yml` (or `infra/staging/pilot_all_six.sh`) for one-shot execution of all six items with evidence artifacts (internal alert path is sufficient).
 2. Re-run tuned load profile on a representative real staging traffic window and record explicit go/no-go against current locked gates (do not rely on local-only runs).
 3. Keep `.github/workflows/staging-policy-maintenance.yml` enabled (hourly) and review calibration artifacts for threshold drift.
 4. Keep `.github/workflows/staging-recovery-maintenance.yml` enabled and apply only safe keys; require policy review for any compliance-impacting relaxations.
@@ -27,4 +27,4 @@ Last updated: `2026-02-24` (post all-six continuation automation pass)
 ## Dependency Items Blocking Full Pilot Launch
 1. Staging secrets and host access details (see `docs/NEEDS_FROM_YOU.md`).
 2. Final approved source allowlist + legal/compliance sign-off.
-3. Real alert routing destination + escalation policy (PagerDuty/Slack/webhook) for staging/ops notifications.
+3. Go/no-go owner confirmation after real staging signoff artifacts are reviewed.

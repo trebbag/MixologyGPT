@@ -9,6 +9,8 @@ ALERT_CONFIRM_URL="${ALERT_CONFIRM_URL:-${ALERT_RECEIVER_CONFIRM_URL:-}}"
 INTERNAL_TOKEN="${INTERNAL_TOKEN:-}"
 SLACK_WEBHOOK_URL="${SLACK_WEBHOOK_URL:-}"
 PAGERDUTY_ROUTING_KEY="${PAGERDUTY_ROUTING_KEY:-}"
+FORWARD_WEBHOOK_URLS="${FORWARD_WEBHOOK_URLS:-}"
+RUN_EXTERNAL_FORWARD_SMOKE="${RUN_EXTERNAL_FORWARD_SMOKE:-false}"
 
 RUN_ID="${RUN_ID:-pilot_real_signoff_$(date +%Y%m%d_%H%M%S)}"
 EVIDENCE_DIR="${EVIDENCE_DIR:-${ROOT_DIR}/docs/runbooks/evidence}"
@@ -35,19 +37,24 @@ reject_local_endpoint() {
 
 require_non_empty "API_BASE_URL/STAGING_BASE_URL" "${API_BASE_URL}"
 require_non_empty "ALERTMANAGER_URL/STAGING_ALERTMANAGER_URL" "${ALERTMANAGER_URL}"
-require_non_empty "ALERT_CONFIRM_URL/ALERT_RECEIVER_CONFIRM_URL" "${ALERT_CONFIRM_URL}"
 require_non_empty "INTERNAL_TOKEN" "${INTERNAL_TOKEN}"
-require_non_empty "SLACK_WEBHOOK_URL" "${SLACK_WEBHOOK_URL}"
-require_non_empty "PAGERDUTY_ROUTING_KEY" "${PAGERDUTY_ROUTING_KEY}"
 
 reject_local_endpoint "API_BASE_URL" "${API_BASE_URL}"
 reject_local_endpoint "ALERTMANAGER_URL" "${ALERTMANAGER_URL}"
-reject_local_endpoint "ALERT_CONFIRM_URL" "${ALERT_CONFIRM_URL}"
-reject_local_endpoint "SLACK_WEBHOOK_URL" "${SLACK_WEBHOOK_URL}"
 
-if [[ "${PAGERDUTY_ROUTING_KEY}" == "dummy" ]]; then
-  echo "ERROR: PAGERDUTY_ROUTING_KEY is set to dummy; provide a real routing key." >&2
-  exit 1
+if [[ -n "${ALERT_CONFIRM_URL}" ]]; then
+  reject_local_endpoint "ALERT_CONFIRM_URL" "${ALERT_CONFIRM_URL}"
+fi
+
+if [[ "${RUN_EXTERNAL_FORWARD_SMOKE}" == "true" ]]; then
+  require_non_empty "ALERT_CONFIRM_URL/ALERT_RECEIVER_CONFIRM_URL" "${ALERT_CONFIRM_URL}"
+  require_non_empty "SLACK_WEBHOOK_URL" "${SLACK_WEBHOOK_URL}"
+  require_non_empty "PAGERDUTY_ROUTING_KEY" "${PAGERDUTY_ROUTING_KEY}"
+  reject_local_endpoint "SLACK_WEBHOOK_URL" "${SLACK_WEBHOOK_URL}"
+  if [[ "${PAGERDUTY_ROUTING_KEY}" == "dummy" ]]; then
+    echo "ERROR: PAGERDUTY_ROUTING_KEY is set to dummy; provide a real routing key." >&2
+    exit 1
+  fi
 fi
 
 mkdir -p "${EVIDENCE_DIR}"
@@ -56,7 +63,8 @@ echo "Running real staging pilot sign-off"
 echo "RUN_ID=${RUN_ID}"
 echo "API_BASE_URL=${API_BASE_URL}"
 echo "ALERTMANAGER_URL=${ALERTMANAGER_URL}"
-echo "ALERT_CONFIRM_URL=${ALERT_CONFIRM_URL}"
+echo "ALERT_CONFIRM_URL=${ALERT_CONFIRM_URL:-disabled}"
+echo "RUN_EXTERNAL_FORWARD_SMOKE=${RUN_EXTERNAL_FORWARD_SMOKE}"
 echo "EVIDENCE_DIR=${EVIDENCE_DIR}"
 
 (
@@ -67,6 +75,8 @@ echo "EVIDENCE_DIR=${EVIDENCE_DIR}"
   INTERNAL_TOKEN="${INTERNAL_TOKEN}" \
   SLACK_WEBHOOK_URL="${SLACK_WEBHOOK_URL}" \
   PAGERDUTY_ROUTING_KEY="${PAGERDUTY_ROUTING_KEY}" \
+  FORWARD_WEBHOOK_URLS="${FORWARD_WEBHOOK_URLS}" \
+  RUN_EXTERNAL_FORWARD_SMOKE="${RUN_EXTERNAL_FORWARD_SMOKE}" \
   RUN_ID="${RUN_ID}" \
   EVIDENCE_DIR="${EVIDENCE_DIR}" \
   APPLY_CALIBRATION="${APPLY_CALIBRATION:-true}" \

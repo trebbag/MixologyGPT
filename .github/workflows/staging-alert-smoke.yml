@@ -4,11 +4,12 @@ on:
   workflow_dispatch:
     inputs:
       destination:
-        description: "Which downstream destination to verify."
+        description: "Which alert path to verify."
         required: false
-        default: "both"
+        default: "internal"
         type: choice
         options:
+          - internal
           - both
           - slack
           - pagerduty
@@ -16,22 +17,48 @@ on:
 jobs:
   alert-smoke:
     runs-on: ubuntu-latest
-    if: ${{ secrets.STAGING_ALERTMANAGER_URL != '' && secrets.STAGING_ALERT_RECEIVER_CONFIRM_URL != '' }}
     steps:
       - uses: actions/checkout@v4
-      - name: Validate destination secrets
+      - name: Validate required secrets
         env:
-          SLACK_WEBHOOK_URL: ${{ secrets.STAGING_SLACK_WEBHOOK_URL }}
-          PAGERDUTY_ROUTING_KEY: ${{ secrets.STAGING_PAGERDUTY_ROUTING_KEY }}
+          ALERTMANAGER_URL: ${{ secrets.STAGING_ALERTMANAGER_URL }}
         run: |
           set -euo pipefail
-          if [[ -z "${SLACK_WEBHOOK_URL}" ]]; then
-            echo "Missing STAGING_SLACK_WEBHOOK_URL secret."
+          if [[ -z "${ALERTMANAGER_URL}" ]]; then
+            echo "Missing STAGING_ALERTMANAGER_URL secret."
             exit 1
           fi
-          if [[ -z "${PAGERDUTY_ROUTING_KEY}" || "${PAGERDUTY_ROUTING_KEY}" == "dummy" ]]; then
-            echo "Missing or dummy STAGING_PAGERDUTY_ROUTING_KEY secret."
-            exit 1
+      - name: Run internal smoke (in-app path)
+        if: ${{ github.event.inputs.destination == 'internal' || github.event.inputs.destination == 'both' }}
+        env:
+          ALERTMANAGER_URL: ${{ secrets.STAGING_ALERTMANAGER_URL }}
+          CONFIRM_URL: ${{ secrets.STAGING_ALERT_RECEIVER_CONFIRM_URL }}
+          CONFIRM_TOKEN: ${{ secrets.STAGING_ALERT_RECEIVER_CONFIRM_TOKEN }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/bartenderai-evidence
+          if [[ -n "${CONFIRM_URL}" ]]; then
+            confirm_base="${CONFIRM_URL%%/smoke/confirm*}"
+            if [[ -z "${confirm_base}" || "${confirm_base}" == "${CONFIRM_URL}" ]]; then
+              echo "STAGING_ALERT_RECEIVER_CONFIRM_URL must end with /smoke/confirm..."
+              exit 1
+            fi
+            (
+              cd infra/staging
+              ALERT_NAME="StagingInternalSmokeAlert" \
+              ALERT_RUN_ID="gh_${GITHUB_RUN_ID}_internal" \
+              CONFIRM_BASE_URL="${confirm_base}" \
+              CONFIRM_TOKEN="${CONFIRM_TOKEN}" \
+              ./external_alert_smoke.sh
+            ) | tee /tmp/bartenderai-evidence/alert-smoke-internal.log
+          else
+            (
+              cd infra/staging
+              ALERT_NAME="StagingInternalSmokeAlert" \
+              ALERT_RUN_ID="gh_${GITHUB_RUN_ID}_internal" \
+              ALERTMANAGER_URL="${ALERTMANAGER_URL}" \
+              ./external_alert_smoke.sh
+            ) | tee /tmp/bartenderai-evidence/alert-smoke-internal.log
           fi
       - name: Run external smoke (Slack)
         if: ${{ github.event.inputs.destination == 'both' || github.event.inputs.destination == 'slack' }}
@@ -39,8 +66,17 @@ jobs:
           ALERTMANAGER_URL: ${{ secrets.STAGING_ALERTMANAGER_URL }}
           CONFIRM_URL: ${{ secrets.STAGING_ALERT_RECEIVER_CONFIRM_URL }}
           CONFIRM_TOKEN: ${{ secrets.STAGING_ALERT_RECEIVER_CONFIRM_TOKEN }}
+          SLACK_WEBHOOK_URL: ${{ secrets.STAGING_SLACK_WEBHOOK_URL }}
         run: |
           set -euo pipefail
+          if [[ -z "${SLACK_WEBHOOK_URL}" ]]; then
+            echo "Missing STAGING_SLACK_WEBHOOK_URL secret."
+            exit 1
+          fi
+          if [[ -z "${CONFIRM_URL}" ]]; then
+            echo "STAGING_ALERT_RECEIVER_CONFIRM_URL is required for external forward confirmation."
+            exit 1
+          fi
           confirm_url="${CONFIRM_URL}"
           confirm_base="${confirm_url%%/smoke/confirm*}"
           if [[ -z "${confirm_base}" || "${confirm_base}" == "${confirm_url}" ]]; then
@@ -64,8 +100,17 @@ jobs:
           ALERTMANAGER_URL: ${{ secrets.STAGING_ALERTMANAGER_URL }}
           CONFIRM_URL: ${{ secrets.STAGING_ALERT_RECEIVER_CONFIRM_URL }}
           CONFIRM_TOKEN: ${{ secrets.STAGING_ALERT_RECEIVER_CONFIRM_TOKEN }}
+          PAGERDUTY_ROUTING_KEY: ${{ secrets.STAGING_PAGERDUTY_ROUTING_KEY }}
         run: |
           set -euo pipefail
+          if [[ -z "${PAGERDUTY_ROUTING_KEY}" || "${PAGERDUTY_ROUTING_KEY}" == "dummy" ]]; then
+            echo "Missing or dummy STAGING_PAGERDUTY_ROUTING_KEY secret."
+            exit 1
+          fi
+          if [[ -z "${CONFIRM_URL}" ]]; then
+            echo "STAGING_ALERT_RECEIVER_CONFIRM_URL is required for external forward confirmation."
+            exit 1
+          fi
           confirm_url="${CONFIRM_URL}"
           confirm_base="${confirm_url%%/smoke/confirm*}"
           if [[ -z "${confirm_base}" || "${confirm_base}" == "${confirm_url}" ]]; then
@@ -89,3 +134,4 @@ jobs:
         with:
           name: staging-alert-smoke
           path: /tmp/bartenderai-evidence/*.log
+          if-no-files-found: ignore

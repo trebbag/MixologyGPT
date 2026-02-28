@@ -72,8 +72,26 @@ jobs:
   deploy-staging:
     runs-on: ubuntu-latest
     needs: build-images
-    if: ${{ secrets.STAGING_SSH_HOST != '' && secrets.STAGING_SSH_USER != '' && secrets.STAGING_SSH_KEY != '' && secrets.STAGING_GHCR_TOKEN != '' }}
     steps:
+      - name: Validate deploy secrets
+        env:
+          STAGING_SSH_HOST: ${{ secrets.STAGING_SSH_HOST }}
+          STAGING_SSH_USER: ${{ secrets.STAGING_SSH_USER }}
+          STAGING_SSH_KEY: ${{ secrets.STAGING_SSH_KEY }}
+          STAGING_GHCR_TOKEN: ${{ secrets.STAGING_GHCR_TOKEN }}
+          STAGING_DEPLOY_PATH: ${{ secrets.STAGING_DEPLOY_PATH }}
+        run: |
+          set -euo pipefail
+          missing=0
+          for key in STAGING_SSH_HOST STAGING_SSH_USER STAGING_SSH_KEY STAGING_GHCR_TOKEN STAGING_DEPLOY_PATH; do
+            if [[ -z "${!key}" ]]; then
+              echo "Missing required secret: ${key}"
+              missing=1
+            fi
+          done
+          if [[ "${missing}" -ne 0 ]]; then
+            exit 1
+          fi
       - name: Deploy over SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -98,34 +116,34 @@ jobs:
             fi
 
             python3 - <<'PY'
-import os
-from pathlib import Path
+            import os
+            from pathlib import Path
 
-env_file = Path(".env.staging")
-updates = {
-    "ALERT_WEBHOOK_URL": os.environ.get("ALERT_WEBHOOK_URL", "").strip(),
-    "SLACK_WEBHOOK_URL": os.environ.get("SLACK_WEBHOOK_URL", "").strip(),
-    "PAGERDUTY_ROUTING_KEY": os.environ.get("PAGERDUTY_ROUTING_KEY", "").strip(),
-    "FORWARD_WEBHOOK_URLS": os.environ.get("FORWARD_WEBHOOK_URLS", "").strip(),
-    "ALERT_RECEIVER_CONFIRM_TOKEN": os.environ.get("ALERT_RECEIVER_CONFIRM_TOKEN", "").strip(),
-}
+            env_file = Path(".env.staging")
+            updates = {
+                "ALERT_WEBHOOK_URL": os.environ.get("ALERT_WEBHOOK_URL", "").strip(),
+                "SLACK_WEBHOOK_URL": os.environ.get("SLACK_WEBHOOK_URL", "").strip(),
+                "PAGERDUTY_ROUTING_KEY": os.environ.get("PAGERDUTY_ROUTING_KEY", "").strip(),
+                "FORWARD_WEBHOOK_URLS": os.environ.get("FORWARD_WEBHOOK_URLS", "").strip(),
+                "ALERT_RECEIVER_CONFIRM_TOKEN": os.environ.get("ALERT_RECEIVER_CONFIRM_TOKEN", "").strip(),
+            }
 
-updates = {k: v for k, v in updates.items() if v}
-lines = env_file.read_text(encoding="utf-8").splitlines()
-keys_seen = set()
-for idx, line in enumerate(lines):
-    for key, value in updates.items():
-        if line.startswith(f"{key}="):
-            lines[idx] = f"{key}={value}"
-            keys_seen.add(key)
-for key, value in updates.items():
-    if key not in keys_seen:
-        lines.append(f"{key}={value}")
+            updates = {k: v for k, v in updates.items() if v}
+            lines = env_file.read_text(encoding="utf-8").splitlines()
+            keys_seen = set()
+            for idx, line in enumerate(lines):
+                for key, value in updates.items():
+                    if line.startswith(f"{key}="):
+                        lines[idx] = f"{key}={value}"
+                        keys_seen.add(key)
+            for key, value in updates.items():
+                if key not in keys_seen:
+                    lines.append(f"{key}={value}")
 
-# Safety: do not allow local-only smoke overrides to persist on real staging.
-lines = [line for line in lines if not line.startswith("PAGERDUTY_EVENTS_URL=")]
-env_file.write_text("\n".join(lines) + "\n", encoding="utf-8")
-PY
+            # Safety: do not allow local-only smoke overrides to persist on real staging.
+            lines = [line for line in lines if not line.startswith("PAGERDUTY_EVENTS_URL=")]
+            env_file.write_text("\n".join(lines) + "\n", encoding="utf-8")
+            PY
             docker compose --env-file .env.staging -f docker-compose.staging.yml pull
             docker compose --env-file .env.staging -f docker-compose.staging.yml up -d
             docker compose --env-file .env.staging -f docker-compose.staging.yml exec -T api alembic upgrade head
@@ -144,29 +162,76 @@ PY
   staging-smoke:
     runs-on: ubuntu-latest
     needs: deploy-staging
-    if: ${{ needs.deploy-staging.result == 'success' && secrets.STAGING_BASE_URL != '' }}
     steps:
       - uses: actions/checkout@v4
+      - name: Validate smoke config
+        env:
+          STAGING_BASE_URL: ${{ secrets.STAGING_BASE_URL }}
+        run: |
+          set -euo pipefail
+          if [[ -z "${STAGING_BASE_URL}" ]]; then
+            echo "Missing STAGING_BASE_URL."
+            exit 1
+          fi
       - name: Health check
+        env:
+          STAGING_BASE_URL: ${{ secrets.STAGING_BASE_URL }}
         run: |
-          curl -fsS "${{ secrets.STAGING_BASE_URL }}/health"
+          curl -fsS "${STAGING_BASE_URL}/health"
       - name: Metrics check
+        env:
+          STAGING_BASE_URL: ${{ secrets.STAGING_BASE_URL }}
         run: |
-          curl -fsS "${{ secrets.STAGING_BASE_URL }}/metrics" | head -n 40
+          curl -fsS "${STAGING_BASE_URL}/metrics" | head -n 40
       - name: Alertmanager smoke trigger
-        if: ${{ secrets.STAGING_ALERTMANAGER_URL != '' }}
+        env:
+          ALERTMANAGER_URL: ${{ secrets.STAGING_ALERTMANAGER_URL }}
         run: |
-          ALERTMANAGER_URL="${{ secrets.STAGING_ALERTMANAGER_URL }}" \
+          if [[ -z "${ALERTMANAGER_URL}" ]]; then
+            echo "Skipping alertmanager smoke: STAGING_ALERTMANAGER_URL is not configured."
+            exit 0
+          fi
+          ALERTMANAGER_URL="${ALERTMANAGER_URL}" \
           ALERT_NAME="StagingExternalSmokeAlert" \
           ./infra/observability/validate_alerting.sh
-      - name: External alert destination confirmation (Slack)
-        if: ${{ secrets.STAGING_ALERTMANAGER_URL != '' && secrets.STAGING_ALERT_RECEIVER_CONFIRM_URL != '' }}
+      - name: Internal alert receiver confirmation
         env:
           ALERTMANAGER_URL: ${{ secrets.STAGING_ALERTMANAGER_URL }}
           CONFIRM_URL: ${{ secrets.STAGING_ALERT_RECEIVER_CONFIRM_URL }}
           CONFIRM_TOKEN: ${{ secrets.STAGING_ALERT_RECEIVER_CONFIRM_TOKEN }}
         run: |
           set -euo pipefail
+          if [[ -z "${ALERTMANAGER_URL}" || -z "${CONFIRM_URL}" ]]; then
+            echo "Skipping internal receiver confirmation: missing STAGING_ALERTMANAGER_URL or STAGING_ALERT_RECEIVER_CONFIRM_URL."
+            exit 0
+          fi
+          confirm_url="${CONFIRM_URL}"
+          confirm_base="${confirm_url%%/smoke/confirm*}"
+          if [[ -z "${confirm_base}" || "${confirm_base}" == "${confirm_url}" ]]; then
+            echo "Unable to derive CONFIRM_BASE_URL from STAGING_ALERT_RECEIVER_CONFIRM_URL. Provide a URL ending with /smoke/confirm."
+            exit 1
+          fi
+          mkdir -p /tmp/bartenderai-evidence
+          (
+            cd infra/staging
+            ALERT_NAME="StagingInternalSmokeAlert" \
+            ALERT_RUN_ID="gh_${GITHUB_RUN_ID}_internal" \
+            CONFIRM_BASE_URL="${confirm_base}" \
+            CONFIRM_TOKEN="${CONFIRM_TOKEN}" \
+            ./external_alert_smoke.sh
+          ) | tee "/tmp/bartenderai-evidence/alert-smoke-internal.log"
+      - name: External alert destination confirmation (Slack)
+        env:
+          ALERTMANAGER_URL: ${{ secrets.STAGING_ALERTMANAGER_URL }}
+          CONFIRM_URL: ${{ secrets.STAGING_ALERT_RECEIVER_CONFIRM_URL }}
+          CONFIRM_TOKEN: ${{ secrets.STAGING_ALERT_RECEIVER_CONFIRM_TOKEN }}
+          SLACK_WEBHOOK_URL: ${{ secrets.STAGING_SLACK_WEBHOOK_URL }}
+        run: |
+          set -euo pipefail
+          if [[ -z "${ALERTMANAGER_URL}" || -z "${CONFIRM_URL}" || -z "${SLACK_WEBHOOK_URL}" ]]; then
+            echo "Skipping Slack confirmation: missing alertmanager/confirm/slack config."
+            exit 0
+          fi
           confirm_url="${CONFIRM_URL}"
           confirm_base="${confirm_url%%/smoke/confirm*}"
           if [[ -z "${confirm_base}" || "${confirm_base}" == "${confirm_url}" ]]; then
@@ -185,13 +250,17 @@ PY
             ./external_alert_smoke.sh
           ) | tee "/tmp/bartenderai-evidence/alert-smoke-slack.log"
       - name: External alert destination confirmation (PagerDuty)
-        if: ${{ secrets.STAGING_ALERTMANAGER_URL != '' && secrets.STAGING_ALERT_RECEIVER_CONFIRM_URL != '' }}
         env:
           ALERTMANAGER_URL: ${{ secrets.STAGING_ALERTMANAGER_URL }}
           CONFIRM_URL: ${{ secrets.STAGING_ALERT_RECEIVER_CONFIRM_URL }}
           CONFIRM_TOKEN: ${{ secrets.STAGING_ALERT_RECEIVER_CONFIRM_TOKEN }}
+          PAGERDUTY_ROUTING_KEY: ${{ secrets.STAGING_PAGERDUTY_ROUTING_KEY }}
         run: |
           set -euo pipefail
+          if [[ -z "${ALERTMANAGER_URL}" || -z "${CONFIRM_URL}" || -z "${PAGERDUTY_ROUTING_KEY}" ]]; then
+            echo "Skipping PagerDuty confirmation: missing alertmanager/confirm/pagerduty config."
+            exit 0
+          fi
           confirm_url="${CONFIRM_URL}"
           confirm_base="${confirm_url%%/smoke/confirm*}"
           if [[ -z "${confirm_base}" || "${confirm_base}" == "${confirm_url}" ]]; then
@@ -210,8 +279,9 @@ PY
             ./external_alert_smoke.sh
           ) | tee "/tmp/bartenderai-evidence/alert-smoke-pagerduty.log"
       - name: Upload evidence (alert smoke)
-        if: ${{ always() && (secrets.STAGING_ALERTMANAGER_URL != '' && secrets.STAGING_ALERT_RECEIVER_CONFIRM_URL != '') }}
+        if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
           name: staging-alert-smoke-evidence
           path: /tmp/bartenderai-evidence/*.log
+          if-no-files-found: ignore

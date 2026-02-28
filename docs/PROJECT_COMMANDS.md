@@ -62,9 +62,11 @@
 
 - Alerting operations:
   - Local alert smoke: `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI && ./infra/observability/validate_alerting.sh`
-  - Staging external alert smoke (with receiver confirm + optional forward confirm): `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI/infra/staging && ALERTMANAGER_URL=https://<alertmanager-host> CONFIRM_BASE_URL=https://<alert-receiver-host> CONFIRM_FORWARD_DESTINATION=slack CONFIRM_TOKEN=<optional> ./external_alert_smoke.sh`
-  - Real staging pilot signoff wrapper (rejects local endpoints and missing alert secrets): `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI && API_BASE_URL=https://<staging-host> ALERTMANAGER_URL=https://<alertmanager-host> ALERT_CONFIRM_URL=https://<confirm-endpoint> INTERNAL_TOKEN=<token> SLACK_WEBHOOK_URL=<slack-webhook> PAGERDUTY_ROUTING_KEY=<routing-key> ./infra/staging/pilot_real_signoff.sh`
-  - Full all-six pilot continuation (real signoff + web/mobile staging E2E + compliance smoke): `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI && API_BASE_URL=https://<staging-host> ALERTMANAGER_URL=https://<alertmanager-host> ALERT_CONFIRM_URL=https://<confirm-endpoint> INTERNAL_TOKEN=<token> SLACK_WEBHOOK_URL=<slack-webhook> PAGERDUTY_ROUTING_KEY=<routing-key> STAGING_E2E_ACCESS_TOKEN=<token> ./infra/staging/pilot_all_six.sh`
+  - Staging internal alert smoke (in-app path): `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI/infra/staging && ALERTMANAGER_URL=https://<alertmanager-host> ./external_alert_smoke.sh`
+  - Staging alert smoke with receiver confirmation (optional): `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI/infra/staging && ALERTMANAGER_URL=https://<alertmanager-host> CONFIRM_BASE_URL=https://<alert-receiver-host> CONFIRM_TOKEN=<optional> ./external_alert_smoke.sh`
+  - Staging external forwarding smoke (optional): `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI/infra/staging && ALERTMANAGER_URL=https://<alertmanager-host> CONFIRM_BASE_URL=https://<alert-receiver-host> CONFIRM_FORWARD_DESTINATION=slack CONFIRM_TOKEN=<optional> ./external_alert_smoke.sh`
+  - Real staging pilot signoff wrapper (rejects local endpoints): `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI && API_BASE_URL=https://<staging-host> ALERTMANAGER_URL=https://<alertmanager-host> INTERNAL_TOKEN=<token> ./infra/staging/pilot_real_signoff.sh`
+  - Full all-six pilot continuation (real signoff + web/mobile staging E2E + compliance smoke): `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI && API_BASE_URL=https://<staging-host> ALERTMANAGER_URL=https://<alertmanager-host> INTERNAL_TOKEN=<token> STAGING_E2E_ACCESS_TOKEN=<token> ./infra/staging/pilot_all_six.sh`
   - Staging policy calibration preview: `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI/infra/staging && INTERNAL_TOKEN=<token> APPLY=false ./calibrate_alert_thresholds.sh`
   - Staging policy calibration apply: `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI/infra/staging && INTERNAL_TOKEN=<token> APPLY=true ./calibrate_alert_thresholds.sh`
   - Drain pending harvest jobs (staging/internal): `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI/infra/staging && INTERNAL_TOKEN=<token> API_BASE_URL=http://localhost:8000 python3 ./drain_pending_jobs.py`
@@ -72,7 +74,7 @@
   - Rejection path smoke (compliance/parse/fetch rejection): `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI/infra/staging && API_BASE_URL=https://<staging-host> INTERNAL_TOKEN=<token> COMPLIANCE_TEST_URL=https://www.allrecipes.com/privacy-policy python3 ./compliance_rejection_smoke.py`
 
 - GitHub Actions workflows (staging):
-  - Alert forwarding smoke: `.github/workflows/staging-alert-smoke.yml`
+  - Alert smoke (internal path by default, external forwarding optional): `.github/workflows/staging-alert-smoke.yml`
   - Full real signoff (alerts + calibration + recovery + load gates): `.github/workflows/staging-pilot-real-signoff.yml`
   - Full all-six continuation (real signoff + non-mocked web/mobile staging E2E + compliance smoke): `.github/workflows/staging-pilot-all-six.yml`
   - Hourly domain volume + calibration maintenance: `.github/workflows/staging-policy-maintenance.yml`
