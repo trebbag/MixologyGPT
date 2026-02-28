@@ -50,6 +50,8 @@
 - Role requirement:
   - Web staging E2E includes `/studio` and `/recipes/harvest` routes, so this token must belong to a user with role `power` or `admin`.
   - A `user`/`consumer` token can pass auth checks but still fail web E2E route access checks.
+- Rotation note:
+  - If all-six precheck reports `401` on `/v1/auth/sessions` or `/v1/users/me`, regenerate and update `STAGING_E2E_ACCESS_TOKEN`.
 - Used by:
   - `.github/workflows/staging-e2e-matrix.yml`
   - `apps/web` script `npm run test:e2e:staging`
