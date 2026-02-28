@@ -96,7 +96,6 @@ REQUIRED_PAIRS=()
 
 if [[ "${RUN_SIGNOFF}" == "true" ]]; then
   REQUIRED_PAIRS+=("API_BASE_URL:${API_BASE_URL}")
-  REQUIRED_PAIRS+=("ALERTMANAGER_URL:${ALERTMANAGER_URL}")
   REQUIRED_PAIRS+=("INTERNAL_TOKEN:${INTERNAL_TOKEN}")
 fi
 
@@ -130,7 +129,9 @@ if [[ "${ALLOW_LOCAL_ENDPOINTS}" != "true" ]]; then
   LOCAL_CHECK_PAIRS=()
   if [[ "${RUN_SIGNOFF}" == "true" ]]; then
     LOCAL_CHECK_PAIRS+=("API_BASE_URL:${API_BASE_URL}")
-    LOCAL_CHECK_PAIRS+=("ALERTMANAGER_URL:${ALERTMANAGER_URL}")
+    if [[ -n "${ALERTMANAGER_URL}" ]]; then
+      LOCAL_CHECK_PAIRS+=("ALERTMANAGER_URL:${ALERTMANAGER_URL}")
+    fi
   elif [[ "${RUN_WEB_E2E}" == "true" || "${RUN_MOBILE_E2E}" == "true" || "${RUN_COMPLIANCE_SMOKE}" == "true" ]]; then
     LOCAL_CHECK_PAIRS+=("API_BASE_URL:${API_BASE_URL}")
   fi

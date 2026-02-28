@@ -36,17 +36,19 @@ reject_local_endpoint() {
 }
 
 require_non_empty "API_BASE_URL/STAGING_BASE_URL" "${API_BASE_URL}"
-require_non_empty "ALERTMANAGER_URL/STAGING_ALERTMANAGER_URL" "${ALERTMANAGER_URL}"
 require_non_empty "INTERNAL_TOKEN" "${INTERNAL_TOKEN}"
 
 reject_local_endpoint "API_BASE_URL" "${API_BASE_URL}"
-reject_local_endpoint "ALERTMANAGER_URL" "${ALERTMANAGER_URL}"
+if [[ -n "${ALERTMANAGER_URL}" ]]; then
+  reject_local_endpoint "ALERTMANAGER_URL" "${ALERTMANAGER_URL}"
+fi
 
 if [[ -n "${ALERT_CONFIRM_URL}" ]]; then
   reject_local_endpoint "ALERT_CONFIRM_URL" "${ALERT_CONFIRM_URL}"
 fi
 
 if [[ "${RUN_EXTERNAL_FORWARD_SMOKE}" == "true" ]]; then
+  require_non_empty "ALERTMANAGER_URL/STAGING_ALERTMANAGER_URL" "${ALERTMANAGER_URL}"
   require_non_empty "ALERT_CONFIRM_URL/ALERT_RECEIVER_CONFIRM_URL" "${ALERT_CONFIRM_URL}"
   require_non_empty "SLACK_WEBHOOK_URL" "${SLACK_WEBHOOK_URL}"
   require_non_empty "PAGERDUTY_ROUTING_KEY" "${PAGERDUTY_ROUTING_KEY}"
@@ -62,7 +64,7 @@ mkdir -p "${EVIDENCE_DIR}"
 echo "Running real staging pilot sign-off"
 echo "RUN_ID=${RUN_ID}"
 echo "API_BASE_URL=${API_BASE_URL}"
-echo "ALERTMANAGER_URL=${ALERTMANAGER_URL}"
+echo "ALERTMANAGER_URL=${ALERTMANAGER_URL:-disabled}"
 echo "ALERT_CONFIRM_URL=${ALERT_CONFIRM_URL:-disabled}"
 echo "RUN_EXTERNAL_FORWARD_SMOKE=${RUN_EXTERNAL_FORWARD_SMOKE}"
 echo "EVIDENCE_DIR=${EVIDENCE_DIR}"

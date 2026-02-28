@@ -99,7 +99,6 @@ Use this when you have real staging endpoints. Internal alert validation is enou
 ```bash
 cd /Users/gregorygabbert/Documents/GitHub/BartenderAI
 API_BASE_URL=https://<staging-host> \
-ALERTMANAGER_URL=https://<alertmanager-host> \
 INTERNAL_TOKEN=<internal-token> \
 ./infra/staging/pilot_real_signoff.sh
 ```
@@ -127,7 +126,6 @@ Use this to run all six remaining pilot items in one flow:
 ```bash
 cd /Users/gregorygabbert/Documents/GitHub/BartenderAI
 API_BASE_URL=https://<staging-host> \
-ALERTMANAGER_URL=https://<alertmanager-host> \
 INTERNAL_TOKEN=<internal-token> \
 STAGING_E2E_ACCESS_TOKEN=<e2e-access-token> \
 ./infra/staging/pilot_all_six.sh

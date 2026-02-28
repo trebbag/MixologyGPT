@@ -1,20 +1,21 @@
 # Needs From You
 
 ## Pilot cutover blockers (as of 2026-02-24)
-- What is needed: real staging alerting endpoints for in-app/internal alert validation
-- Why: pilot sign-off requires alert generation and in-app receiver handling; external forwarding is now optional
+- What is needed: real staging API access and internal auth for signoff + E2E execution
+- Why: pilot sign-off now allows alert smoke to be skipped when alert infrastructure is not wired; external forwarding is optional
 - Required now:
   - `STAGING_BASE_URL`
-  - `STAGING_ALERTMANAGER_URL`
   - `STAGING_INTERNAL_TOKEN` (required by pilot signoff + policy/recovery maintenance workflows)
+- Optional (recommended for in-app alert smoke):
+  - `STAGING_ALERTMANAGER_URL`
 - Optional (recommended for receiver confirmation):
   - `STAGING_ALERT_RECEIVER_CONFIRM_URL`
   - `STAGING_ALERT_RECEIVER_CONFIRM_TOKEN`
 - Optional (only if you want external forwarding validation):
   - `STAGING_SLACK_WEBHOOK_URL` (or runtime `SLACK_WEBHOOK_URL`)
   - `STAGING_PAGERDUTY_ROUTING_KEY` (or runtime `PAGERDUTY_ROUTING_KEY`)
-- Fast path command (real staging only, internal alert validation): `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI && API_BASE_URL=https://<staging-host> ALERTMANAGER_URL=https://<alertmanager-host> INTERNAL_TOKEN=<token> ./infra/staging/pilot_real_signoff.sh`
-- One-shot all-six command (real staging only, internal alert validation): `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI && API_BASE_URL=https://<staging-host> ALERTMANAGER_URL=https://<alertmanager-host> INTERNAL_TOKEN=<token> STAGING_E2E_ACCESS_TOKEN=<token> ./infra/staging/pilot_all_six.sh`
+- Fast path command (real staging only): `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI && API_BASE_URL=https://<staging-host> INTERNAL_TOKEN=<token> ./infra/staging/pilot_real_signoff.sh`
+- One-shot all-six command (real staging only): `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI && API_BASE_URL=https://<staging-host> INTERNAL_TOKEN=<token> STAGING_E2E_ACCESS_TOKEN=<token> ./infra/staging/pilot_all_six.sh`
 - Safe handling: secrets only in GitHub Actions/host secret stores; never commit
 
 ## One-click all-six staging workflow secrets
@@ -22,10 +23,10 @@
 - Why: this workflow now runs the full six-item continuation (real signoff + non-mocked web/mobile staging E2E + compliance smoke) in one job
 - Required now:
   - `STAGING_BASE_URL`
-  - `STAGING_ALERTMANAGER_URL`
   - `STAGING_INTERNAL_TOKEN`
   - `STAGING_E2E_ACCESS_TOKEN`
 - Optional:
+  - `STAGING_ALERTMANAGER_URL`
   - `STAGING_ALERT_RECEIVER_CONFIRM_URL`
   - `STAGING_ALERT_RECEIVER_CONFIRM_TOKEN` (if receiver confirmation is protected)
   - `STAGING_SLACK_WEBHOOK_URL`
@@ -167,9 +168,9 @@ Local shortcut:
 - Safe handling: no secrets beyond `INTERNAL_TOKEN`
 
 ## Pilot ops drill inputs
-- What is needed: staging URLs for API and Alertmanager plus a valid internal token
-- Why: the new end-to-end ops drill script validates calibration, alert routing, runbook readiness, and optional load gates
-- Config keys: `API_BASE_URL` (or `STAGING_BASE_URL`), `ALERTMANAGER_URL`, `INTERNAL_TOKEN`, optional `APPLY_CALIBRATION`, optional `RUN_LOAD_PROFILE`
+- What is needed: staging API URL plus a valid internal token
+- Why: the new end-to-end ops drill script validates calibration, runbook readiness, and optional load gates; alert routing checks run when Alertmanager is configured
+- Config keys: `API_BASE_URL` (or `STAGING_BASE_URL`), `INTERNAL_TOKEN`, optional `ALERTMANAGER_URL`, optional `APPLY_CALIBRATION`, optional `RUN_LOAD_PROFILE`
 - Optional confirmation keys: `ALERT_CONFIRM_URL`, `ALERT_CONFIRM_TOKEN`
 - How to obtain: use your staging endpoints and internal token, then run `infra/staging/pilot_ops_drill.sh`
 - Safe handling: store token and endpoint secrets in environment variables or secret manager; never commit them

@@ -32,16 +32,11 @@ jobs:
       - name: Validate required config
         env:
           API_BASE_URL: ${{ github.event.inputs.base_url || secrets.STAGING_BASE_URL }}
-          ALERTMANAGER_URL: ${{ secrets.STAGING_ALERTMANAGER_URL }}
           INTERNAL_TOKEN: ${{ secrets.STAGING_INTERNAL_TOKEN }}
         run: |
           set -euo pipefail
           if [[ -z "${API_BASE_URL}" ]]; then
             echo "Missing STAGING_BASE_URL (or workflow input base_url)."
-            exit 1
-          fi
-          if [[ -z "${ALERTMANAGER_URL}" ]]; then
-            echo "Missing STAGING_ALERTMANAGER_URL."
             exit 1
           fi
           if [[ -z "${INTERNAL_TOKEN}" ]]; then

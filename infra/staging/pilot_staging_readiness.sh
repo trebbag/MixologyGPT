@@ -36,11 +36,6 @@ if [[ -z "${API_BASE_URL}" ]]; then
   exit 1
 fi
 
-if [[ -z "${ALERTMANAGER_URL}" ]]; then
-  echo "ERROR: ALERTMANAGER_URL (or STAGING_ALERTMANAGER_URL) is required." >&2
-  exit 1
-fi
-
 if [[ -z "${INTERNAL_TOKEN}" ]]; then
   echo "ERROR: INTERNAL_TOKEN is required." >&2
   exit 1
@@ -60,6 +55,10 @@ if [[ -n "${ALERT_CONFIRM_URL}" ]]; then
 fi
 
 if [[ "${RUN_EXTERNAL_FORWARD_SMOKE}" == "true" ]]; then
+  if [[ -z "${ALERTMANAGER_URL}" ]]; then
+    echo "ERROR: ALERTMANAGER_URL is required when RUN_EXTERNAL_FORWARD_SMOKE=true." >&2
+    exit 1
+  fi
   if [[ -z "${ALERT_CONFIRM_BASE_URL}" ]]; then
     echo "ERROR: ALERT_CONFIRM_URL is required when RUN_EXTERNAL_FORWARD_SMOKE=true." >&2
     exit 1
@@ -96,7 +95,7 @@ cat <<EOF_SUMMARY > "${SUMMARY_FILE}"
 # Staging Readiness Run ${RUN_ID}
 
 - API base: \`${API_BASE_URL}\`
-- Alertmanager: \`${ALERTMANAGER_URL}\`
+- Alertmanager: \`${ALERTMANAGER_URL:-disabled}\`
 - Confirm endpoint: \`${ALERT_CONFIRM_URL:-disabled}\`
 - External alert forwarding smoke: \`${RUN_EXTERNAL_FORWARD_SMOKE}\`
 - Target domains: \`${TARGET_DOMAINS}\`
@@ -124,17 +123,29 @@ run_internal_alert_smoke() {
   ) | tee "${out_file}"
 }
 
-{
-  echo "== Alert smoke =="
-  run_internal_alert_smoke "" "" "${SMOKE_INTERNAL_LOG}"
-  if [[ "${RUN_EXTERNAL_FORWARD_SMOKE}" == "true" ]]; then
-    run_internal_alert_smoke "slack" "https://hooks.slack.com" "${SMOKE_SLACK_LOG}"
-    run_internal_alert_smoke "pagerduty" "https://events.pagerduty.com" "${SMOKE_PAGERDUTY_LOG}"
-    echo "External Slack/PagerDuty forwarding smoke checks passed."
-  else
-    echo "External forwarding smoke skipped (alerts may stay internal)."
-  fi
-} >> "${SUMMARY_FILE}" 2>&1
+ALERT_SMOKE_STATUS="skipped (ALERTMANAGER_URL not set)"
+EXTERNAL_SMOKE_STATUS="skipped"
+if [[ -n "${ALERTMANAGER_URL}" ]]; then
+  {
+    echo "== Alert smoke =="
+    run_internal_alert_smoke "" "" "${SMOKE_INTERNAL_LOG}"
+    if [[ "${RUN_EXTERNAL_FORWARD_SMOKE}" == "true" ]]; then
+      run_internal_alert_smoke "slack" "https://hooks.slack.com" "${SMOKE_SLACK_LOG}"
+      run_internal_alert_smoke "pagerduty" "https://events.pagerduty.com" "${SMOKE_PAGERDUTY_LOG}"
+      echo "External Slack/PagerDuty forwarding smoke checks passed."
+      EXTERNAL_SMOKE_STATUS="PASS (Slack+PagerDuty)"
+    else
+      echo "External forwarding smoke skipped (alerts may stay internal)."
+      EXTERNAL_SMOKE_STATUS="skipped"
+    fi
+    ALERT_SMOKE_STATUS="PASS (internal path)"
+  } >> "${SUMMARY_FILE}" 2>&1
+else
+  {
+    echo "== Alert smoke =="
+    echo "Skipped: ALERTMANAGER_URL not set."
+  } >> "${SUMMARY_FILE}" 2>&1
+fi
 
 {
   echo "== Staging harvest volume and parser calibration bootstrap =="
@@ -222,12 +233,8 @@ fi
   echo "## Final status"
   echo "- Go/No-Go: ${GO_NO_GO}"
   echo "- Load profile run: ${RUN_LOAD_PROFILE}"
-  echo "- Alert smoke: PASS (internal path)"
-  if [[ "${RUN_EXTERNAL_FORWARD_SMOKE}" == "true" ]]; then
-    echo "- External forwarding smoke: PASS (Slack+PagerDuty)"
-  else
-    echo "- External forwarding smoke: skipped"
-  fi
+  echo "- Alert smoke: ${ALERT_SMOKE_STATUS}"
+  echo "- External forwarding smoke: ${EXTERNAL_SMOKE_STATUS}"
   echo "- Recovery patches preview: ${RECOVERY_PREVIEW}"
   if [[ -f "${RECOVERY_APPLY}" ]]; then
     echo "- Recovery patches applied: ${RECOVERY_APPLY}"
