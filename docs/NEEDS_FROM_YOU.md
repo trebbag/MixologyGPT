@@ -47,6 +47,9 @@
 ## Staging non-mocked E2E execution token
 - What is needed: `STAGING_E2E_ACCESS_TOKEN`
 - Why: new non-mocked staging E2E suites for web/mobile require a valid bearer token to bypass interactive login and exercise tertiary offline/retry/error paths against real staging.
+- Role requirement:
+  - Web staging E2E includes `/studio` and `/recipes/harvest` routes, so this token must belong to a user with role `power` or `admin`.
+  - A `user`/`consumer` token can pass auth checks but still fail web E2E route access checks.
 - Used by:
   - `.github/workflows/staging-e2e-matrix.yml`
   - `apps/web` script `npm run test:e2e:staging`

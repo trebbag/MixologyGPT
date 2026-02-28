@@ -108,6 +108,66 @@ probe_access_token() {
   return 1
 }
 
+probe_user_role() {
+  local api_base_url="$1"
+  local access_token="$2"
+  local probe_url="${api_base_url%/}/v1/users/me"
+  local tmp_file
+  tmp_file="$(mktemp)"
+  local status
+  if ! status="$(curl -sS -o "${tmp_file}" -w "%{http_code}" \
+    -H "Authorization: Bearer ${access_token}" \
+    "${probe_url}")"; then
+    rm -f "${tmp_file}"
+    echo "fail|curl-error||${probe_url}"
+    return 1
+  fi
+
+  if [[ "${status}" -ge 200 && "${status}" -lt 300 ]]; then
+    local role
+    role="$(python3 - <<'PY' "${tmp_file}"
+import json, sys
+try:
+    with open(sys.argv[1], "r", encoding="utf-8") as f:
+        data = json.load(f)
+    print((data.get("role") or "").strip())
+except Exception:
+    print("")
+PY
+)"
+    rm -f "${tmp_file}"
+    if [[ -n "${role}" ]]; then
+      echo "pass|${status}|${role}|${probe_url}"
+      return 0
+    fi
+    echo "fail|${status}||${probe_url}"
+    return 1
+  fi
+
+  rm -f "${tmp_file}"
+  echo "fail|${status}||${probe_url}"
+  return 1
+}
+
+role_rank() {
+  case "$1" in
+    consumer) echo 0 ;;
+    user) echo 1 ;;
+    power) echo 2 ;;
+    admin) echo 3 ;;
+    *) echo -1 ;;
+  esac
+}
+
+has_min_role() {
+  local actual="$1"
+  local required="$2"
+  local actual_rank required_rank
+  actual_rank="$(role_rank "${actual}")"
+  required_rank="$(role_rank "${required}")"
+  [[ "${actual_rank}" -ge "${required_rank}" ]]
+}
+
 run_step() {
   local label="$1"
   local log_file="$2"
@@ -204,6 +264,27 @@ if [[ ("${RUN_WEB_E2E}" == "true" || "${RUN_MOBILE_E2E}" == "true") && -n "${STA
     PRECHECK_ITEMS+=("- PASS: \`STAGING_E2E_ACCESS_TOKEN\` accepted by \`${TOKEN_PROBE_URL}\` (status ${TOKEN_PROBE_CODE})")
   else
     PRECHECK_ITEMS+=("- FAIL: \`STAGING_E2E_ACCESS_TOKEN\` rejected by \`${TOKEN_PROBE_URL}\` (status ${TOKEN_PROBE_CODE})")
+    MISSING=1
+  fi
+fi
+
+if [[ "${RUN_WEB_E2E}" == "true" && -n "${STAGING_E2E_ACCESS_TOKEN}" && -n "${API_BASE_URL}" ]]; then
+  ROLE_PROBE_RESULT="$(probe_user_role "${API_BASE_URL}" "${STAGING_E2E_ACCESS_TOKEN}" || true)"
+  ROLE_PROBE_STATUS="${ROLE_PROBE_RESULT%%|*}"
+  ROLE_PROBE_REST="${ROLE_PROBE_RESULT#*|}"
+  ROLE_PROBE_CODE="${ROLE_PROBE_REST%%|*}"
+  ROLE_PROBE_REST2="${ROLE_PROBE_REST#*|}"
+  ROLE_PROBE_ROLE="${ROLE_PROBE_REST2%%|*}"
+  ROLE_PROBE_URL="${ROLE_PROBE_REST2#*|}"
+  if [[ "${ROLE_PROBE_STATUS}" == "pass" && -n "${ROLE_PROBE_ROLE}" ]]; then
+    if has_min_role "${ROLE_PROBE_ROLE}" "power"; then
+      PRECHECK_ITEMS+=("- PASS: \`STAGING_E2E_ACCESS_TOKEN\` role is \`${ROLE_PROBE_ROLE}\` (requires >= power for studio/harvest web E2E)")
+    else
+      PRECHECK_ITEMS+=("- FAIL: \`STAGING_E2E_ACCESS_TOKEN\` role is \`${ROLE_PROBE_ROLE}\` but web E2E requires >= \`power\` (\`${ROLE_PROBE_URL}\`)")
+      MISSING=1
+    fi
+  else
+    PRECHECK_ITEMS+=("- FAIL: unable to resolve role from \`${ROLE_PROBE_URL}\` (status ${ROLE_PROBE_CODE})")
     MISSING=1
   fi
 fi
