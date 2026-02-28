@@ -1,0 +1,38 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ConversionPlan",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["input", "output", "steps"],
+  "properties": {
+    "input": {
+      "type": "object",
+      "required": ["ingredient", "quantity", "unit"],
+      "properties": {
+        "ingredient": {"type": "string"},
+        "quantity": {"type": "number"},
+        "unit": {"type": "string"}
+      }
+    },
+    "output": {
+      "type": "object",
+      "required": ["ingredient", "quantity", "unit"],
+      "properties": {
+        "ingredient": {"type": "string"},
+        "quantity": {"type": "number"},
+        "unit": {"type": "string"}
+      }
+    },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["instruction"],
+        "properties": {
+          "instruction": {"type": "string"},
+          "duration_minutes": {"type": "number"}
+        }
+      }
+    }
+  }
+}

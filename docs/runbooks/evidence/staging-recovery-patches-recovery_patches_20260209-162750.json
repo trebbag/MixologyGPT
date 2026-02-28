@@ -1,0 +1,28 @@
+{
+  "api_base_url": "http://localhost:8000",
+  "apply": false,
+  "domains": [],
+  "finished_at": "2026-02-09T21:27:50.451137",
+  "max_classes_per_domain": 3,
+  "min_class_count": 1,
+  "run_id": "recovery_patches_20260209-162750",
+  "skipped": [
+    {
+      "domain": "bbcgoodfood.com",
+      "reason": "no_supported_failure_classes"
+    },
+    {
+      "domain": "diffordsguide.com",
+      "reason": "no_supported_failure_classes"
+    },
+    {
+      "domain": "imbibemagazine.com",
+      "reason": "no_supported_failure_classes"
+    },
+    {
+      "domain": "punchdrink.com",
+      "reason": "no_supported_failure_classes"
+    }
+  ],
+  "started_at": "2026-02-09T21:27:50.451109"
+}

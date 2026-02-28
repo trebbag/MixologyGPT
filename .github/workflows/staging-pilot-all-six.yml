@@ -1,0 +1,82 @@
+name: Staging Pilot All-Six
+
+on:
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: "Staging API base URL (optional override for STAGING_BASE_URL)."
+        required: false
+        default: ""
+      users:
+        description: "Concurrent users for tuned load profile."
+        required: false
+        default: "40"
+      spawn_rate:
+        description: "User spawn rate per second."
+        required: false
+        default: "8"
+      duration:
+        description: "Load duration (locust -t), e.g. 5m."
+        required: false
+        default: "5m"
+      min_jobs:
+        description: "Minimum jobs/domain before calibration apply."
+        required: false
+        default: "20"
+
+jobs:
+  all-six:
+    runs-on: ubuntu-latest
+    env:
+      RUN_ID: gh_all_six_${{ github.run_id }}
+      API_BASE_URL: ${{ github.event.inputs.base_url || secrets.STAGING_BASE_URL }}
+      STAGING_BASE_URL: ${{ github.event.inputs.base_url || secrets.STAGING_BASE_URL }}
+      ALERTMANAGER_URL: ${{ secrets.STAGING_ALERTMANAGER_URL }}
+      ALERT_CONFIRM_URL: ${{ secrets.STAGING_ALERT_RECEIVER_CONFIRM_URL }}
+      ALERT_CONFIRM_TOKEN: ${{ secrets.STAGING_ALERT_RECEIVER_CONFIRM_TOKEN }}
+      INTERNAL_TOKEN: ${{ secrets.STAGING_INTERNAL_TOKEN }}
+      SLACK_WEBHOOK_URL: ${{ secrets.STAGING_SLACK_WEBHOOK_URL }}
+      PAGERDUTY_ROUTING_KEY: ${{ secrets.STAGING_PAGERDUTY_ROUTING_KEY }}
+      FORWARD_WEBHOOK_URLS: ${{ secrets.STAGING_FORWARD_WEBHOOK_URLS }}
+      STAGING_E2E_ACCESS_TOKEN: ${{ secrets.STAGING_E2E_ACCESS_TOKEN }}
+      USERS: ${{ github.event.inputs.users }}
+      SPAWN_RATE: ${{ github.event.inputs.spawn_rate }}
+      DURATION: ${{ github.event.inputs.duration }}
+      MIN_JOBS: ${{ github.event.inputs.min_jobs }}
+      RUN_SIGNOFF: "true"
+      RUN_WEB_E2E: "true"
+      RUN_MOBILE_E2E: "true"
+      RUN_COMPLIANCE_SMOKE: "true"
+      PRECHECK_ONLY: "false"
+      INSTALL_NODE_DEPS: "true"
+      INSTALL_PLAYWRIGHT: "true"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install load/perf dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install -r infra/loadtest/requirements.txt
+      - name: Run full all-six staging pipeline
+        run: |
+          set -euo pipefail
+          ./infra/staging/pilot_all_six.sh
+      - name: Upload all-six evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: staging-pilot-all-six
+          path: |
+            docs/runbooks/evidence/pilot-all-six-*.md
+            docs/runbooks/evidence/pilot-all-six-*.log
+            docs/runbooks/evidence/staging-readiness-summary-gh_all_six_${{ github.run_id }}_signoff.md
+            docs/runbooks/evidence/staging-readiness-*.json
+            docs/runbooks/evidence/staging-readiness-*.log
+            docs/runbooks/evidence/staging-readiness-load-gh_all_six_${{ github.run_id }}_signoff_*.md
+            docs/runbooks/evidence/staging-readiness-load-gh_all_six_${{ github.run_id }}_signoff_*.csv
+            docs/runbooks/evidence/staging-readiness-load-gh_all_six_${{ github.run_id }}_signoff*.html

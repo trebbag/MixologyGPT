@@ -1,0 +1,1 @@
+{"status":"ok","window_seconds":120,"latest":{"alertname":"StagingExternalSmokeAlert","run_id":"1770670506","destination":"webhook","target":"http://alert-receiver:5001","ok":true,"status_code":200,"error":"","attempted_at":"2026-02-09T20:55:36.953024+00:00","age_seconds":0.15},"recent_count":1}

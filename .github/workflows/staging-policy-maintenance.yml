@@ -1,0 +1,49 @@
+name: Staging Policy Maintenance
+
+on:
+  schedule:
+    - cron: "0 * * * *"
+  workflow_dispatch:
+    inputs:
+      min_jobs:
+        description: "Minimum jobs per domain before calibration apply."
+        required: false
+        default: "20"
+      domains:
+        description: "Comma-separated domains to boost (optional)."
+        required: false
+        default: "allrecipes.com,bbcgoodfood.com,diffordsguide.com,food.com,imbibemagazine.com,punchdrink.com"
+
+jobs:
+  sustain-volume-and-calibrate:
+    runs-on: ubuntu-latest
+    if: ${{ secrets.STAGING_BASE_URL != '' && secrets.STAGING_INTERNAL_TOKEN != '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Sustain low-sample domains and apply calibration
+        env:
+          RUN_ID: gh_policy_maint_${{ github.run_id }}_${{ github.run_attempt }}
+          API_BASE_URL: ${{ secrets.STAGING_BASE_URL }}
+          INTERNAL_TOKEN: ${{ secrets.STAGING_INTERNAL_TOKEN }}
+          MIN_JOBS: ${{ github.event.inputs.min_jobs || '20' }}
+          TARGET_DOMAINS: ${{ github.event.inputs.domains || 'allrecipes.com,bbcgoodfood.com,diffordsguide.com,food.com,imbibemagazine.com,punchdrink.com' }}
+          APPLY_CALIBRATION: "true"
+          MAX_ROUNDS: "4"
+          DRAIN_CYCLES: "8"
+          PENDING_LIMIT: "25"
+          BUFFER_MULTIPLIER: "1.25"
+        run: |
+          set -euo pipefail
+          cd infra/staging
+          python3 ./boost_crawl_volume.py
+      - name: Upload policy maintenance evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: staging-policy-maintenance-${{ github.run_id }}
+          path: |
+            docs/runbooks/evidence/staging-boost-crawl-gh_policy_maint_${{ github.run_id }}_${{ github.run_attempt }}.json
+            docs/runbooks/evidence/calibration-apply-gh_policy_maint_${{ github.run_id }}_${{ github.run_attempt }}.json

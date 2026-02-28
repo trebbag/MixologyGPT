@@ -1,0 +1,262 @@
+{
+  "api_base_url": "http://localhost:8000",
+  "calibration_apply_written": true,
+  "final_counts": {
+    "punchdrink.com": 26
+  },
+  "finished_at": "2026-02-09T21:27:28.234615",
+  "min_jobs": 20,
+  "rounds": [
+    {
+      "auto_harvest": [
+        {
+          "compliance_rejections": 0,
+          "domain": "punchdrink.com",
+          "errors_sample": [
+            "https://punchdrink.com/recipes/: parse failed (domain-selector-mismatch)"
+          ],
+          "parsed_count": 6,
+          "queued_jobs": 0,
+          "request": {
+            "crawl_depth": 2,
+            "enqueue": true,
+            "max_links": 200,
+            "max_pages": 40,
+            "max_recipes": 20,
+            "respect_robots": true,
+            "source_type": "web",
+            "source_url": "https://punchdrink.com/recipes/"
+          },
+          "seed_url": "https://punchdrink.com/recipes/",
+          "skip_reason_counts": {
+            "existing_source": 6
+          }
+        },
+        {
+          "compliance_rejections": 0,
+          "domain": "punchdrink.com",
+          "errors_sample": [
+            "https://punchdrink.com/: parse failed (domain-selector-mismatch)"
+          ],
+          "parsed_count": 20,
+          "queued_jobs": 20,
+          "request": {
+            "crawl_depth": 2,
+            "enqueue": true,
+            "max_links": 200,
+            "max_pages": 40,
+            "max_recipes": 20,
+            "respect_robots": true,
+            "source_type": "web",
+            "source_url": "https://punchdrink.com/"
+          },
+          "seed_url": "https://punchdrink.com/",
+          "skip_reason_counts": {}
+        },
+        {
+          "compliance_rejections": 0,
+          "domain": "punchdrink.com",
+          "errors_sample": [
+            "https://punchdrink.com/recipes/feed/: fetch_failed (http-404)"
+          ],
+          "parsed_count": 0,
+          "queued_jobs": 0,
+          "request": {
+            "crawl_depth": 2,
+            "enqueue": true,
+            "max_links": 200,
+            "max_pages": 40,
+            "max_recipes": 20,
+            "respect_robots": true,
+            "source_type": "web",
+            "source_url": "https://punchdrink.com/recipes/feed/"
+          },
+          "seed_url": "https://punchdrink.com/recipes/feed/",
+          "skip_reason_counts": {}
+        },
+        {
+          "compliance_rejections": 0,
+          "domain": "punchdrink.com",
+          "errors_sample": [
+            "https://punchdrink.com/sitemap.xml: parse failed (domain-selector-mismatch)"
+          ],
+          "parsed_count": 0,
+          "queued_jobs": 0,
+          "request": {
+            "crawl_depth": 2,
+            "enqueue": true,
+            "max_links": 200,
+            "max_pages": 40,
+            "max_recipes": 20,
+            "respect_robots": true,
+            "source_type": "web",
+            "source_url": "https://punchdrink.com/sitemap.xml"
+          },
+          "seed_url": "https://punchdrink.com/sitemap.xml",
+          "skip_reason_counts": {}
+        }
+      ],
+      "before_counts": {
+        "punchdrink.com": 6
+      },
+      "drain": [
+        {
+          "cycle": 1,
+          "jobs": [
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "e786257a-665e-42b0-be77-06f39acf33de",
+              "parse_strategy": "microdata@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "da33b511-b830-4593-9e58-f4ce02e8a639",
+              "parse_strategy": "microdata@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "4ed360a8-2816-43cc-b671-bdbf08c30b0b",
+              "parse_strategy": "microdata@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "bb0f09d1-07fa-482e-9b89-1d908d8df455",
+              "parse_strategy": "microdata@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "e3416db4-0cfa-4bc6-af84-b649706c6f64",
+              "parse_strategy": "microdata@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "bece3b4d-a7a1-4822-807f-59950f52c905",
+              "parse_strategy": "microdata@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "c85902d2-9a18-499d-af36-984280960582",
+              "parse_strategy": "microdata@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "fec371ab-4192-429e-b587-103747b9549e",
+              "parse_strategy": "microdata@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "4fa46767-3e28-4d61-b046-4270a293e5e7",
+              "parse_strategy": "microdata@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "5ced656b-7c2d-4ede-896b-263712063aec",
+              "parse_strategy": "microdata@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "c20a8c45-709c-4cdc-a8a1-25096554e4aa",
+              "parse_strategy": "microdata@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "3e9402fa-1365-4cae-b019-00d71fd9242b",
+              "parse_strategy": "microdata@high",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "95922e38-8e19-45a4-b7f2-2f00fce7251b",
+              "parse_strategy": "microdata@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "bbdc51bd-36f8-4a05-ba5d-62928dd6a431",
+              "parse_strategy": "microdata@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "8aa39861-9982-43d4-9473-9ab16bf38375",
+              "parse_strategy": "microdata@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "152fb7ee-9b07-41af-8165-ca7db4c662ee",
+              "parse_strategy": "microdata@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "4aa4fb45-10c5-4bb1-aa00-2608b426af09",
+              "parse_strategy": "microdata@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "252bc336-68e0-4053-a5a8-23a5a8865e02",
+              "parse_strategy": "microdata@high",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "3a792c89-ecd2-4322-a4b6-462337cbe3d0",
+              "parse_strategy": "microdata@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "4c08badb-cde2-4491-8856-fa038b7bc319",
+              "parse_strategy": "microdata@medium",
+              "status": "succeeded"
+            }
+          ],
+          "pending": 20
+        },
+        {
+          "cycle": 2,
+          "pending": 0
+        }
+      ],
+      "round": 1
+    }
+  ],
+  "run_id": "boost_punch_min_jobs_20260209-162719",
+  "started_at": "2026-02-09T21:27:19.220569",
+  "target_domains": [
+    "punchdrink.com"
+  ]
+}

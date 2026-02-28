@@ -1,0 +1,1 @@
+{"generated_at":"2026-02-08T23:46:12.305220","apply":true,"min_jobs":20,"buffer_multiplier":1.25,"updated_domains":[],"recommendations":[{"domain":"allrecipes.com","status":"skipped","reason":"insufficient_jobs:10","min_jobs_required":20},{"domain":"food.com","status":"skipped","reason":"insufficient_jobs:11","min_jobs_required":20}]}

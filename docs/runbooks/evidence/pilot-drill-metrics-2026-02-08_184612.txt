@@ -1,0 +1,200 @@
+# HELP python_gc_objects_collected_total Objects collected during gc
+# TYPE python_gc_objects_collected_total counter
+python_gc_objects_collected_total{generation="0"} 45044.0
+python_gc_objects_collected_total{generation="1"} 88625.0
+python_gc_objects_collected_total{generation="2"} 1.241904e+06
+# HELP python_gc_objects_uncollectable_total Uncollectable objects found during GC
+# TYPE python_gc_objects_uncollectable_total counter
+python_gc_objects_uncollectable_total{generation="0"} 0.0
+python_gc_objects_uncollectable_total{generation="1"} 0.0
+python_gc_objects_uncollectable_total{generation="2"} 0.0
+# HELP python_gc_collections_total Number of times this generation was collected
+# TYPE python_gc_collections_total counter
+python_gc_collections_total{generation="0"} 3207.0
+python_gc_collections_total{generation="1"} 291.0
+python_gc_collections_total{generation="2"} 24.0
+# HELP python_info Python platform information
+# TYPE python_info gauge
+python_info{implementation="CPython",major="3",minor="11",patchlevel="14",version="3.11.14"} 1.0
+# HELP process_virtual_memory_bytes Virtual memory size in bytes.
+# TYPE process_virtual_memory_bytes gauge
+process_virtual_memory_bytes 1.157562368e+09
+# HELP process_resident_memory_bytes Resident memory size in bytes.
+# TYPE process_resident_memory_bytes gauge
+process_resident_memory_bytes 2.11021824e+08
+# HELP process_start_time_seconds Start time of the process since unix epoch in seconds.
+# TYPE process_start_time_seconds gauge
+process_start_time_seconds 1.77059414374e+09
+# HELP process_cpu_seconds_total Total user and system CPU time spent in seconds.
+# TYPE process_cpu_seconds_total counter
+process_cpu_seconds_total 11.49
+# HELP process_open_fds Number of open file descriptors.
+# TYPE process_open_fds gauge
+process_open_fds 17.0
+# HELP process_max_fds Maximum number of open file descriptors.
+# TYPE process_max_fds gauge
+process_max_fds 1.048576e+06
+# HELP crawler_jobs_total Crawler job and parser outcomes by domain.
+# TYPE crawler_jobs_total counter
+crawler_jobs_total{domain="allrecipes.com",parse_strategy="jsonld",status="parsed"} 12.0
+crawler_jobs_total{domain="food.com",parse_strategy="jsonld",status="parsed"} 11.0
+crawler_jobs_total{domain="food.com",parse_strategy="domain_dom",status="parsed"} 1.0
+crawler_jobs_total{domain="food.com",parse_strategy="manual_raw",status="succeeded"} 6.0
+crawler_jobs_total{domain="allrecipes.com",parse_strategy="manual_raw",status="succeeded"} 5.0
+# HELP crawler_jobs_created Crawler job and parser outcomes by domain.
+# TYPE crawler_jobs_created gauge
+crawler_jobs_created{domain="allrecipes.com",parse_strategy="jsonld",status="parsed"} 1.7705942151847527e+09
+crawler_jobs_created{domain="food.com",parse_strategy="jsonld",status="parsed"} 1.7705942493954363e+09
+crawler_jobs_created{domain="food.com",parse_strategy="domain_dom",status="parsed"} 1.7705942493954432e+09
+crawler_jobs_created{domain="food.com",parse_strategy="manual_raw",status="succeeded"} 1.7705942608427036e+09
+crawler_jobs_created{domain="allrecipes.com",parse_strategy="manual_raw",status="succeeded"} 1.7705942627833784e+09
+# HELP crawler_fallback_class_total Crawler fallback parser classifications by domain.
+# TYPE crawler_fallback_class_total counter
+# HELP crawler_parse_failures_total Crawler parse failure classifications by domain.
+# TYPE crawler_parse_failures_total counter
+crawler_parse_failures_total{domain="diffordsguide.com",failure_class="domain-selector-mismatch"} 17.0
+crawler_parse_failures_total{domain="food.com",failure_class="domain-selector-mismatch"} 1.0
+crawler_parse_failures_total{domain="punchdrink.com",failure_class="domain-selector-mismatch"} 5.0
+crawler_parse_failures_total{domain="punchdrink.com",failure_class="instruction-structure-mismatch"} 3.0
+# HELP crawler_parse_failures_created Crawler parse failure classifications by domain.
+# TYPE crawler_parse_failures_created gauge
+crawler_parse_failures_created{domain="diffordsguide.com",failure_class="domain-selector-mismatch"} 1.7705942426376054e+09
+crawler_parse_failures_created{domain="food.com",failure_class="domain-selector-mismatch"} 1.7705942493954487e+09
+crawler_parse_failures_created{domain="punchdrink.com",failure_class="domain-selector-mismatch"} 1.7705942591976202e+09
+crawler_parse_failures_created{domain="punchdrink.com",failure_class="instruction-structure-mismatch"} 1.7705942591976273e+09
+# HELP crawler_compliance_rejections_total Crawler compliance rejections by reason and domain.
+# TYPE crawler_compliance_rejections_total counter
+crawler_compliance_rejections_total{domain="diffordsguide.com",reason="missing-recipe-markers"} 2.0
+crawler_compliance_rejections_total{domain="imbibemagazine.com",reason="missing-recipe-markers"} 13.0
+crawler_compliance_rejections_total{domain="punchdrink.com",reason="missing-recipe-markers"} 12.0
+crawler_compliance_rejections_total{domain="punchdrink.com",reason="robots-meta-blocked"} 3.0
+# HELP crawler_compliance_rejections_created Crawler compliance rejections by reason and domain.
+# TYPE crawler_compliance_rejections_created gauge
+crawler_compliance_rejections_created{domain="diffordsguide.com",reason="missing-recipe-markers"} 1.770594242637612e+09
+crawler_compliance_rejections_created{domain="imbibemagazine.com",reason="missing-recipe-markers"} 1.7705942561192837e+09
+crawler_compliance_rejections_created{domain="punchdrink.com",reason="missing-recipe-markers"} 1.770594259197632e+09
+crawler_compliance_rejections_created{domain="punchdrink.com",reason="robots-meta-blocked"} 1.770594259197636e+09
+# HELP crawler_domain_failure_rate Current crawler failure rate per domain.
+# TYPE crawler_domain_failure_rate gauge
+crawler_domain_failure_rate{domain="unknown"} 0.0
+# HELP crawler_domain_retryable_jobs Current crawler retryable queue per domain.
+# TYPE crawler_domain_retryable_jobs gauge
+crawler_domain_retryable_jobs{domain="unknown"} 0.0
+# HELP crawler_domain_parser_fallback_rate Current crawler parser fallback rate per domain.
+# TYPE crawler_domain_parser_fallback_rate gauge
+crawler_domain_parser_fallback_rate{domain="unknown"} 0.0
+# HELP crawler_domain_avg_attempt_count Current crawler average attempt count per domain.
+# TYPE crawler_domain_avg_attempt_count gauge
+crawler_domain_avg_attempt_count{domain="unknown"} 1.0
+# HELP crawler_domain_compliance_rejections Current crawler compliance rejection count per domain.
+# TYPE crawler_domain_compliance_rejections gauge
+crawler_domain_compliance_rejections{domain="unknown"} 0.0
+# HELP http_requests_total Total number of requests by method, status and handler.
+# TYPE http_requests_total counter
+http_requests_total{handler="/metrics",method="GET",status="2xx"} 15.0
+http_requests_total{handler="/health",method="GET",status="2xx"} 2.0
+http_requests_total{handler="/v1/auth/dev-token",method="POST",status="2xx"} 5.0
+http_requests_total{handler="/v1/recipes/harvest/policies",method="GET",status="2xx"} 2.0
+http_requests_total{handler="/v1/admin/crawler-ops/telemetry",method="GET",status="2xx"} 2.0
+http_requests_total{handler="/v1/recipes/harvest/auto",method="POST",status="2xx"} 6.0
+http_requests_total{handler="/v1/recipes/harvest/jobs/pending",method="GET",status="2xx"} 3.0
+http_requests_total{handler="/v1/recipes/harvest/jobs/retryable",method="GET",status="2xx"} 3.0
+http_requests_total{handler="/v1/recipes/harvest/jobs/{job_id}/run",method="POST",status="2xx"} 11.0
+http_requests_total{handler="/v1/admin/source-policies",method="GET",status="4xx"} 1.0
+http_requests_total{handler="/v1/admin/source-policies",method="GET",status="2xx"} 4.0
+http_requests_total{handler="/v1/admin/source-policies/calibrate-alerts",method="POST",status="2xx"} 2.0
+# HELP http_requests_created Total number of requests by method, status and handler.
+# TYPE http_requests_created gauge
+http_requests_created{handler="/metrics",method="GET",status="2xx"} 1.7705941531772075e+09
+http_requests_created{handler="/health",method="GET",status="2xx"} 1.770594179363437e+09
+http_requests_created{handler="/v1/auth/dev-token",method="POST",status="2xx"} 1.7705941794193523e+09
+http_requests_created{handler="/v1/recipes/harvest/policies",method="GET",status="2xx"} 1.770594186029366e+09
+http_requests_created{handler="/v1/admin/crawler-ops/telemetry",method="GET",status="2xx"} 1.7705941942650833e+09
+http_requests_created{handler="/v1/recipes/harvest/auto",method="POST",status="2xx"} 1.7705942151851249e+09
+http_requests_created{handler="/v1/recipes/harvest/jobs/pending",method="GET",status="2xx"} 1.7705942602359917e+09
+http_requests_created{handler="/v1/recipes/harvest/jobs/retryable",method="GET",status="2xx"} 1.7705942602581763e+09
+http_requests_created{handler="/v1/recipes/harvest/jobs/{job_id}/run",method="POST",status="2xx"} 1.7705942608435736e+09
+http_requests_created{handler="/v1/admin/source-policies",method="GET",status="4xx"} 1.7705942843322053e+09
+http_requests_created{handler="/v1/admin/source-policies",method="GET",status="2xx"} 1.7705942902679482e+09
+http_requests_created{handler="/v1/admin/source-policies/calibrate-alerts",method="POST",status="2xx"} 1.7705942902936645e+09
+# HELP http_request_size_bytes Content length of incoming requests by handler. Only value of header is respected. Otherwise ignored. No percentile calculated. 
+# TYPE http_request_size_bytes summary
+http_request_size_bytes_count{handler="/metrics"} 15.0
+http_request_size_bytes_sum{handler="/metrics"} 0.0
+http_request_size_bytes_count{handler="/health"} 2.0
+http_request_size_bytes_sum{handler="/health"} 0.0
+http_request_size_bytes_count{handler="/v1/auth/dev-token"} 5.0
+http_request_size_bytes_sum{handler="/v1/auth/dev-token"} 0.0
+http_request_size_bytes_count{handler="/v1/recipes/harvest/policies"} 2.0
+http_request_size_bytes_sum{handler="/v1/recipes/harvest/policies"} 0.0
+http_request_size_bytes_count{handler="/v1/admin/crawler-ops/telemetry"} 2.0
+http_request_size_bytes_sum{handler="/v1/admin/crawler-ops/telemetry"} 0.0
+http_request_size_bytes_count{handler="/v1/recipes/harvest/auto"} 6.0
+http_request_size_bytes_sum{handler="/v1/recipes/harvest/auto"} 1102.0
+http_request_size_bytes_count{handler="/v1/recipes/harvest/jobs/pending"} 3.0
+http_request_size_bytes_sum{handler="/v1/recipes/harvest/jobs/pending"} 0.0
+http_request_size_bytes_count{handler="/v1/recipes/harvest/jobs/retryable"} 3.0
+http_request_size_bytes_sum{handler="/v1/recipes/harvest/jobs/retryable"} 0.0
+http_request_size_bytes_count{handler="/v1/recipes/harvest/jobs/{job_id}/run"} 11.0
+http_request_size_bytes_sum{handler="/v1/recipes/harvest/jobs/{job_id}/run"} 0.0
+http_request_size_bytes_count{handler="/v1/admin/source-policies"} 5.0
+http_request_size_bytes_sum{handler="/v1/admin/source-policies"} 0.0
+http_request_size_bytes_count{handler="/v1/admin/source-policies/calibrate-alerts"} 2.0
+http_request_size_bytes_sum{handler="/v1/admin/source-policies/calibrate-alerts"} 0.0
+# HELP http_request_size_bytes_created Content length of incoming requests by handler. Only value of header is respected. Otherwise ignored. No percentile calculated. 
+# TYPE http_request_size_bytes_created gauge
+http_request_size_bytes_created{handler="/metrics"} 1.770594153177268e+09
+http_request_size_bytes_created{handler="/health"} 1.7705941793634562e+09
+http_request_size_bytes_created{handler="/v1/auth/dev-token"} 1.7705941794193625e+09
+http_request_size_bytes_created{handler="/v1/recipes/harvest/policies"} 1.7705941860293827e+09
+http_request_size_bytes_created{handler="/v1/admin/crawler-ops/telemetry"} 1.7705941942650976e+09
+http_request_size_bytes_created{handler="/v1/recipes/harvest/auto"} 1.7705942151851318e+09
+http_request_size_bytes_created{handler="/v1/recipes/harvest/jobs/pending"} 1.7705942602360132e+09
+http_request_size_bytes_created{handler="/v1/recipes/harvest/jobs/retryable"} 1.7705942602581959e+09
+http_request_size_bytes_created{handler="/v1/recipes/harvest/jobs/{job_id}/run"} 1.770594260843594e+09
+http_request_size_bytes_created{handler="/v1/admin/source-policies"} 1.770594284332226e+09
+http_request_size_bytes_created{handler="/v1/admin/source-policies/calibrate-alerts"} 1.77059429029368e+09
+# HELP http_response_size_bytes Content length of outgoing responses by handler. Only value of header is respected. Otherwise ignored. No percentile calculated. 
+# TYPE http_response_size_bytes summary
+http_response_size_bytes_count{handler="/metrics"} 15.0
+http_response_size_bytes_sum{handler="/metrics"} 267649.0
+http_response_size_bytes_count{handler="/health"} 2.0
+http_response_size_bytes_sum{handler="/health"} 30.0
+http_response_size_bytes_count{handler="/v1/auth/dev-token"} 5.0
+http_response_size_bytes_sum{handler="/v1/auth/dev-token"} 1225.0
+http_response_size_bytes_count{handler="/v1/recipes/harvest/policies"} 2.0
+http_response_size_bytes_sum{handler="/v1/recipes/harvest/policies"} 5990.0
+http_response_size_bytes_count{handler="/v1/admin/crawler-ops/telemetry"} 2.0
+http_response_size_bytes_sum{handler="/v1/admin/crawler-ops/telemetry"} 3104.0
+http_response_size_bytes_count{handler="/v1/recipes/harvest/auto"} 6.0
+http_response_size_bytes_sum{handler="/v1/recipes/harvest/auto"} 10576.0
+http_response_size_bytes_count{handler="/v1/recipes/harvest/jobs/pending"} 3.0
+http_response_size_bytes_sum{handler="/v1/recipes/harvest/jobs/pending"} 38186.0
+http_response_size_bytes_count{handler="/v1/recipes/harvest/jobs/retryable"} 3.0
+http_response_size_bytes_sum{handler="/v1/recipes/harvest/jobs/retryable"} 6.0
+http_response_size_bytes_count{handler="/v1/recipes/harvest/jobs/{job_id}/run"} 11.0
+http_response_size_bytes_sum{handler="/v1/recipes/harvest/jobs/{job_id}/run"} 19755.0
+http_response_size_bytes_count{handler="/v1/admin/source-policies"} 5.0
+http_response_size_bytes_sum{handler="/v1/admin/source-policies"} 12011.0
+http_response_size_bytes_count{handler="/v1/admin/source-policies/calibrate-alerts"} 2.0
+http_response_size_bytes_sum{handler="/v1/admin/source-policies/calibrate-alerts"} 2410.0
+# HELP http_response_size_bytes_created Content length of outgoing responses by handler. Only value of header is respected. Otherwise ignored. No percentile calculated. 
+# TYPE http_response_size_bytes_created gauge
+http_response_size_bytes_created{handler="/metrics"} 1.7705941531772976e+09
+http_response_size_bytes_created{handler="/health"} 1.7705941793634713e+09
+http_response_size_bytes_created{handler="/v1/auth/dev-token"} 1.7705941794193735e+09
+http_response_size_bytes_created{handler="/v1/recipes/harvest/policies"} 1.7705941860294027e+09
+http_response_size_bytes_created{handler="/v1/admin/crawler-ops/telemetry"} 1.7705941942651134e+09
+http_response_size_bytes_created{handler="/v1/recipes/harvest/auto"} 1.7705942151851397e+09
+http_response_size_bytes_created{handler="/v1/recipes/harvest/jobs/pending"} 1.7705942602360306e+09
+http_response_size_bytes_created{handler="/v1/recipes/harvest/jobs/retryable"} 1.7705942602582135e+09
+http_response_size_bytes_created{handler="/v1/recipes/harvest/jobs/{job_id}/run"} 1.7705942608436177e+09
+http_response_size_bytes_created{handler="/v1/admin/source-policies"} 1.770594284332243e+09
+http_response_size_bytes_created{handler="/v1/admin/source-policies/calibrate-alerts"} 1.7705942902936997e+09
+# HELP http_request_duration_highr_seconds Latency with many buckets but no API specific labels. Made for more accurate percentile calculations. 
+# TYPE http_request_duration_highr_seconds histogram
+http_request_duration_highr_seconds_bucket{le="0.01"} 36.0
+http_request_duration_highr_seconds_bucket{le="0.025"} 38.0
+http_request_duration_highr_seconds_bucket{le="0.05"} 39.0
+http_request_duration_highr_seconds_bucket{le="0.075"} 39.0
+http_request_duration_highr_seconds_bucket{le="0.1"} 40.0

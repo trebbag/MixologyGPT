@@ -1,0 +1,217 @@
+name: Staging Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      deploy_ref:
+        description: "Git ref to deploy (branch/tag/SHA). Leave empty for current ref."
+        required: false
+        default: ""
+  push:
+    branches:
+      - main
+
+jobs:
+  build-images:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      image_tag: ${{ steps.meta.outputs.image_tag }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.deploy_ref || github.ref }}
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - id: meta
+        name: Compute image tag
+        run: echo "image_tag=${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+      - name: Build and push API image
+        run: |
+          docker buildx build \
+            --platform linux/amd64 \
+            -f services/api/Dockerfile \
+            -t ghcr.io/${{ github.repository_owner }}/bartenderai-api:${{ steps.meta.outputs.image_tag }} \
+            -t ghcr.io/${{ github.repository_owner }}/bartenderai-api:staging-latest \
+            --push \
+            services/api
+      - name: Build and push workers image
+        run: |
+          docker buildx build \
+            --platform linux/amd64 \
+            -f services/workers/Dockerfile \
+            -t ghcr.io/${{ github.repository_owner }}/bartenderai-workers:${{ steps.meta.outputs.image_tag }} \
+            -t ghcr.io/${{ github.repository_owner }}/bartenderai-workers:staging-latest \
+            --push \
+            services/workers
+      - name: Build and push web image
+        run: |
+          docker buildx build \
+            --platform linux/amd64 \
+            -f apps/web/Dockerfile \
+            -t ghcr.io/${{ github.repository_owner }}/bartenderai-web:${{ steps.meta.outputs.image_tag }} \
+            -t ghcr.io/${{ github.repository_owner }}/bartenderai-web:staging-latest \
+            --push \
+            apps/web
+      - name: Build and push alert receiver image
+        run: |
+          docker buildx build \
+            --platform linux/amd64 \
+            -f infra/alert_receiver/Dockerfile \
+            -t ghcr.io/${{ github.repository_owner }}/bartenderai-alert-receiver:${{ steps.meta.outputs.image_tag }} \
+            -t ghcr.io/${{ github.repository_owner }}/bartenderai-alert-receiver:staging-latest \
+            --push \
+            infra/alert_receiver
+
+  deploy-staging:
+    runs-on: ubuntu-latest
+    needs: build-images
+    if: ${{ secrets.STAGING_SSH_HOST != '' && secrets.STAGING_SSH_USER != '' && secrets.STAGING_SSH_KEY != '' && secrets.STAGING_GHCR_TOKEN != '' }}
+    steps:
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.STAGING_SSH_HOST }}
+          username: ${{ secrets.STAGING_SSH_USER }}
+          key: ${{ secrets.STAGING_SSH_KEY }}
+          script_stop: true
+          envs: IMAGE_TAG,GHCR_OWNER,GHCR_USERNAME,GHCR_TOKEN,DEPLOY_PATH,ALERT_WEBHOOK_URL,SLACK_WEBHOOK_URL,PAGERDUTY_ROUTING_KEY,FORWARD_WEBHOOK_URLS,ALERT_RECEIVER_CONFIRM_TOKEN
+          script: |
+            set -e
+            cd "$DEPLOY_PATH"
+            export API_IMAGE="ghcr.io/${GHCR_OWNER}/bartenderai-api:${IMAGE_TAG}"
+            export WORKER_IMAGE="ghcr.io/${GHCR_OWNER}/bartenderai-workers:${IMAGE_TAG}"
+            export WEB_IMAGE="ghcr.io/${GHCR_OWNER}/bartenderai-web:${IMAGE_TAG}"
+            export ALERT_RECEIVER_IMAGE="ghcr.io/${GHCR_OWNER}/bartenderai-alert-receiver:${IMAGE_TAG}"
+            echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USERNAME" --password-stdin
+            cd infra/staging
+            if [[ ! -f ".env.staging" ]]; then
+              echo "Missing infra/staging/.env.staging on the staging host."
+              echo "Create it from infra/staging/.env.staging.example and set real secrets (do not commit)."
+              exit 1
+            fi
+
+            python3 - <<'PY'
+import os
+from pathlib import Path
+
+env_file = Path(".env.staging")
+updates = {
+    "ALERT_WEBHOOK_URL": os.environ.get("ALERT_WEBHOOK_URL", "").strip(),
+    "SLACK_WEBHOOK_URL": os.environ.get("SLACK_WEBHOOK_URL", "").strip(),
+    "PAGERDUTY_ROUTING_KEY": os.environ.get("PAGERDUTY_ROUTING_KEY", "").strip(),
+    "FORWARD_WEBHOOK_URLS": os.environ.get("FORWARD_WEBHOOK_URLS", "").strip(),
+    "ALERT_RECEIVER_CONFIRM_TOKEN": os.environ.get("ALERT_RECEIVER_CONFIRM_TOKEN", "").strip(),
+}
+
+updates = {k: v for k, v in updates.items() if v}
+lines = env_file.read_text(encoding="utf-8").splitlines()
+keys_seen = set()
+for idx, line in enumerate(lines):
+    for key, value in updates.items():
+        if line.startswith(f"{key}="):
+            lines[idx] = f"{key}={value}"
+            keys_seen.add(key)
+for key, value in updates.items():
+    if key not in keys_seen:
+        lines.append(f"{key}={value}")
+
+# Safety: do not allow local-only smoke overrides to persist on real staging.
+lines = [line for line in lines if not line.startswith("PAGERDUTY_EVENTS_URL=")]
+env_file.write_text("\n".join(lines) + "\n", encoding="utf-8")
+PY
+            docker compose --env-file .env.staging -f docker-compose.staging.yml pull
+            docker compose --env-file .env.staging -f docker-compose.staging.yml up -d
+            docker compose --env-file .env.staging -f docker-compose.staging.yml exec -T api alembic upgrade head
+        env:
+          IMAGE_TAG: ${{ needs.build-images.outputs.image_tag }}
+          GHCR_OWNER: ${{ github.repository_owner }}
+          GHCR_USERNAME: ${{ secrets.STAGING_GHCR_USERNAME || github.actor }}
+          GHCR_TOKEN: ${{ secrets.STAGING_GHCR_TOKEN }}
+          DEPLOY_PATH: ${{ secrets.STAGING_DEPLOY_PATH }}
+          ALERT_WEBHOOK_URL: ${{ secrets.STAGING_ALERT_WEBHOOK_URL }}
+          SLACK_WEBHOOK_URL: ${{ secrets.STAGING_SLACK_WEBHOOK_URL }}
+          PAGERDUTY_ROUTING_KEY: ${{ secrets.STAGING_PAGERDUTY_ROUTING_KEY }}
+          FORWARD_WEBHOOK_URLS: ${{ secrets.STAGING_FORWARD_WEBHOOK_URLS }}
+          ALERT_RECEIVER_CONFIRM_TOKEN: ${{ secrets.STAGING_ALERT_RECEIVER_CONFIRM_TOKEN }}
+
+  staging-smoke:
+    runs-on: ubuntu-latest
+    needs: deploy-staging
+    if: ${{ needs.deploy-staging.result == 'success' && secrets.STAGING_BASE_URL != '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Health check
+        run: |
+          curl -fsS "${{ secrets.STAGING_BASE_URL }}/health"
+      - name: Metrics check
+        run: |
+          curl -fsS "${{ secrets.STAGING_BASE_URL }}/metrics" | head -n 40
+      - name: Alertmanager smoke trigger
+        if: ${{ secrets.STAGING_ALERTMANAGER_URL != '' }}
+        run: |
+          ALERTMANAGER_URL="${{ secrets.STAGING_ALERTMANAGER_URL }}" \
+          ALERT_NAME="StagingExternalSmokeAlert" \
+          ./infra/observability/validate_alerting.sh
+      - name: External alert destination confirmation (Slack)
+        if: ${{ secrets.STAGING_ALERTMANAGER_URL != '' && secrets.STAGING_ALERT_RECEIVER_CONFIRM_URL != '' }}
+        env:
+          ALERTMANAGER_URL: ${{ secrets.STAGING_ALERTMANAGER_URL }}
+          CONFIRM_URL: ${{ secrets.STAGING_ALERT_RECEIVER_CONFIRM_URL }}
+          CONFIRM_TOKEN: ${{ secrets.STAGING_ALERT_RECEIVER_CONFIRM_TOKEN }}
+        run: |
+          set -euo pipefail
+          confirm_url="${CONFIRM_URL}"
+          confirm_base="${confirm_url%%/smoke/confirm*}"
+          if [[ -z "${confirm_base}" || "${confirm_base}" == "${confirm_url}" ]]; then
+            echo "Unable to derive CONFIRM_BASE_URL from STAGING_ALERT_RECEIVER_CONFIRM_URL. Provide a URL ending with /smoke/confirm."
+            exit 1
+          fi
+          mkdir -p /tmp/bartenderai-evidence
+          (
+            cd infra/staging
+            ALERT_NAME="StagingExternalSmokeAlert" \
+            ALERT_RUN_ID="gh_${GITHUB_RUN_ID}_slack" \
+            CONFIRM_BASE_URL="${confirm_base}" \
+            CONFIRM_TOKEN="${CONFIRM_TOKEN}" \
+            CONFIRM_FORWARD_DESTINATION="slack" \
+            CONFIRM_FORWARD_EXPECT_TARGET_PREFIX="https://hooks.slack.com" \
+            ./external_alert_smoke.sh
+          ) | tee "/tmp/bartenderai-evidence/alert-smoke-slack.log"
+      - name: External alert destination confirmation (PagerDuty)
+        if: ${{ secrets.STAGING_ALERTMANAGER_URL != '' && secrets.STAGING_ALERT_RECEIVER_CONFIRM_URL != '' }}
+        env:
+          ALERTMANAGER_URL: ${{ secrets.STAGING_ALERTMANAGER_URL }}
+          CONFIRM_URL: ${{ secrets.STAGING_ALERT_RECEIVER_CONFIRM_URL }}
+          CONFIRM_TOKEN: ${{ secrets.STAGING_ALERT_RECEIVER_CONFIRM_TOKEN }}
+        run: |
+          set -euo pipefail
+          confirm_url="${CONFIRM_URL}"
+          confirm_base="${confirm_url%%/smoke/confirm*}"
+          if [[ -z "${confirm_base}" || "${confirm_base}" == "${confirm_url}" ]]; then
+            echo "Unable to derive CONFIRM_BASE_URL from STAGING_ALERT_RECEIVER_CONFIRM_URL. Provide a URL ending with /smoke/confirm."
+            exit 1
+          fi
+          mkdir -p /tmp/bartenderai-evidence
+          (
+            cd infra/staging
+            ALERT_NAME="StagingExternalSmokeAlert" \
+            ALERT_RUN_ID="gh_${GITHUB_RUN_ID}_pagerduty" \
+            CONFIRM_BASE_URL="${confirm_base}" \
+            CONFIRM_TOKEN="${CONFIRM_TOKEN}" \
+            CONFIRM_FORWARD_DESTINATION="pagerduty" \
+            CONFIRM_FORWARD_EXPECT_TARGET_PREFIX="https://events.pagerduty.com" \
+            ./external_alert_smoke.sh
+          ) | tee "/tmp/bartenderai-evidence/alert-smoke-pagerduty.log"
+      - name: Upload evidence (alert smoke)
+        if: ${{ always() && (secrets.STAGING_ALERTMANAGER_URL != '' && secrets.STAGING_ALERT_RECEIVER_CONFIRM_URL != '') }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: staging-alert-smoke-evidence
+          path: /tmp/bartenderai-evidence/*.log

@@ -1,0 +1,73 @@
+name: Staging Pilot Real Sign-Off
+
+on:
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: "Staging API base URL (optional override for STAGING_BASE_URL)."
+        required: false
+        default: ""
+      users:
+        description: "Concurrent users for tuned load profile."
+        required: false
+        default: "40"
+      spawn_rate:
+        description: "User spawn rate per second."
+        required: false
+        default: "8"
+      duration:
+        description: "Load duration (locust -t), e.g. 5m."
+        required: false
+        default: "5m"
+      min_jobs:
+        description: "Minimum jobs/domain before calibration apply."
+        required: false
+        default: "20"
+
+jobs:
+  signoff:
+    runs-on: ubuntu-latest
+    if: ${{ (secrets.STAGING_BASE_URL != '' || github.event.inputs.base_url != '') && secrets.STAGING_ALERTMANAGER_URL != '' && secrets.STAGING_ALERT_RECEIVER_CONFIRM_URL != '' && secrets.STAGING_INTERNAL_TOKEN != '' && secrets.STAGING_SLACK_WEBHOOK_URL != '' && secrets.STAGING_PAGERDUTY_ROUTING_KEY != '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install load/perf dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install -r infra/loadtest/requirements.txt
+      - name: Run real staging readiness signoff
+        env:
+          RUN_ID: gh_signoff_${{ github.run_id }}
+          API_BASE_URL: ${{ github.event.inputs.base_url || secrets.STAGING_BASE_URL }}
+          ALERTMANAGER_URL: ${{ secrets.STAGING_ALERTMANAGER_URL }}
+          ALERT_CONFIRM_URL: ${{ secrets.STAGING_ALERT_RECEIVER_CONFIRM_URL }}
+          ALERT_CONFIRM_TOKEN: ${{ secrets.STAGING_ALERT_RECEIVER_CONFIRM_TOKEN }}
+          INTERNAL_TOKEN: ${{ secrets.STAGING_INTERNAL_TOKEN }}
+          SLACK_WEBHOOK_URL: ${{ secrets.STAGING_SLACK_WEBHOOK_URL }}
+          PAGERDUTY_ROUTING_KEY: ${{ secrets.STAGING_PAGERDUTY_ROUTING_KEY }}
+          FORWARD_WEBHOOK_URLS: ${{ secrets.STAGING_FORWARD_WEBHOOK_URLS }}
+          USERS: ${{ github.event.inputs.users }}
+          SPAWN_RATE: ${{ github.event.inputs.spawn_rate }}
+          DURATION: ${{ github.event.inputs.duration }}
+          MIN_JOBS: ${{ github.event.inputs.min_jobs }}
+          RUN_LOAD_PROFILE: "true"
+          LOCK_GATES: "false"
+          APPLY_CALIBRATION: "true"
+          APPLY_RECOVERY: "true"
+        run: |
+          set -euo pipefail
+          ./infra/staging/pilot_real_signoff.sh
+      - name: Upload readiness evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: staging-pilot-real-signoff
+          path: |
+            docs/runbooks/evidence/staging-readiness-summary-gh_signoff_${{ github.run_id }}.md
+            docs/runbooks/evidence/staging-readiness-*.json
+            docs/runbooks/evidence/staging-readiness-*.log
+            docs/runbooks/evidence/staging-readiness-load-gh_signoff_${{ github.run_id }}_*.md
+            docs/runbooks/evidence/staging-readiness-load-gh_signoff_${{ github.run_id }}_*.csv
+            docs/runbooks/evidence/staging-readiness-load-gh_signoff_${{ github.run_id }}*.html

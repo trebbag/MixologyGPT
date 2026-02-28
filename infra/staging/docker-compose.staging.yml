@@ -1,0 +1,108 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: bartender
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-bartender}
+      POSTGRES_DB: bartenderai
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bartender -d bartenderai"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--save", "60", "1", "--loglevel", "warning"]
+    volumes:
+      - redis_data:/data
+
+  api:
+    image: ${API_IMAGE}
+    env_file:
+      - .env.staging
+    environment:
+      DATABASE_URL: postgresql+asyncpg://bartender:${POSTGRES_PASSWORD:-bartender}@postgres:5432/bartenderai
+      REDIS_URL: redis://redis:6379/0
+      ENABLE_METRICS: "true"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    ports:
+      - "8000:8000"
+
+  workers:
+    image: ${WORKER_IMAGE}
+    env_file:
+      - .env.staging
+    environment:
+      DATABASE_URL: postgresql+asyncpg://bartender:${POSTGRES_PASSWORD:-bartender}@postgres:5432/bartenderai
+      REDIS_URL: redis://redis:6379/0
+      API_URL: http://api:8000
+    depends_on:
+      api:
+        condition: service_started
+      redis:
+        condition: service_started
+
+  web:
+    image: ${WEB_IMAGE}
+    environment:
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+    depends_on:
+      api:
+        condition: service_started
+    ports:
+      - "3000:3000"
+
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./alert_rules.yml:/etc/prometheus/alert_rules.yml
+    ports:
+      - "9090:9090"
+    depends_on:
+      api:
+        condition: service_started
+      alertmanager:
+        condition: service_started
+
+  alert-receiver:
+    image: ${ALERT_RECEIVER_IMAGE:-bartenderai-alert-receiver:local}
+    env_file:
+      - .env.staging
+    ports:
+      - "5001:5001"
+
+  alertmanager:
+    image: prom/alertmanager:v0.27.0
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - 'sed "s|__ALERT_WEBHOOK_URL__|$${ALERT_WEBHOOK_URL}|g" /etc/alertmanager/alertmanager.yml > /tmp/alertmanager.yml && /bin/alertmanager --config.file=/tmp/alertmanager.yml'
+    env_file:
+      - .env.staging
+    volumes:
+      - ./alertmanager.yml:/etc/alertmanager/alertmanager.yml
+    ports:
+      - "9093:9093"
+
+  grafana:
+    image: grafana/grafana:11.1.0
+    ports:
+      - "3001:3000"
+    depends_on:
+      prometheus:
+        condition: service_started
+    volumes:
+      - ../observability/grafana/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
+      - ../observability/grafana/dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yml
+      - ../observability/grafana/dashboards:/var/lib/grafana/dashboards
+
+volumes:
+  postgres_data:
+  redis_data:

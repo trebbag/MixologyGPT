@@ -1,0 +1,126 @@
+{
+  "sources": [
+    {
+      "domain": "allrecipes.com",
+      "queued": 5,
+      "parsed_count": 6,
+      "compliance_rejections": 0,
+      "parser_stats": {
+        "jsonld": 6
+      }
+    },
+    {
+      "domain": "bbcgoodfood.com",
+      "queued": 0,
+      "parsed_count": 6,
+      "compliance_rejections": 0,
+      "parser_stats": {
+        "jsonld": 6
+      }
+    },
+    {
+      "domain": "diffordsguide.com",
+      "queued": 0,
+      "parsed_count": 0,
+      "compliance_rejections": 0,
+      "parser_stats": {}
+    },
+    {
+      "domain": "food.com",
+      "queued": 5,
+      "parsed_count": 6,
+      "compliance_rejections": 0,
+      "parser_stats": {
+        "jsonld": 5,
+        "domain_dom": 1
+      }
+    },
+    {
+      "domain": "imbibemagazine.com",
+      "queued": 0,
+      "parsed_count": 0,
+      "compliance_rejections": 9,
+      "parser_stats": {}
+    },
+    {
+      "domain": "punchdrink.com",
+      "queued": 0,
+      "parsed_count": 0,
+      "compliance_rejections": 8,
+      "parser_stats": {}
+    }
+  ],
+  "total_jobs_queued": 10,
+  "jobs_run": [
+    {
+      "job_id": "8809804b-31bc-4137-8729-5d1145d6bd0b",
+      "status": "succeeded",
+      "attempt_count": 1,
+      "next_retry_at": null,
+      "error": null
+    },
+    {
+      "job_id": "aaef96d6-df96-47b2-820c-777454b6e893",
+      "status": "succeeded",
+      "attempt_count": 1,
+      "next_retry_at": null,
+      "error": null
+    },
+    {
+      "job_id": "de2784da-3106-4aeb-8279-3125b59a67bd",
+      "status": "succeeded",
+      "attempt_count": 1,
+      "next_retry_at": null,
+      "error": null
+    },
+    {
+      "job_id": "aff03318-a635-4694-8c81-b11c3d014722",
+      "status": "succeeded",
+      "attempt_count": 1,
+      "next_retry_at": null,
+      "error": null
+    },
+    {
+      "job_id": "081d779e-bcde-4563-bdd6-331c896c59ae",
+      "status": "succeeded",
+      "attempt_count": 1,
+      "next_retry_at": null,
+      "error": null
+    },
+    {
+      "job_id": "4ecc4000-99ad-4686-99bd-9ea40aa6c2c2",
+      "status": "succeeded",
+      "attempt_count": 1,
+      "next_retry_at": null,
+      "error": null
+    },
+    {
+      "job_id": "b64b803f-2f9a-4bf5-b713-e69a93be514c",
+      "status": "succeeded",
+      "attempt_count": 1,
+      "next_retry_at": null,
+      "error": null
+    },
+    {
+      "job_id": "13d2164e-ae72-433d-abfa-1cde11a9d0f2",
+      "status": "succeeded",
+      "attempt_count": 1,
+      "next_retry_at": null,
+      "error": null
+    },
+    {
+      "job_id": "3bf9dd4a-9a15-4d7d-81f5-4bd7d070f36d",
+      "status": "succeeded",
+      "attempt_count": 1,
+      "next_retry_at": null,
+      "error": null
+    },
+    {
+      "job_id": "f890ce64-beed-441c-9f6f-1e051e21f3a7",
+      "status": "succeeded",
+      "attempt_count": 1,
+      "next_retry_at": null,
+      "error": null
+    }
+  ]
+}

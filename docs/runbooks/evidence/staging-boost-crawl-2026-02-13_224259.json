@@ -1,0 +1,170 @@
+{
+  "api_base_url": "http://localhost:8000",
+  "calibration_apply_written": true,
+  "final_counts": {
+    "allrecipes.com": 37,
+    "bbcgoodfood.com": 40,
+    "diffordsguide.com": 30,
+    "imbibemagazine.com": 53,
+    "pdfood.com": 0,
+    "punchdrink.com": 27
+  },
+  "finished_at": "2026-02-13T22:43:05.537687",
+  "min_jobs": 20,
+  "rounds": [
+    {
+      "auto_harvest": [
+        {
+          "domain": "pdfood.com",
+          "reason": "no_policy",
+          "status": "skipped"
+        }
+      ],
+      "before_counts": {
+        "allrecipes.com": 37,
+        "bbcgoodfood.com": 40,
+        "diffordsguide.com": 30,
+        "imbibemagazine.com": 53,
+        "pdfood.com": 0,
+        "punchdrink.com": 27
+      },
+      "drain": [
+        {
+          "cycle": 1,
+          "pending": 0
+        }
+      ],
+      "round": 1
+    },
+    {
+      "auto_harvest": [
+        {
+          "domain": "pdfood.com",
+          "reason": "no_policy",
+          "status": "skipped"
+        }
+      ],
+      "before_counts": {
+        "allrecipes.com": 37,
+        "bbcgoodfood.com": 40,
+        "diffordsguide.com": 30,
+        "imbibemagazine.com": 53,
+        "pdfood.com": 0,
+        "punchdrink.com": 27
+      },
+      "drain": [
+        {
+          "cycle": 1,
+          "pending": 0
+        }
+      ],
+      "round": 2
+    },
+    {
+      "auto_harvest": [
+        {
+          "domain": "pdfood.com",
+          "reason": "no_policy",
+          "status": "skipped"
+        }
+      ],
+      "before_counts": {
+        "allrecipes.com": 37,
+        "bbcgoodfood.com": 40,
+        "diffordsguide.com": 30,
+        "imbibemagazine.com": 53,
+        "pdfood.com": 0,
+        "punchdrink.com": 27
+      },
+      "drain": [
+        {
+          "cycle": 1,
+          "pending": 0
+        }
+      ],
+      "round": 3
+    },
+    {
+      "auto_harvest": [
+        {
+          "domain": "pdfood.com",
+          "reason": "no_policy",
+          "status": "skipped"
+        }
+      ],
+      "before_counts": {
+        "allrecipes.com": 37,
+        "bbcgoodfood.com": 40,
+        "diffordsguide.com": 30,
+        "imbibemagazine.com": 53,
+        "pdfood.com": 0,
+        "punchdrink.com": 27
+      },
+      "drain": [
+        {
+          "cycle": 1,
+          "pending": 0
+        }
+      ],
+      "round": 4
+    },
+    {
+      "auto_harvest": [
+        {
+          "domain": "pdfood.com",
+          "reason": "no_policy",
+          "status": "skipped"
+        }
+      ],
+      "before_counts": {
+        "allrecipes.com": 37,
+        "bbcgoodfood.com": 40,
+        "diffordsguide.com": 30,
+        "imbibemagazine.com": 53,
+        "pdfood.com": 0,
+        "punchdrink.com": 27
+      },
+      "drain": [
+        {
+          "cycle": 1,
+          "pending": 0
+        }
+      ],
+      "round": 5
+    },
+    {
+      "auto_harvest": [
+        {
+          "domain": "pdfood.com",
+          "reason": "no_policy",
+          "status": "skipped"
+        }
+      ],
+      "before_counts": {
+        "allrecipes.com": 37,
+        "bbcgoodfood.com": 40,
+        "diffordsguide.com": 30,
+        "imbibemagazine.com": 53,
+        "pdfood.com": 0,
+        "punchdrink.com": 27
+      },
+      "drain": [
+        {
+          "cycle": 1,
+          "pending": 0
+        }
+      ],
+      "round": 6
+    }
+  ],
+  "run_id": "2026-02-13_224259",
+  "started_at": "2026-02-13T22:42:59.317878",
+  "target_domains": [
+    "allrecipes.com",
+    "bbcgoodfood.com",
+    "diffordsguide.com",
+    "imbibemagazine.com",
+    "punchdrink.com",
+    "pdfood.com"
+  ]
+}

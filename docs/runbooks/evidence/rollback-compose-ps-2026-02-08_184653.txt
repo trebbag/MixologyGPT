@@ -1,0 +1,9 @@
+NAME                     IMAGE                            COMMAND                   SERVICE        CREATED          STATUS                    PORTS
+staging-alertmanager-1   prom/alertmanager:v0.27.0        "/bin/sh -c 'sed \"s|…"   alertmanager   40 minutes ago   Up 40 minutes             0.0.0.0:9093->9093/tcp, [::]:9093->9093/tcp
+staging-api-1            bartenderai-api:known-good       "uvicorn app.main:ap…"    api            10 seconds ago   Up 6 seconds              0.0.0.0:8000->8000/tcp, [::]:8000->8000/tcp
+staging-grafana-1        grafana/grafana:11.1.0           "/run.sh"                 grafana        46 minutes ago   Up 45 minutes             0.0.0.0:3001->3000/tcp, [::]:3001->3000/tcp
+staging-postgres-1       pgvector/pgvector:pg16           "docker-entrypoint.s…"    postgres       46 minutes ago   Up 46 minutes (healthy)   5432/tcp
+staging-prometheus-1     prom/prometheus:v2.54.1          "/bin/prometheus --c…"    prometheus     46 minutes ago   Up 45 minutes             0.0.0.0:9090->9090/tcp, [::]:9090->9090/tcp
+staging-redis-1          redis:7-alpine                   "docker-entrypoint.s…"    redis          46 minutes ago   Up 46 minutes             6379/tcp
+staging-web-1            bartenderai-web:known-good       "docker-entrypoint.s…"    web            9 seconds ago    Up 6 seconds              0.0.0.0:3000->3000/tcp, [::]:3000->3000/tcp
+staging-workers-1        bartenderai-workers:known-good   "celery -A app.celer…"    workers        9 seconds ago    Up 6 seconds              

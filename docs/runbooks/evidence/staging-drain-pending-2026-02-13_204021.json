@@ -1,0 +1,252 @@
+{
+  "api_base_url": "http://localhost:8000",
+  "batch_limit": 20,
+  "cycles": [
+    {
+      "cycle": 1,
+      "jobs": [
+        {
+          "compliance_reasons": null,
+          "error": null,
+          "job_id": "b39b17f4-af98-4095-af0d-8e8e192d7364",
+          "parse_strategy": "jsonld@high",
+          "status": "succeeded"
+        },
+        {
+          "compliance_reasons": null,
+          "error": null,
+          "job_id": "1a342243-2809-4506-8ec9-8be43dc4de2e",
+          "parse_strategy": "jsonld@high",
+          "status": "succeeded"
+        },
+        {
+          "compliance_reasons": null,
+          "error": null,
+          "job_id": "657029b0-85ce-452c-a7c8-e45fe18b5a84",
+          "parse_strategy": "jsonld@high",
+          "status": "succeeded"
+        },
+        {
+          "compliance_reasons": null,
+          "error": null,
+          "job_id": "18b00d30-5c5c-4cd7-af40-c03d86814400",
+          "parse_strategy": "jsonld@high",
+          "status": "succeeded"
+        },
+        {
+          "compliance_reasons": null,
+          "error": null,
+          "job_id": "ebebb165-60f0-4998-a5df-c97a5dbb26d1",
+          "parse_strategy": "jsonld@high",
+          "status": "succeeded"
+        },
+        {
+          "compliance_reasons": null,
+          "error": null,
+          "job_id": "760b9411-481b-4d1b-a596-e8eda8ebc930",
+          "parse_strategy": "jsonld@high",
+          "status": "succeeded"
+        },
+        {
+          "compliance_reasons": null,
+          "error": null,
+          "job_id": "bcc497c4-4627-41b1-8c03-19fccc091772",
+          "parse_strategy": "jsonld@high",
+          "status": "succeeded"
+        },
+        {
+          "compliance_reasons": null,
+          "error": null,
+          "job_id": "a1d97421-197f-4586-8b7c-3362e6c75b25",
+          "parse_strategy": "jsonld@high",
+          "status": "succeeded"
+        },
+        {
+          "compliance_reasons": null,
+          "error": null,
+          "job_id": "2e286e60-aaee-4295-b0cb-66664942c226",
+          "parse_strategy": "jsonld@high",
+          "status": "succeeded"
+        },
+        {
+          "compliance_reasons": null,
+          "error": null,
+          "job_id": "c3a13abd-5333-4dc0-bebe-88b06db377e8",
+          "parse_strategy": "jsonld@high",
+          "status": "succeeded"
+        },
+        {
+          "compliance_reasons": null,
+          "error": null,
+          "job_id": "ed193368-44e4-4f08-8bcb-ae0ba79f9e41",
+          "parse_strategy": "jsonld@high",
+          "status": "succeeded"
+        },
+        {
+          "compliance_reasons": null,
+          "error": null,
+          "job_id": "d22bbfb0-b4ed-4fd9-88f8-265ad4b82f6e",
+          "parse_strategy": "jsonld@high",
+          "status": "succeeded"
+        },
+        {
+          "compliance_reasons": null,
+          "error": null,
+          "job_id": "96511883-8165-4fb3-a338-49e0cbae90da",
+          "parse_strategy": "jsonld@high",
+          "status": "succeeded"
+        },
+        {
+          "compliance_reasons": null,
+          "error": null,
+          "job_id": "84906fc6-03bb-4947-b250-eae762c036ce",
+          "parse_strategy": "jsonld@high",
+          "status": "succeeded"
+        },
+        {
+          "compliance_reasons": null,
+          "error": null,
+          "job_id": "dfe4e515-eef7-40d6-b869-d2e259eb2609",
+          "parse_strategy": "jsonld@medium",
+          "status": "succeeded"
+        },
+        {
+          "compliance_reasons": null,
+          "error": null,
+          "job_id": "5996a1c1-4cf8-423e-8e4f-359b1930fb05",
+          "parse_strategy": "jsonld@high",
+          "status": "succeeded"
+        },
+        {
+          "compliance_reasons": null,
+          "error": null,
+          "job_id": "afbcf7c5-c888-4b91-8509-0a5300dc2b7d",
+          "parse_strategy": "jsonld@high",
+          "status": "succeeded"
+        },
+        {
+          "compliance_reasons": null,
+          "error": null,
+          "job_id": "fb24b5d7-098b-4ba9-a0ce-5afde2e18ab7",
+          "parse_strategy": "jsonld@high",
+          "status": "succeeded"
+        },
+        {
+          "compliance_reasons": null,
+          "error": null,
+          "job_id": "e64c7c51-889a-4a62-8088-73a6692f5bb4",
+          "parse_strategy": "jsonld@high",
+          "status": "succeeded"
+        },
+        {
+          "compliance_reasons": null,
+          "error": null,
+          "job_id": "1096b8f0-4d12-412b-b1a8-3ce6c3fa883d",
+          "parse_strategy": "jsonld@high",
+          "status": "succeeded"
+        }
+      ],
+      "pending": 20
+    },
+    {
+      "cycle": 2,
+      "jobs": [
+        {
+          "compliance_reasons": null,
+          "error": null,
+          "job_id": "45b41707-6bf6-4b1b-88c4-61dca431d1b4",
+          "parse_strategy": "jsonld@high",
+          "status": "succeeded"
+        },
+        {
+          "compliance_reasons": null,
+          "error": null,
+          "job_id": "246fb6f4-d14b-42fc-8ba3-41704c309abf",
+          "parse_strategy": "jsonld@high",
+          "status": "succeeded"
+        },
+        {
+          "compliance_reasons": null,
+          "error": null,
+          "job_id": "2ade2d7e-0b3c-4cb9-955e-d9eec3243ab1",
+          "parse_strategy": "jsonld@medium",
+          "status": "succeeded"
+        },
+        {
+          "compliance_reasons": null,
+          "error": null,
+          "job_id": "3a04172a-a5ea-47d0-8dd1-5b2f59df0ddf",
+          "parse_strategy": "jsonld@high",
+          "status": "succeeded"
+        },
+        {
+          "compliance_reasons": null,
+          "error": null,
+          "job_id": "be324d2f-96b5-4217-8865-e4482fc37db2",
+          "parse_strategy": "jsonld@high",
+          "status": "succeeded"
+        },
+        {
+          "compliance_reasons": null,
+          "error": null,
+          "job_id": "3b12d6d1-e75d-4031-a648-33fed812a635",
+          "parse_strategy": "jsonld@high",
+          "status": "succeeded"
+        },
+        {
+          "compliance_reasons": null,
+          "error": null,
+          "job_id": "7d24f45f-9cbc-4e54-a860-d11f572f89c1",
+          "parse_strategy": "jsonld@high",
+          "status": "succeeded"
+        },
+        {
+          "compliance_reasons": null,
+          "error": null,
+          "job_id": "53e1e997-8071-478d-ae53-82406ff830f0",
+          "parse_strategy": "jsonld@high",
+          "status": "succeeded"
+        },
+        {
+          "compliance_reasons": null,
+          "error": null,
+          "job_id": "b080477e-034c-40dd-8e3e-b7af486b79a8",
+          "parse_strategy": "jsonld@high",
+          "status": "succeeded"
+        },
+        {
+          "compliance_reasons": null,
+          "error": null,
+          "job_id": "6051f30d-6b46-4472-a429-c05b78be5bf3",
+          "parse_strategy": "jsonld@high",
+          "status": "succeeded"
+        },
+        {
+          "compliance_reasons": null,
+          "error": null,
+          "job_id": "6eed5a1e-0696-4a99-8068-a0b947c602e0",
+          "parse_strategy": "jsonld@high",
+          "status": "succeeded"
+        },
+        {
+          "compliance_reasons": null,
+          "error": null,
+          "job_id": "f36b70b9-4e1c-4f1e-b873-f944e02a9667",
+          "parse_strategy": "jsonld@high",
+          "status": "succeeded"
+        }
+      ],
+      "pending": 12
+    },
+    {
+      "cycle": 3,
+      "jobs": [],
+      "pending": 0
+    }
+  ],
+  "finished_at": "2026-02-13T20:40:27.044687",
+  "max_cycles": 25,
+  "run_id": "2026-02-13_204021",
+  "started_at": "2026-02-13T20:40:21.387345",
+  "total_ran": 32
+}

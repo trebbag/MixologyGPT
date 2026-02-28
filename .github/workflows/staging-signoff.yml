@@ -1,0 +1,62 @@
+name: Staging Sign-Off (Load + Gates)
+
+on:
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: "Staging base URL to test (leave empty to use STAGING_BASE_URL secret)."
+        required: false
+        default: ""
+      users:
+        description: "Concurrent users for the tuned profile."
+        required: false
+        default: "40"
+      spawn_rate:
+        description: "User spawn rate per second."
+        required: false
+        default: "8"
+      duration:
+        description: "Duration (locust -t), e.g. 5m, 10m."
+        required: false
+        default: "5m"
+
+jobs:
+  load-and-evaluate:
+    runs-on: ubuntu-latest
+    if: ${{ secrets.STAGING_BASE_URL != '' || github.event.inputs.base_url != '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install loadtest dependencies (Locust)
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install -r infra/loadtest/requirements.txt
+      - name: Run tuned profile against staging and evaluate locked gates
+        env:
+          BASE_URL: ${{ github.event.inputs.base_url || secrets.STAGING_BASE_URL }}
+          USERS: ${{ github.event.inputs.users }}
+          SPAWN_RATE: ${{ github.event.inputs.spawn_rate }}
+          DURATION: ${{ github.event.inputs.duration }}
+        run: |
+          set -euo pipefail
+          RUN_ID="staging_signoff_${GITHUB_RUN_ID}"
+          echo "BASE_URL=${BASE_URL}"
+          echo "RUN_ID=${RUN_ID}"
+          USERS="${USERS}" SPAWN_RATE="${SPAWN_RATE}" DURATION="${DURATION}" \
+            RUN_ID="${RUN_ID}" \
+            GATES_FILE="infra/loadtest/gates.pilot.locked.json" \
+            LOCK_GATES="false" \
+            ./infra/loadtest/run_staging_profile.sh "${BASE_URL}"
+      - name: Upload artifacts (gates report + locust outputs)
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: staging-signoff-loadtest
+          path: |
+            infra/loadtest/results/staging_signoff_${{ github.run_id }}_stats.csv
+            infra/loadtest/results/staging_signoff_${{ github.run_id }}_stats_history.csv
+            infra/loadtest/results/staging_signoff_${{ github.run_id }}.html
+            infra/loadtest/results/staging_signoff_${{ github.run_id }}_gates.md
+

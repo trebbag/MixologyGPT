@@ -1,0 +1,35 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: bartenderai-postgres
+    environment:
+      POSTGRES_USER: bartender
+      POSTGRES_PASSWORD: bartender
+      POSTGRES_DB: bartenderai
+    ports:
+      - '5433:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    container_name: bartenderai-redis
+    ports:
+      - '6380:6379'
+
+  minio:
+    image: minio/minio:latest
+    container_name: bartenderai-minio
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: minio123
+    command: server /data --console-address ":9001"
+    ports:
+      - '9000:9000'
+      - '9001:9001'
+    volumes:
+      - minio_data:/data
+
+volumes:
+  postgres_data:
+  minio_data:

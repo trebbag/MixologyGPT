@@ -1,0 +1,14 @@
+{
+  "policy_id": "ff39268a-62f5-4216-afbd-1e091e3b8fcd",
+  "blocked_result": {
+    "allowed": [],
+    "blocked": [
+      {
+        "url": "https://www.food.com/ideas/cocktail-recipes-6754",
+        "reason": "Source not allowed"
+      }
+    ]
+  },
+  "food_present_while_disabled": false,
+  "food_present_after_restore": true
+}

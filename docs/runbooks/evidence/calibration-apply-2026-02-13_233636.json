@@ -1,0 +1,160 @@
+{
+  "apply": true,
+  "buffer_multiplier": 1.25,
+  "generated_at": "2026-02-13T23:36:36.671357",
+  "min_jobs": 20,
+  "recommendations": [
+    {
+      "domain": "allrecipes.com",
+      "observed": {
+        "avg_attempt_count": 1.0,
+        "compliance_rejections": 0,
+        "failure_rate": 0.0,
+        "parse_failure_rate": 0.0,
+        "parser_fallback_rate": 0.0,
+        "retryable_jobs": 0
+      },
+      "recommended_alert_settings": {
+        "calibrated_at": "2026-02-13T23:36:36.667751",
+        "calibrated_from_jobs": 37,
+        "calibration_buffer_multiplier": 1.25,
+        "max_avg_attempt_count": 1.45,
+        "max_compliance_rejections": 1,
+        "max_failure_rate": 0.08,
+        "max_parse_failure_rate": 0.15,
+        "max_parser_fallback_rate": 0.25,
+        "max_retry_queue": 3
+      },
+      "status": "calibrated",
+      "total_jobs": 37
+    },
+    {
+      "domain": "bbcgoodfood.com",
+      "observed": {
+        "avg_attempt_count": 1.0,
+        "compliance_rejections": 0,
+        "failure_rate": 0.0,
+        "parse_failure_rate": 0.0,
+        "parser_fallback_rate": 0.0,
+        "retryable_jobs": 0
+      },
+      "recommended_alert_settings": {
+        "calibrated_at": "2026-02-13T23:36:36.667849",
+        "calibrated_from_jobs": 40,
+        "calibration_buffer_multiplier": 1.25,
+        "max_avg_attempt_count": 1.45,
+        "max_compliance_rejections": 1,
+        "max_failure_rate": 0.08,
+        "max_parse_failure_rate": 0.15,
+        "max_parser_fallback_rate": 0.25,
+        "max_retry_queue": 3
+      },
+      "status": "calibrated",
+      "total_jobs": 40
+    },
+    {
+      "domain": "diffordsguide.com",
+      "observed": {
+        "avg_attempt_count": 1.0,
+        "compliance_rejections": 0,
+        "failure_rate": 0.0,
+        "parse_failure_rate": 0.0,
+        "parser_fallback_rate": 0.0,
+        "retryable_jobs": 0
+      },
+      "recommended_alert_settings": {
+        "calibrated_at": "2026-02-13T23:36:36.667854",
+        "calibrated_from_jobs": 30,
+        "calibration_buffer_multiplier": 1.25,
+        "max_avg_attempt_count": 1.45,
+        "max_compliance_rejections": 1,
+        "max_failure_rate": 0.08,
+        "max_parse_failure_rate": 0.15,
+        "max_parser_fallback_rate": 0.25,
+        "max_retry_queue": 3
+      },
+      "status": "calibrated",
+      "total_jobs": 30
+    },
+    {
+      "domain": "food.com",
+      "observed": {
+        "avg_attempt_count": 1.0,
+        "compliance_rejections": 0,
+        "failure_rate": 0.0,
+        "parse_failure_rate": 0.0,
+        "parser_fallback_rate": 0.0,
+        "retryable_jobs": 0
+      },
+      "recommended_alert_settings": {
+        "calibrated_at": "2026-02-13T23:36:36.667858",
+        "calibrated_from_jobs": 26,
+        "calibration_buffer_multiplier": 1.25,
+        "max_avg_attempt_count": 1.45,
+        "max_compliance_rejections": 1,
+        "max_failure_rate": 0.08,
+        "max_parse_failure_rate": 0.15,
+        "max_parser_fallback_rate": 0.25,
+        "max_retry_queue": 3
+      },
+      "status": "calibrated",
+      "total_jobs": 26
+    },
+    {
+      "domain": "imbibemagazine.com",
+      "observed": {
+        "avg_attempt_count": 1.0,
+        "compliance_rejections": 0,
+        "failure_rate": 0.0,
+        "parse_failure_rate": 0.0,
+        "parser_fallback_rate": 0.0,
+        "retryable_jobs": 0
+      },
+      "recommended_alert_settings": {
+        "calibrated_at": "2026-02-13T23:36:36.667861",
+        "calibrated_from_jobs": 53,
+        "calibration_buffer_multiplier": 1.25,
+        "max_avg_attempt_count": 1.45,
+        "max_compliance_rejections": 1,
+        "max_failure_rate": 0.08,
+        "max_parse_failure_rate": 0.15,
+        "max_parser_fallback_rate": 0.25,
+        "max_retry_queue": 3
+      },
+      "status": "calibrated",
+      "total_jobs": 53
+    },
+    {
+      "domain": "punchdrink.com",
+      "observed": {
+        "avg_attempt_count": 1.0,
+        "compliance_rejections": 0,
+        "failure_rate": 0.0,
+        "parse_failure_rate": 0.0,
+        "parser_fallback_rate": 0.0,
+        "retryable_jobs": 0
+      },
+      "recommended_alert_settings": {
+        "calibrated_at": "2026-02-13T23:36:36.667865",
+        "calibrated_from_jobs": 27,
+        "calibration_buffer_multiplier": 1.25,
+        "max_avg_attempt_count": 1.45,
+        "max_compliance_rejections": 1,
+        "max_failure_rate": 0.08,
+        "max_parse_failure_rate": 0.15,
+        "max_parser_fallback_rate": 0.25,
+        "max_retry_queue": 3
+      },
+      "status": "calibrated",
+      "total_jobs": 27
+    }
+  ],
+  "updated_domains": [
+    "allrecipes.com",
+    "bbcgoodfood.com",
+    "diffordsguide.com",
+    "food.com",
+    "imbibemagazine.com",
+    "punchdrink.com"
+  ]
+}

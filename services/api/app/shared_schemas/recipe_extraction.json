@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "RecipeExtraction",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["source", "canonical_name", "ingredients", "instructions"],
+  "properties": {
+    "source": {
+      "type": "object",
+      "required": ["url", "source_type"],
+      "properties": {
+        "url": {"type": "string", "format": "uri"},
+        "source_type": {"type": "string"},
+        "author": {"type": "string"},
+        "published_at": {"type": "string", "format": "date-time"}
+      }
+    },
+    "canonical_name": {"type": "string"},
+    "description": {"type": "string"},
+    "ingredients": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "quantity", "unit"],
+        "properties": {
+          "name": {"type": "string"},
+          "quantity": {"type": "number"},
+          "unit": {"type": "string"},
+          "note": {"type": "string"}
+        }
+      }
+    },
+    "instructions": {"type": "array", "items": {"type": "string"}},
+    "glassware": {"type": "string"},
+    "ice_style": {"type": "string"},
+    "tags": {"type": "array", "items": {"type": "string"}},
+    "abv_estimate": {"type": "number"},
+    "rating_value": {"type": "number"},
+    "rating_count": {"type": "integer"},
+    "like_count": {"type": "integer"},
+    "share_count": {"type": "integer"}
+  }
+}

@@ -1,0 +1,149 @@
+# HELP python_gc_objects_collected_total Objects collected during gc
+# TYPE python_gc_objects_collected_total counter
+python_gc_objects_collected_total{generation="0"} 37825.0
+python_gc_objects_collected_total{generation="1"} 9111.0
+python_gc_objects_collected_total{generation="2"} 1770.0
+# HELP python_gc_objects_uncollectable_total Uncollectable objects found during GC
+# TYPE python_gc_objects_uncollectable_total counter
+python_gc_objects_uncollectable_total{generation="0"} 0.0
+python_gc_objects_uncollectable_total{generation="1"} 0.0
+python_gc_objects_uncollectable_total{generation="2"} 0.0
+# HELP python_gc_collections_total Number of times this generation was collected
+# TYPE python_gc_collections_total counter
+python_gc_collections_total{generation="0"} 647.0
+python_gc_collections_total{generation="1"} 58.0
+python_gc_collections_total{generation="2"} 5.0
+# HELP python_info Python platform information
+# TYPE python_info gauge
+python_info{implementation="CPython",major="3",minor="11",patchlevel="14",version="3.11.14"} 1.0
+# HELP process_virtual_memory_bytes Virtual memory size in bytes.
+# TYPE process_virtual_memory_bytes gauge
+process_virtual_memory_bytes 9.02193152e+08
+# HELP process_resident_memory_bytes Resident memory size in bytes.
+# TYPE process_resident_memory_bytes gauge
+process_resident_memory_bytes 1.64667392e+08
+# HELP process_start_time_seconds Start time of the process since unix epoch in seconds.
+# TYPE process_start_time_seconds gauge
+process_start_time_seconds 1.77059446513e+09
+# HELP process_cpu_seconds_total Total user and system CPU time spent in seconds.
+# TYPE process_cpu_seconds_total counter
+process_cpu_seconds_total 1.82
+# HELP process_open_fds Number of open file descriptors.
+# TYPE process_open_fds gauge
+process_open_fds 17.0
+# HELP process_max_fds Maximum number of open file descriptors.
+# TYPE process_max_fds gauge
+process_max_fds 1.048576e+06
+# HELP crawler_jobs_total Crawler job and parser outcomes by domain.
+# TYPE crawler_jobs_total counter
+# HELP crawler_fallback_class_total Crawler fallback parser classifications by domain.
+# TYPE crawler_fallback_class_total counter
+# HELP crawler_parse_failures_total Crawler parse failure classifications by domain.
+# TYPE crawler_parse_failures_total counter
+# HELP crawler_compliance_rejections_total Crawler compliance rejections by reason and domain.
+# TYPE crawler_compliance_rejections_total counter
+# HELP crawler_domain_failure_rate Current crawler failure rate per domain.
+# TYPE crawler_domain_failure_rate gauge
+crawler_domain_failure_rate{domain="unknown"} 0.0
+# HELP crawler_domain_retryable_jobs Current crawler retryable queue per domain.
+# TYPE crawler_domain_retryable_jobs gauge
+crawler_domain_retryable_jobs{domain="unknown"} 0.0
+# HELP crawler_domain_parser_fallback_rate Current crawler parser fallback rate per domain.
+# TYPE crawler_domain_parser_fallback_rate gauge
+crawler_domain_parser_fallback_rate{domain="unknown"} 0.0
+# HELP crawler_domain_avg_attempt_count Current crawler average attempt count per domain.
+# TYPE crawler_domain_avg_attempt_count gauge
+crawler_domain_avg_attempt_count{domain="unknown"} 1.0
+# HELP crawler_domain_compliance_rejections Current crawler compliance rejection count per domain.
+# TYPE crawler_domain_compliance_rejections gauge
+crawler_domain_compliance_rejections{domain="unknown"} 0.0
+# HELP http_requests_total Total number of requests by method, status and handler.
+# TYPE http_requests_total counter
+http_requests_total{handler="/metrics",method="GET",status="2xx"} 2.0
+http_requests_total{handler="/v1/admin/source-policies/calibrate-alerts",method="POST",status="2xx"} 1.0
+http_requests_total{handler="/health",method="GET",status="2xx"} 1.0
+# HELP http_requests_created Total number of requests by method, status and handler.
+# TYPE http_requests_created gauge
+http_requests_created{handler="/metrics",method="GET",status="2xx"} 1.770594468182459e+09
+http_requests_created{handler="/v1/admin/source-policies/calibrate-alerts",method="POST",status="2xx"} 1.7705944732986927e+09
+http_requests_created{handler="/health",method="GET",status="2xx"} 1.7705944870156233e+09
+# HELP http_request_size_bytes Content length of incoming requests by handler. Only value of header is respected. Otherwise ignored. No percentile calculated. 
+# TYPE http_request_size_bytes summary
+http_request_size_bytes_count{handler="/metrics"} 2.0
+http_request_size_bytes_sum{handler="/metrics"} 0.0
+http_request_size_bytes_count{handler="/v1/admin/source-policies/calibrate-alerts"} 1.0
+http_request_size_bytes_sum{handler="/v1/admin/source-policies/calibrate-alerts"} 0.0
+http_request_size_bytes_count{handler="/health"} 1.0
+http_request_size_bytes_sum{handler="/health"} 0.0
+# HELP http_request_size_bytes_created Content length of incoming requests by handler. Only value of header is respected. Otherwise ignored. No percentile calculated. 
+# TYPE http_request_size_bytes_created gauge
+http_request_size_bytes_created{handler="/metrics"} 1.7705944681824808e+09
+http_request_size_bytes_created{handler="/v1/admin/source-policies/calibrate-alerts"} 1.7705944732987032e+09
+http_request_size_bytes_created{handler="/health"} 1.7705944870156453e+09
+# HELP http_response_size_bytes Content length of outgoing responses by handler. Only value of header is respected. Otherwise ignored. No percentile calculated. 
+# TYPE http_response_size_bytes summary
+http_response_size_bytes_count{handler="/metrics"} 2.0
+http_response_size_bytes_sum{handler="/metrics"} 15032.0
+http_response_size_bytes_count{handler="/v1/admin/source-policies/calibrate-alerts"} 1.0
+http_response_size_bytes_sum{handler="/v1/admin/source-policies/calibrate-alerts"} 1589.0
+http_response_size_bytes_count{handler="/health"} 1.0
+http_response_size_bytes_sum{handler="/health"} 15.0
+# HELP http_response_size_bytes_created Content length of outgoing responses by handler. Only value of header is respected. Otherwise ignored. No percentile calculated. 
+# TYPE http_response_size_bytes_created gauge
+http_response_size_bytes_created{handler="/metrics"} 1.7705944681825016e+09
+http_response_size_bytes_created{handler="/v1/admin/source-policies/calibrate-alerts"} 1.7705944732987149e+09
+http_response_size_bytes_created{handler="/health"} 1.7705944870156748e+09
+# HELP http_request_duration_highr_seconds Latency with many buckets but no API specific labels. Made for more accurate percentile calculations. 
+# TYPE http_request_duration_highr_seconds histogram
+http_request_duration_highr_seconds_bucket{le="0.01"} 3.0
+http_request_duration_highr_seconds_bucket{le="0.025"} 3.0
+http_request_duration_highr_seconds_bucket{le="0.05"} 4.0
+http_request_duration_highr_seconds_bucket{le="0.075"} 4.0
+http_request_duration_highr_seconds_bucket{le="0.1"} 4.0
+http_request_duration_highr_seconds_bucket{le="0.25"} 4.0
+http_request_duration_highr_seconds_bucket{le="0.5"} 4.0
+http_request_duration_highr_seconds_bucket{le="0.75"} 4.0
+http_request_duration_highr_seconds_bucket{le="1.0"} 4.0
+http_request_duration_highr_seconds_bucket{le="1.5"} 4.0
+http_request_duration_highr_seconds_bucket{le="2.0"} 4.0
+http_request_duration_highr_seconds_bucket{le="2.5"} 4.0
+http_request_duration_highr_seconds_bucket{le="3.0"} 4.0
+http_request_duration_highr_seconds_bucket{le="3.5"} 4.0
+http_request_duration_highr_seconds_bucket{le="4.0"} 4.0
+http_request_duration_highr_seconds_bucket{le="4.5"} 4.0
+http_request_duration_highr_seconds_bucket{le="5.0"} 4.0
+http_request_duration_highr_seconds_bucket{le="7.5"} 4.0
+http_request_duration_highr_seconds_bucket{le="10.0"} 4.0
+http_request_duration_highr_seconds_bucket{le="30.0"} 4.0
+http_request_duration_highr_seconds_bucket{le="60.0"} 4.0
+http_request_duration_highr_seconds_bucket{le="+Inf"} 4.0
+http_request_duration_highr_seconds_count 4.0
+http_request_duration_highr_seconds_sum 0.0542124159692321
+# HELP http_request_duration_highr_seconds_created Latency with many buckets but no API specific labels. Made for more accurate percentile calculations. 
+# TYPE http_request_duration_highr_seconds_created gauge
+http_request_duration_highr_seconds_created 1.77059446689995e+09
+# HELP http_request_duration_seconds Latency with only few buckets by handler. Made to be only used if aggregation by handler is important. 
+# TYPE http_request_duration_seconds histogram
+http_request_duration_seconds_bucket{handler="/metrics",le="0.1",method="GET"} 2.0
+http_request_duration_seconds_bucket{handler="/metrics",le="0.5",method="GET"} 2.0
+http_request_duration_seconds_bucket{handler="/metrics",le="1.0",method="GET"} 2.0
+http_request_duration_seconds_bucket{handler="/metrics",le="+Inf",method="GET"} 2.0
+http_request_duration_seconds_count{handler="/metrics",method="GET"} 2.0
+http_request_duration_seconds_sum{handler="/metrics",method="GET"} 0.007557373988674954
+http_request_duration_seconds_bucket{handler="/v1/admin/source-policies/calibrate-alerts",le="0.1",method="POST"} 1.0
+http_request_duration_seconds_bucket{handler="/v1/admin/source-policies/calibrate-alerts",le="0.5",method="POST"} 1.0
+http_request_duration_seconds_bucket{handler="/v1/admin/source-policies/calibrate-alerts",le="1.0",method="POST"} 1.0
+http_request_duration_seconds_bucket{handler="/v1/admin/source-policies/calibrate-alerts",le="+Inf",method="POST"} 1.0
+http_request_duration_seconds_count{handler="/v1/admin/source-policies/calibrate-alerts",method="POST"} 1.0
+http_request_duration_seconds_sum{handler="/v1/admin/source-policies/calibrate-alerts",method="POST"} 0.04523887499817647
+http_request_duration_seconds_bucket{handler="/health",le="0.1",method="GET"} 1.0
+http_request_duration_seconds_bucket{handler="/health",le="0.5",method="GET"} 1.0
+http_request_duration_seconds_bucket{handler="/health",le="1.0",method="GET"} 1.0
+http_request_duration_seconds_bucket{handler="/health",le="+Inf",method="GET"} 1.0
+http_request_duration_seconds_count{handler="/health",method="GET"} 1.0
+http_request_duration_seconds_sum{handler="/health",method="GET"} 0.0014161669823806733
+# HELP http_request_duration_seconds_created Latency with only few buckets by handler. Made to be only used if aggregation by handler is important. 
+# TYPE http_request_duration_seconds_created gauge
+http_request_duration_seconds_created{handler="/metrics",method="GET"} 1.7705944681825342e+09
+http_request_duration_seconds_created{handler="/v1/admin/source-policies/calibrate-alerts",method="POST"} 1.7705944732987404e+09
+http_request_duration_seconds_created{handler="/health",method="GET"} 1.770594487015719e+09

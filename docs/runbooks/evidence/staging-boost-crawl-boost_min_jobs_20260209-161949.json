@@ -1,0 +1,1428 @@
+{
+  "api_base_url": "http://localhost:8000",
+  "calibration_apply_written": true,
+  "final_counts": {
+    "bbcgoodfood.com": 39,
+    "diffordsguide.com": 30,
+    "imbibemagazine.com": 51,
+    "punchdrink.com": 6
+  },
+  "finished_at": "2026-02-09T21:24:15.110550",
+  "min_jobs": 20,
+  "rounds": [
+    {
+      "auto_harvest": [
+        {
+          "compliance_rejections": 0,
+          "domain": "bbcgoodfood.com",
+          "errors_sample": [
+            "https://www.bbcgoodfood.com/recipes/collection/cocktail-recipes: parse failed (domain-selector-mismatch)",
+            "https://www.bbcgoodfood.com/recipes/collection: parse failed (domain-selector-mismatch)"
+          ],
+          "parsed_count": 20,
+          "queued_jobs": 14,
+          "request": {
+            "crawl_depth": 2,
+            "enqueue": true,
+            "max_links": 200,
+            "max_pages": 40,
+            "max_recipes": 20,
+            "respect_robots": true,
+            "source_type": "web",
+            "source_url": "https://www.bbcgoodfood.com/recipes/collection/cocktail-recipes"
+          },
+          "seed_url": "https://www.bbcgoodfood.com/recipes/collection/cocktail-recipes",
+          "skip_reason_counts": {
+            "insufficient_signals": 6
+          }
+        },
+        {
+          "compliance_rejections": 0,
+          "domain": "bbcgoodfood.com",
+          "errors_sample": [
+            "https://www.bbcgoodfood.com/recipes/collection/gin-cocktail-recipes: parse failed (domain-selector-mismatch)",
+            "https://www.bbcgoodfood.com/recipes/collection: parse failed (domain-selector-mismatch)"
+          ],
+          "parsed_count": 20,
+          "queued_jobs": 11,
+          "request": {
+            "crawl_depth": 2,
+            "enqueue": true,
+            "max_links": 200,
+            "max_pages": 40,
+            "max_recipes": 20,
+            "respect_robots": true,
+            "source_type": "web",
+            "source_url": "https://www.bbcgoodfood.com/recipes/collection/gin-cocktail-recipes"
+          },
+          "seed_url": "https://www.bbcgoodfood.com/recipes/collection/gin-cocktail-recipes",
+          "skip_reason_counts": {
+            "insufficient_signals": 9
+          }
+        },
+        {
+          "compliance_rejections": 0,
+          "domain": "bbcgoodfood.com",
+          "errors_sample": [
+            "https://www.bbcgoodfood.com/recipes/collection/vodka-cocktail-recipes: parse failed (domain-selector-mismatch)",
+            "https://www.bbcgoodfood.com/recipes/collection: parse failed (domain-selector-mismatch)"
+          ],
+          "parsed_count": 20,
+          "queued_jobs": 11,
+          "request": {
+            "crawl_depth": 2,
+            "enqueue": true,
+            "max_links": 200,
+            "max_pages": 40,
+            "max_recipes": 20,
+            "respect_robots": true,
+            "source_type": "web",
+            "source_url": "https://www.bbcgoodfood.com/recipes/collection/vodka-cocktail-recipes"
+          },
+          "seed_url": "https://www.bbcgoodfood.com/recipes/collection/vodka-cocktail-recipes",
+          "skip_reason_counts": {
+            "existing_job_pending_or_running": 5,
+            "insufficient_signals": 4
+          }
+        },
+        {
+          "compliance_rejections": 1,
+          "domain": "bbcgoodfood.com",
+          "errors_sample": [
+            "https://www.bbcgoodfood.com/recipes/collection/whisky-cocktail-recipes: parse failed (domain-selector-mismatch)",
+            "https://www.bbcgoodfood.com/recipes/collection: parse failed (domain-selector-mismatch)",
+            "https://www.bbcgoodfood.com/recipes/claridges-sazerac: compliance check failed (robots-meta-blocked)",
+            "https://www.bbcgoodfood.com/recipes/exclusive-back-to-school-recipes-2: parse failed (domain-selector-mismatch)",
+            "https://www.bbcgoodfood.com/recipes/collection/page/2: parse failed (domain-selector-mismatch)"
+          ],
+          "parsed_count": 18,
+          "queued_jobs": 3,
+          "request": {
+            "crawl_depth": 2,
+            "enqueue": true,
+            "max_links": 200,
+            "max_pages": 40,
+            "max_recipes": 20,
+            "respect_robots": true,
+            "source_type": "web",
+            "source_url": "https://www.bbcgoodfood.com/recipes/collection/whisky-cocktail-recipes"
+          },
+          "seed_url": "https://www.bbcgoodfood.com/recipes/collection/whisky-cocktail-recipes",
+          "skip_reason_counts": {
+            "insufficient_signals": 15
+          }
+        },
+        {
+          "compliance_rejections": 0,
+          "domain": "diffordsguide.com",
+          "errors_sample": [
+            "https://www.diffordsguide.com/cocktails/search: parse failed (domain-selector-mismatch)",
+            "https://www.diffordsguide.com/cocktails/how-to-make: parse failed (domain-selector-mismatch)",
+            "https://www.diffordsguide.com/cocktails/most-viewed: parse failed (domain-selector-mismatch)",
+            "https://www.diffordsguide.com/cocktails/20-best: parse failed (domain-selector-mismatch)",
+            "https://www.diffordsguide.com/cocktails/tales-behind-the-cocktails: parse failed (domain-selector-mismatch)"
+          ],
+          "parsed_count": 13,
+          "queued_jobs": 13,
+          "request": {
+            "crawl_depth": 2,
+            "enqueue": true,
+            "max_links": 200,
+            "max_pages": 40,
+            "max_recipes": 20,
+            "respect_robots": true,
+            "source_type": "web",
+            "source_url": "https://www.diffordsguide.com/cocktails/search"
+          },
+          "seed_url": "https://www.diffordsguide.com/cocktails/search",
+          "skip_reason_counts": {}
+        },
+        {
+          "compliance_rejections": 0,
+          "domain": "imbibemagazine.com",
+          "errors_sample": [
+            "https://imbibemagazine.com/category/recipes/: parse failed (domain-selector-mismatch)"
+          ],
+          "parsed_count": 18,
+          "queued_jobs": 18,
+          "request": {
+            "crawl_depth": 2,
+            "enqueue": true,
+            "max_links": 200,
+            "max_pages": 40,
+            "max_recipes": 20,
+            "respect_robots": true,
+            "source_type": "web",
+            "source_url": "https://imbibemagazine.com/category/recipes/"
+          },
+          "seed_url": "https://imbibemagazine.com/category/recipes/",
+          "skip_reason_counts": {}
+        },
+        {
+          "compliance_rejections": 0,
+          "domain": "imbibemagazine.com",
+          "errors_sample": [
+            "https://imbibemagazine.com/category/cocktails-spirits-recipes: parse failed (domain-selector-mismatch)"
+          ],
+          "parsed_count": 18,
+          "queued_jobs": 1,
+          "request": {
+            "crawl_depth": 2,
+            "enqueue": true,
+            "max_links": 200,
+            "max_pages": 40,
+            "max_recipes": 20,
+            "respect_robots": true,
+            "source_type": "web",
+            "source_url": "https://imbibemagazine.com/category/cocktails-spirits-recipes"
+          },
+          "seed_url": "https://imbibemagazine.com/category/cocktails-spirits-recipes",
+          "skip_reason_counts": {
+            "existing_job_pending_or_running": 17
+          }
+        },
+        {
+          "compliance_rejections": 2,
+          "domain": "imbibemagazine.com",
+          "errors_sample": [
+            "https://imbibemagazine.com/category/how-to-recipes: parse failed (domain-selector-mismatch)",
+            "https://imbibemagazine.com/recipe/hunters-vodka-recipe/: compliance check failed (missing-recipe-markers)",
+            "https://imbibemagazine.com/recipe/homemade-pine-syrup/: compliance check failed (missing-recipe-markers)"
+          ],
+          "parsed_count": 20,
+          "queued_jobs": 16,
+          "request": {
+            "crawl_depth": 2,
+            "enqueue": true,
+            "max_links": 200,
+            "max_pages": 40,
+            "max_recipes": 20,
+            "respect_robots": true,
+            "source_type": "web",
+            "source_url": "https://imbibemagazine.com/category/how-to-recipes"
+          },
+          "seed_url": "https://imbibemagazine.com/category/how-to-recipes",
+          "skip_reason_counts": {
+            "existing_job_pending_or_running": 4
+          }
+        },
+        {
+          "compliance_rejections": 0,
+          "domain": "imbibemagazine.com",
+          "errors_sample": [
+            "https://imbibemagazine.com/category/holiday-drinks-recipes: parse failed (domain-selector-mismatch)"
+          ],
+          "parsed_count": 20,
+          "queued_jobs": 16,
+          "request": {
+            "crawl_depth": 2,
+            "enqueue": true,
+            "max_links": 200,
+            "max_pages": 40,
+            "max_recipes": 20,
+            "respect_robots": true,
+            "source_type": "web",
+            "source_url": "https://imbibemagazine.com/category/holiday-drinks-recipes"
+          },
+          "seed_url": "https://imbibemagazine.com/category/holiday-drinks-recipes",
+          "skip_reason_counts": {
+            "existing_job_pending_or_running": 4
+          }
+        },
+        {
+          "compliance_rejections": 0,
+          "domain": "punchdrink.com",
+          "errors_sample": [
+            "https://punchdrink.com/recipes/: parse failed (domain-selector-mismatch)"
+          ],
+          "parsed_count": 6,
+          "queued_jobs": 6,
+          "request": {
+            "crawl_depth": 2,
+            "enqueue": true,
+            "max_links": 200,
+            "max_pages": 40,
+            "max_recipes": 20,
+            "respect_robots": true,
+            "source_type": "web",
+            "source_url": "https://punchdrink.com/recipes/"
+          },
+          "seed_url": "https://punchdrink.com/recipes/",
+          "skip_reason_counts": {}
+        }
+      ],
+      "before_counts": {
+        "bbcgoodfood.com": 0,
+        "diffordsguide.com": 0,
+        "imbibemagazine.com": 0,
+        "punchdrink.com": 0
+      },
+      "drain": [
+        {
+          "cycle": 1,
+          "jobs": [
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "866ea72e-6b36-43c8-8223-fe88f7205193",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "4a03dcb8-810d-415d-ac0f-6128370f2b93",
+              "parse_strategy": "jsonld@high",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "b4bb18be-9a69-4ac0-a9e4-194113a94837",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "0f3d4eb2-55cd-48e6-b007-d87ff668ce4e",
+              "parse_strategy": "jsonld@high",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "e9086731-0a38-405f-92b7-d010c9a14579",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "90764f1b-5e58-4e0b-a1d7-f644ed567012",
+              "parse_strategy": "jsonld@high",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "73f71ee8-be23-42d6-86c7-9ea72154d822",
+              "parse_strategy": "jsonld@high",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "fedebb7f-2b68-4297-80e4-4ed5cce85f9e",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "f3fb688b-1b59-446a-bcb4-63088ed68c50",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "62aa8954-9017-4ac0-b5b6-0961ea49ee97",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "a1a4de29-82cd-4cef-b54f-bcb0509af2a5",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "1dbfbc23-38e8-4d33-b4bc-e499d83a2f9d",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "6de146e2-2677-440a-98d7-92066b2de141",
+              "parse_strategy": "jsonld@high",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "9bd94cb9-e755-4fff-9a44-f9bb148bfe39",
+              "parse_strategy": "jsonld@high",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "13f99ed3-68d7-4ff7-9cc6-6d5704999c26",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "5e625234-08b2-4a4f-b13f-d1c80e7570c0",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "f4756627-d977-4312-b9d5-9b211168aac4",
+              "parse_strategy": "jsonld@high",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "f0c7ac89-36e3-4e14-aaff-3bac484faad1",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "4241bcd9-7e15-4bbf-a0a4-2750ecc7bd0d",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "3a560517-12ca-4d65-9f53-e8ab05d03a5c",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            }
+          ],
+          "pending": 20
+        },
+        {
+          "cycle": 2,
+          "jobs": [
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "07639d3c-da0b-49d9-a68f-7c21505da5cb",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "e561eae9-2b29-407e-85d0-5587f0ce489a",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "f06ce5f8-b363-48b1-b98c-aac648730cfd",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "2978a8f5-2903-4423-a7c4-68e69b47dd87",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "4807ddcc-a8f1-42ea-bf98-54a0e5ac433d",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "f319854c-68b0-4956-bf72-56b21bcff167",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "624f631b-1ce9-47a0-aa83-bda9de9ed122",
+              "parse_strategy": "jsonld@high",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "bf32b8b6-e830-47fe-b5d7-3fafccd813ae",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "fe19d051-907c-4fe3-b6ff-f586ef73b772",
+              "parse_strategy": "jsonld@high",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "0b0326d0-d562-436a-b69c-2e9931dc0ca5",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "cd2dc9e1-4d35-4de1-9199-a10fa6306c6e",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "0178f8cc-0dbe-4800-b598-d5c209571f92",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "f1ae852f-0170-432f-84b2-593c5e7dfe86",
+              "parse_strategy": "jsonld@high",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "d132d1af-8d00-4d54-8666-ccf941510343",
+              "parse_strategy": "jsonld@high",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "98fd0362-db3f-4905-82a7-56c2756681fd",
+              "parse_strategy": "jsonld@high",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "289a7e7c-cfad-49b1-8c98-cab20f7b98bc",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "2c559b2b-973a-4f9d-8e34-78dd997ccda4",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "9d02371f-54a7-49ac-81f1-360f59b04872",
+              "parse_strategy": "jsonld@high",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "ea6cf887-6340-417d-ac2c-1d4a623c4da8",
+              "parse_strategy": "jsonld@high",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "8976089f-9100-4aed-aedd-a0ba8596b338",
+              "parse_strategy": "domain_dom@high",
+              "status": "succeeded"
+            }
+          ],
+          "pending": 20
+        },
+        {
+          "cycle": 3,
+          "jobs": [
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "fb03be40-409a-4c05-a9b1-720120fb711a",
+              "parse_strategy": "jsonld@high",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "c0383116-f1fa-4ae9-b5d5-956542d27545",
+              "parse_strategy": "jsonld@high",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "811d2d66-bee6-41cd-97dd-52e3e1ea70b4",
+              "parse_strategy": "jsonld@high",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "92c65501-377e-4dc0-bf09-648eb41b3a8d",
+              "parse_strategy": "jsonld@high",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "708af015-f4e7-4beb-9be0-f0a80c327789",
+              "parse_strategy": "jsonld@high",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "008a934b-2478-4023-9f55-f0a0ad795e1e",
+              "parse_strategy": "jsonld@high",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "b6e77555-696d-4c6d-9949-7157d48fd8fa",
+              "parse_strategy": "jsonld@high",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "61fb8249-daef-4357-bfd4-46877396034a",
+              "parse_strategy": "jsonld@high",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "8f247106-a7d4-4f56-9da3-140a56585743",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "8c615715-27e3-435c-8435-20eb8b0a8247",
+              "parse_strategy": "jsonld@high",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "d6489e01-3f16-49f9-b870-cd48546b46b9",
+              "parse_strategy": "jsonld@high",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "d171b7b7-a57d-4ed2-8671-c29515a8c3d0",
+              "parse_strategy": "jsonld@high",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "d4b3dd5b-1907-415e-9d6d-4e1d7b1ab999",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "21d3f2fe-89fc-49d7-9db6-46b43b69e0d8",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "ad66332c-ed8b-4812-a0a9-a128574f882a",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "66421235-e5c4-49f4-91f7-a1fd1e920a00",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "972dc4a7-ed8b-4572-8026-1fb012985e70",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "92cb0a4d-481e-41cb-a221-69d7b74f5c66",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "88452460-ccce-4dfd-bdf9-0ded56a85215",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "eb45bca9-eaf2-4119-a8db-45a6cac87f37",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            }
+          ],
+          "pending": 20
+        },
+        {
+          "cycle": 4,
+          "jobs": [
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "0ad1a2e9-a0c7-4337-afbd-b46ff159ed5a",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "34321a6f-e641-47cf-9638-02dc6f309d25",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "dbb25893-5bac-4cc0-84b7-db93b07fb2a4",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "a2a0e937-fa62-47c7-94c5-407b4c1e282a",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "758c7a7b-9ca1-44eb-9506-54a61c53b119",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "fb664202-ef65-4f4d-9646-78a4aab80603",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "ce2cb2cc-3937-4fa6-8283-334af6b3c897",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "8754922c-f454-4739-8514-b8176f629614",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "9c7b0039-517a-4b30-888e-a06b4a4b1437",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "7db82e2e-a0f3-48a0-ad74-757c31263314",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "fa309857-19b5-43ca-b215-362a64957deb",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "7adc3f8a-e38b-4e6d-9e1e-945e213476eb",
+              "parse_strategy": "jsonld@high",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "f2439a23-b079-4417-8461-3ab3fec3bcec",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "cd61d51b-3df0-4f4e-aee4-6b2147a96601",
+              "parse_strategy": "domain_dom@high",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "691b8151-1cce-4293-8ebd-1bacf35d3aee",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "76ea65b7-d51f-4683-b141-af95d663eba1",
+              "parse_strategy": "jsonld@high",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "99a94f3f-e41f-48c6-a546-985143f73520",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "9ebb7a25-11fc-4ae5-812c-9966900741d4",
+              "parse_strategy": "jsonld@high",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "c519800c-e945-43d1-bda4-d3916c50b037",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "ec7d3041-0c52-4f4f-8d0b-53cb73c8902b",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            }
+          ],
+          "pending": 20
+        },
+        {
+          "cycle": 5,
+          "jobs": [
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "e98a34b0-3ab2-4626-a8ea-2b41695f9b3f",
+              "parse_strategy": "domain_dom@high",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "c1a44c8d-0585-44a1-9ee1-f18f9b2cbe3d",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "377cd768-7efc-4d66-b0b0-13db0a947bad",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "a39f0a6e-1e10-4336-b663-4af3bae2a2b4",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "72a3f2df-6500-42ea-8a94-31f02a6831a6",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "49898da1-99df-48e7-8c63-d7b2c7753295",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "f45f8f32-f44d-48c7-b21c-ddea80adf6d3",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "de916f95-85c2-4d23-942f-3d71eb679fc3",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "f1b89365-4c5a-42b9-a7c5-43105fe1a051",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "63450e41-1505-446c-a5c2-3b9448e56774",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "85998f89-ad6c-4e26-99ce-b89416f73d96",
+              "parse_strategy": "jsonld@high",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "995ed4a8-ac9a-45d7-9e96-5f310c358bc1",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "bf522728-29bd-4f52-afdd-6c09a8b69c61",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "d97c5823-3b5f-4da9-89ca-4c42023b777e",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "89b61f95-f756-46ea-af32-6965204f8ddf",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "29c4a1de-bea9-4259-ac1f-c852a74dbbeb",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "1ed4adc7-0c5c-423f-b2a0-1ffcf937a0da",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "2ff8a387-2aa6-4793-ba33-004ff6c0cfd0",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "cfc4b332-053c-4774-b0e9-2d48a062a3fd",
+              "parse_strategy": "jsonld@high",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "337a8016-5816-4654-abc9-31396cf95183",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            }
+          ],
+          "pending": 20
+        },
+        {
+          "cycle": 6,
+          "jobs": [
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "1597ba4d-4131-486f-9c57-6958f6ae8d66",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "bd87efd4-690f-444d-851a-d27e0e1a3afd",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "d1106e31-98ba-4f1c-a4db-ff083965228c",
+              "parse_strategy": "jsonld@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "18782e0e-a165-4788-a6d0-47aeba3a8e2d",
+              "parse_strategy": "microdata@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "145522d9-5f57-498b-a901-4a07288b1eae",
+              "parse_strategy": "microdata@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "c9db2a51-1d10-4d6c-a1e1-ec1d86996abe",
+              "parse_strategy": "microdata@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "aae99a4a-63ce-4416-bfd4-1767ba425ff8",
+              "parse_strategy": "microdata@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "1603829a-bb39-47c7-885a-71d7a111585d",
+              "parse_strategy": "microdata@medium",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "7dd6b0a5-06c7-4c2a-8d25-ec4306505584",
+              "parse_strategy": "microdata@medium",
+              "status": "running"
+            }
+          ],
+          "pending": 9
+        },
+        {
+          "cycle": 7,
+          "pending": 0
+        }
+      ],
+      "round": 1
+    },
+    {
+      "auto_harvest": [
+        {
+          "compliance_rejections": 0,
+          "domain": "diffordsguide.com",
+          "errors_sample": [
+            "https://www.diffordsguide.com/cocktails/search: parse failed (domain-selector-mismatch)",
+            "https://www.diffordsguide.com/cocktails/how-to-make: parse failed (domain-selector-mismatch)",
+            "https://www.diffordsguide.com/cocktails/most-viewed: parse failed (domain-selector-mismatch)",
+            "https://www.diffordsguide.com/cocktails/20-best: parse failed (domain-selector-mismatch)",
+            "https://www.diffordsguide.com/cocktails/tales-behind-the-cocktails: parse failed (domain-selector-mismatch)"
+          ],
+          "parsed_count": 30,
+          "queued_jobs": 17,
+          "request": {
+            "crawl_depth": 2,
+            "enqueue": true,
+            "max_links": 200,
+            "max_pages": 60,
+            "max_recipes": 30,
+            "respect_robots": true,
+            "source_type": "web",
+            "source_url": "https://www.diffordsguide.com/cocktails/search"
+          },
+          "seed_url": "https://www.diffordsguide.com/cocktails/search",
+          "skip_reason_counts": {
+            "existing_source": 13
+          }
+        },
+        {
+          "compliance_rejections": 0,
+          "domain": "punchdrink.com",
+          "errors_sample": [
+            "https://punchdrink.com/recipes/: parse failed (domain-selector-mismatch)"
+          ],
+          "parsed_count": 6,
+          "queued_jobs": 0,
+          "request": {
+            "crawl_depth": 2,
+            "enqueue": true,
+            "max_links": 200,
+            "max_pages": 60,
+            "max_recipes": 30,
+            "respect_robots": true,
+            "source_type": "web",
+            "source_url": "https://punchdrink.com/recipes/"
+          },
+          "seed_url": "https://punchdrink.com/recipes/",
+          "skip_reason_counts": {
+            "existing_source": 6
+          }
+        }
+      ],
+      "before_counts": {
+        "bbcgoodfood.com": 39,
+        "diffordsguide.com": 13,
+        "imbibemagazine.com": 51,
+        "punchdrink.com": 6
+      },
+      "drain": [
+        {
+          "cycle": 1,
+          "jobs": [
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "8ac32019-4209-4c62-b23d-e1a23bab62f3",
+              "parse_strategy": "jsonld@high",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "5988b55f-9326-492a-a237-50d49da3b1e3",
+              "parse_strategy": "jsonld@high",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "2231abc9-93e4-4b8f-a471-fefeaf81515a",
+              "parse_strategy": "jsonld@high",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "a0cc405e-736c-4b24-8c3e-f227b692abd5",
+              "parse_strategy": "jsonld@high",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "0af9f98e-aa33-4582-b900-6e8cbf9d273a",
+              "parse_strategy": "jsonld@high",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "d1192464-b9c4-48e2-9510-22cc4d0afbb6",
+              "parse_strategy": "jsonld@high",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "73814a2f-63b2-4c35-b7c1-a36415de21e3",
+              "parse_strategy": "jsonld@high",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "21e27fb9-e71e-4e17-8cbb-73b4d38987a8",
+              "parse_strategy": "jsonld@high",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "068c8b30-de52-4e24-8b87-a13575e57f2b",
+              "parse_strategy": "jsonld@high",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "22c54421-41e6-4d87-a2ee-622719dfdd8b",
+              "parse_strategy": "jsonld@high",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "2152b155-c678-4cd0-a0a0-73e178a44b2f",
+              "parse_strategy": "jsonld@high",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "2efecfe6-bd0b-48a7-969d-b05e2941ef82",
+              "parse_strategy": "jsonld@high",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "2f6981b4-3ca6-43fb-9b96-d87121a608b7",
+              "parse_strategy": "jsonld@high",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "83c2b777-7e9e-4286-b29c-4eaba413b505",
+              "parse_strategy": "jsonld@high",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "75a95d13-ebf1-481b-ab0b-8981b695447c",
+              "parse_strategy": "jsonld@high",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "0b817cb9-8056-4ced-857d-42b987851b93",
+              "parse_strategy": "jsonld@high",
+              "status": "succeeded"
+            },
+            {
+              "compliance_reasons": null,
+              "error": null,
+              "job_id": "df5839d4-54c3-41b0-8881-372ec1fa3625",
+              "parse_strategy": "jsonld@high",
+              "status": "succeeded"
+            }
+          ],
+          "pending": 17
+        },
+        {
+          "cycle": 2,
+          "pending": 0
+        }
+      ],
+      "round": 2
+    },
+    {
+      "auto_harvest": [
+        {
+          "compliance_rejections": 0,
+          "domain": "punchdrink.com",
+          "errors_sample": [
+            "https://punchdrink.com/recipes/: parse failed (domain-selector-mismatch)"
+          ],
+          "parsed_count": 6,
+          "queued_jobs": 0,
+          "request": {
+            "crawl_depth": 2,
+            "enqueue": true,
+            "max_links": 200,
+            "max_pages": 80,
+            "max_recipes": 40,
+            "respect_robots": true,
+            "source_type": "web",
+            "source_url": "https://punchdrink.com/recipes/"
+          },
+          "seed_url": "https://punchdrink.com/recipes/",
+          "skip_reason_counts": {
+            "existing_source": 6
+          }
+        }
+      ],
+      "before_counts": {
+        "bbcgoodfood.com": 39,
+        "diffordsguide.com": 30,
+        "imbibemagazine.com": 51,
+        "punchdrink.com": 6
+      },
+      "drain": [
+        {
+          "cycle": 1,
+          "pending": 0
+        }
+      ],
+      "round": 3
+    },
+    {
+      "auto_harvest": [
+        {
+          "compliance_rejections": 0,
+          "domain": "punchdrink.com",
+          "errors_sample": [
+            "https://punchdrink.com/recipes/: parse failed (domain-selector-mismatch)"
+          ],
+          "parsed_count": 6,
+          "queued_jobs": 0,
+          "request": {
+            "crawl_depth": 2,
+            "enqueue": true,
+            "max_links": 200,
+            "max_pages": 80,
+            "max_recipes": 40,
+            "respect_robots": true,
+            "source_type": "web",
+            "source_url": "https://punchdrink.com/recipes/"
+          },
+          "seed_url": "https://punchdrink.com/recipes/",
+          "skip_reason_counts": {
+            "existing_source": 6
+          }
+        }
+      ],
+      "before_counts": {
+        "bbcgoodfood.com": 39,
+        "diffordsguide.com": 30,
+        "imbibemagazine.com": 51,
+        "punchdrink.com": 6
+      },
+      "drain": [
+        {
+          "cycle": 1,
+          "pending": 0
+        }
+      ],
+      "round": 4
+    },
+    {
+      "auto_harvest": [
+        {
+          "compliance_rejections": 0,
+          "domain": "punchdrink.com",
+          "errors_sample": [
+            "https://punchdrink.com/recipes/: parse failed (domain-selector-mismatch)"
+          ],
+          "parsed_count": 6,
+          "queued_jobs": 0,
+          "request": {
+            "crawl_depth": 2,
+            "enqueue": true,
+            "max_links": 200,
+            "max_pages": 80,
+            "max_recipes": 40,
+            "respect_robots": true,
+            "source_type": "web",
+            "source_url": "https://punchdrink.com/recipes/"
+          },
+          "seed_url": "https://punchdrink.com/recipes/",
+          "skip_reason_counts": {
+            "existing_source": 6
+          }
+        }
+      ],
+      "before_counts": {
+        "bbcgoodfood.com": 39,
+        "diffordsguide.com": 30,
+        "imbibemagazine.com": 51,
+        "punchdrink.com": 6
+      },
+      "drain": [
+        {
+          "cycle": 1,
+          "pending": 0
+        }
+      ],
+      "round": 5
+    },
+    {
+      "auto_harvest": [
+        {
+          "compliance_rejections": 0,
+          "domain": "punchdrink.com",
+          "errors_sample": [
+            "https://punchdrink.com/recipes/: parse failed (domain-selector-mismatch)"
+          ],
+          "parsed_count": 6,
+          "queued_jobs": 0,
+          "request": {
+            "crawl_depth": 2,
+            "enqueue": true,
+            "max_links": 200,
+            "max_pages": 80,
+            "max_recipes": 40,
+            "respect_robots": true,
+            "source_type": "web",
+            "source_url": "https://punchdrink.com/recipes/"
+          },
+          "seed_url": "https://punchdrink.com/recipes/",
+          "skip_reason_counts": {
+            "existing_source": 6
+          }
+        }
+      ],
+      "before_counts": {
+        "bbcgoodfood.com": 39,
+        "diffordsguide.com": 30,
+        "imbibemagazine.com": 51,
+        "punchdrink.com": 6
+      },
+      "drain": [
+        {
+          "cycle": 1,
+          "pending": 0
+        }
+      ],
+      "round": 6
+    }
+  ],
+  "run_id": "boost_min_jobs_20260209-161949",
+  "started_at": "2026-02-09T21:19:49.446793",
+  "target_domains": [
+    "bbcgoodfood.com",
+    "diffordsguide.com",
+    "imbibemagazine.com",
+    "punchdrink.com"
+  ]
+}

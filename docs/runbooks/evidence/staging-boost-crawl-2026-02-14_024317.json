@@ -1,0 +1,25 @@
+{
+  "api_base_url": "http://localhost:8000",
+  "calibration_apply_written": true,
+  "final_counts": {
+    "allrecipes.com": 37,
+    "bbcgoodfood.com": 40,
+    "diffordsguide.com": 30,
+    "food.com": 26,
+    "imbibemagazine.com": 53,
+    "punchdrink.com": 27
+  },
+  "finished_at": "2026-02-14T02:43:17.881257",
+  "min_jobs": 20,
+  "rounds": [],
+  "run_id": "2026-02-14_024317",
+  "started_at": "2026-02-14T02:43:17.840626",
+  "target_domains": [
+    "allrecipes.com",
+    "diffordsguide.com",
+    "imbibemagazine.com",
+    "punchdrink.com",
+    "bbcgoodfood.com",
+    "food.com"
+  ]
+}

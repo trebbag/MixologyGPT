@@ -1,0 +1,54 @@
+name: Staging E2E Matrix (Web + Mobile)
+
+on:
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: "Staging base URL (optional override for STAGING_BASE_URL)."
+        required: false
+        default: ""
+
+jobs:
+  staging-e2e:
+    runs-on: ubuntu-latest
+    if: ${{ (secrets.STAGING_BASE_URL != '' || github.event.inputs.base_url != '') && secrets.STAGING_E2E_ACCESS_TOKEN != '' }}
+    env:
+      STAGING_BASE_URL: ${{ github.event.inputs.base_url || secrets.STAGING_BASE_URL }}
+      STAGING_E2E_ACCESS_TOKEN: ${{ secrets.STAGING_E2E_ACCESS_TOKEN }}
+      STAGING_INTERNAL_TOKEN: ${{ secrets.STAGING_INTERNAL_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Web staging E2E (non-mocked)
+        run: |
+          set -euo pipefail
+          cd apps/web
+          npm ci
+          npx playwright install --with-deps chromium
+          E2E_BASE_URL="${STAGING_BASE_URL}" \
+          STAGING_E2E_ACCESS_TOKEN="${STAGING_E2E_ACCESS_TOKEN}" \
+          npm run test:e2e:staging
+
+      - name: Mobile staging E2E smoke (non-mocked API, UI-driven assertions)
+        run: |
+          set -euo pipefail
+          cd apps/mobile
+          npm ci
+          STAGING_E2E_API_URL="${STAGING_BASE_URL}" \
+          STAGING_E2E_ACCESS_TOKEN="${STAGING_E2E_ACCESS_TOKEN}" \
+          npm run test:e2e:staging
+
+      - name: Compliance rejection smoke (staging API)
+        if: ${{ env.STAGING_INTERNAL_TOKEN != '' }}
+        run: |
+          set -euo pipefail
+          cd infra/staging
+          API_BASE_URL="${STAGING_BASE_URL}" \
+          INTERNAL_TOKEN="${STAGING_INTERNAL_TOKEN}" \
+          python3 ./compliance_rejection_smoke.py

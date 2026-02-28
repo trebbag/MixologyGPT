@@ -1,0 +1,21 @@
+{
+  "api_base_url": "http://localhost:8000",
+  "calibration_apply_written": true,
+  "final_counts": {
+    "bbcgoodfood.com": 40,
+    "diffordsguide.com": 30,
+    "imbibemagazine.com": 53,
+    "punchdrink.com": 27
+  },
+  "finished_at": "2026-02-14T00:04:58.493789",
+  "min_jobs": 20,
+  "rounds": [],
+  "run_id": "2026-02-14_000458",
+  "started_at": "2026-02-14T00:04:58.437914",
+  "target_domains": [
+    "bbcgoodfood.com",
+    "diffordsguide.com",
+    "imbibemagazine.com",
+    "punchdrink.com"
+  ]
+}

@@ -1,0 +1,62 @@
+name: Staging Recovery Maintenance
+
+on:
+  schedule:
+    - cron: "20 */4 * * *"
+  workflow_dispatch:
+    inputs:
+      apply_safe:
+        description: "Apply safe parser patches after preview."
+        required: false
+        default: "false"
+      min_class_count:
+        description: "Minimum failure-class count to consider."
+        required: false
+        default: "1"
+      domains:
+        description: "Comma-separated domains (optional)."
+        required: false
+        default: "allrecipes.com,bbcgoodfood.com,diffordsguide.com,food.com,imbibemagazine.com,punchdrink.com"
+
+jobs:
+  preview-and-apply:
+    runs-on: ubuntu-latest
+    if: ${{ secrets.STAGING_BASE_URL != '' && secrets.STAGING_INTERNAL_TOKEN != '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Recovery patch preview
+        env:
+          RUN_ID: gh_recovery_preview_${{ github.run_id }}_${{ github.run_attempt }}
+          API_BASE_URL: ${{ secrets.STAGING_BASE_URL }}
+          INTERNAL_TOKEN: ${{ secrets.STAGING_INTERNAL_TOKEN }}
+          APPLY: "false"
+          MIN_CLASS_COUNT: ${{ github.event.inputs.min_class_count || '1' }}
+          TARGET_DOMAINS: ${{ github.event.inputs.domains || 'allrecipes.com,bbcgoodfood.com,diffordsguide.com,food.com,imbibemagazine.com,punchdrink.com' }}
+        run: |
+          set -euo pipefail
+          cd infra/staging
+          python3 ./apply_recovery_patches.py
+      - name: Recovery patch apply (safe keys only)
+        if: ${{ github.event.inputs.apply_safe == 'true' }}
+        env:
+          RUN_ID: gh_recovery_apply_${{ github.run_id }}_${{ github.run_attempt }}
+          API_BASE_URL: ${{ secrets.STAGING_BASE_URL }}
+          INTERNAL_TOKEN: ${{ secrets.STAGING_INTERNAL_TOKEN }}
+          APPLY: "true"
+          MIN_CLASS_COUNT: ${{ github.event.inputs.min_class_count || '1' }}
+          TARGET_DOMAINS: ${{ github.event.inputs.domains || 'allrecipes.com,bbcgoodfood.com,diffordsguide.com,food.com,imbibemagazine.com,punchdrink.com' }}
+        run: |
+          set -euo pipefail
+          cd infra/staging
+          python3 ./apply_recovery_patches.py
+      - name: Upload recovery evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: staging-recovery-maintenance-${{ github.run_id }}
+          path: |
+            docs/runbooks/evidence/staging-recovery-patches-gh_recovery_preview_${{ github.run_id }}_${{ github.run_attempt }}.json
+            docs/runbooks/evidence/staging-recovery-patches-gh_recovery_apply_${{ github.run_id }}_${{ github.run_attempt }}.json

@@ -1,0 +1,49 @@
+groups:
+  - name: api_health
+    rules:
+      - alert: ApiP95LatencyHigh
+        expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le)) > 1.2
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "API p95 latency is high"
+          description: "API p95 latency has stayed above 1.2s for 10 minutes."
+
+      - alert: ApiErrorRateHigh
+        expr: sum(rate(http_requests_total{status=~"5.."}[5m])) / clamp_min(sum(rate(http_requests_total[5m])), 0.001) > 0.03
+        for: 10m
+        labels:
+          severity: critical
+        annotations:
+          summary: "API 5xx error rate is high"
+          description: "Server error rate exceeded 3% for 10 minutes."
+
+  - name: crawler_ops
+    rules:
+      - alert: CrawlerRetryBacklogHigh
+        expr: sum(crawler_domain_retryable_jobs) > 10
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Crawler retry queue is high"
+          description: "Retryable crawler jobs exceeded 10."
+
+      - alert: CrawlerFallbackRateHigh
+        expr: max(crawler_domain_parser_fallback_rate) > 0.6
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Crawler fallback parser rate is high"
+          description: "At least one domain has parser fallback rate over 60%."
+
+      - alert: CrawlerFailureRateHigh
+        expr: max(crawler_domain_failure_rate) > 0.35
+        for: 10m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Crawler domain failure rate is high"
+          description: "At least one domain has failure rate over 35%."

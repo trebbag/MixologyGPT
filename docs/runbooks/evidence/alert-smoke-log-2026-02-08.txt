@@ -1,0 +1,4 @@
+Posting synthetic alert to http://localhost:9093
+Checking alert groups
+[{"alerts":[{"annotations":{"description":"Synthetic alert for alert routing validation","summary":"Local alert delivery smoke test"},"endsAt":"2026-02-08T23:12:34.703Z","fingerprint":"49287592892f7e15","receivers":[{"name":"default"}],"startsAt":"2026-02-08T23:06:47.263Z","status":{"inhibitedBy":[],"silencedBy":[],"state":"active"},"updatedAt":"2026-02-08T23:07:34.703Z","labels":{"alertname":"LocalAlertSmokeTest","service":"bartenderai","severity":"warning"}}],"labels":{"alertname":"LocalAlertSmokeTest"},"receiver":{"name":"default"}}]
+Alert smoke test posted. Confirm receiver endpoint delivery in your alert destination.

@@ -1,0 +1,126 @@
+{
+  "api_base_url": "http://localhost:8000",
+  "calibration_apply_written": true,
+  "final_counts": {
+    "allrecipes.com": 11,
+    "diffordsguide.com": 30,
+    "imbibemagazine.com": 53,
+    "punchdrink.com": 27
+  },
+  "finished_at": "2026-02-13T20:01:28.074944",
+  "min_jobs": 20,
+  "rounds": [
+    {
+      "auto_harvest": [
+        {
+          "compliance_rejections": 0,
+          "domain": "allrecipes.com",
+          "errors_sample": [
+            "https://www.allrecipes.com/recipes/77/drinks/: parse failed (domain-selector-mismatch)"
+          ],
+          "parsed_count": 19,
+          "queued_jobs": 0,
+          "request": {
+            "crawl_depth": 2,
+            "enqueue": true,
+            "max_links": 200,
+            "max_pages": 40,
+            "max_recipes": 20,
+            "respect_robots": true,
+            "source_type": "web",
+            "source_url": "https://www.allrecipes.com/recipes/77/drinks/"
+          },
+          "seed_url": "https://www.allrecipes.com/recipes/77/drinks/",
+          "skip_reason_counts": {
+            "existing_source": 11,
+            "insufficient_signals": 8
+          }
+        },
+        {
+          "compliance_rejections": 0,
+          "domain": "allrecipes.com",
+          "errors_sample": [
+            "https://www.allrecipes.com/recipes/13322/drinks/cocktails/: fetch_failed (http-404)"
+          ],
+          "parsed_count": 0,
+          "queued_jobs": 0,
+          "request": {
+            "crawl_depth": 2,
+            "enqueue": true,
+            "max_links": 200,
+            "max_pages": 40,
+            "max_recipes": 20,
+            "respect_robots": true,
+            "source_type": "web",
+            "source_url": "https://www.allrecipes.com/recipes/13322/drinks/cocktails/"
+          },
+          "seed_url": "https://www.allrecipes.com/recipes/13322/drinks/cocktails/",
+          "skip_reason_counts": {}
+        },
+        {
+          "compliance_rejections": 0,
+          "domain": "allrecipes.com",
+          "errors_sample": [
+            "https://www.allrecipes.com/recipes/13322/drinks/spirits/: fetch_failed (http-404)"
+          ],
+          "parsed_count": 0,
+          "queued_jobs": 0,
+          "request": {
+            "crawl_depth": 2,
+            "enqueue": true,
+            "max_links": 200,
+            "max_pages": 40,
+            "max_recipes": 20,
+            "respect_robots": true,
+            "source_type": "web",
+            "source_url": "https://www.allrecipes.com/recipes/13322/drinks/spirits/"
+          },
+          "seed_url": "https://www.allrecipes.com/recipes/13322/drinks/spirits/",
+          "skip_reason_counts": {}
+        },
+        {
+          "compliance_rejections": 0,
+          "domain": "allrecipes.com",
+          "errors_sample": [
+            "https://www.allrecipes.com/recipes/13322/drinks/whiskey/: fetch_failed (http-404)"
+          ],
+          "parsed_count": 0,
+          "queued_jobs": 0,
+          "request": {
+            "crawl_depth": 2,
+            "enqueue": true,
+            "max_links": 200,
+            "max_pages": 40,
+            "max_recipes": 20,
+            "respect_robots": true,
+            "source_type": "web",
+            "source_url": "https://www.allrecipes.com/recipes/13322/drinks/whiskey/"
+          },
+          "seed_url": "https://www.allrecipes.com/recipes/13322/drinks/whiskey/",
+          "skip_reason_counts": {}
+        }
+      ],
+      "before_counts": {
+        "allrecipes.com": 11,
+        "diffordsguide.com": 30,
+        "imbibemagazine.com": 53,
+        "punchdrink.com": 27
+      },
+      "drain": [
+        {
+          "cycle": 1,
+          "pending": 0
+        }
+      ],
+      "round": 1
+    }
+  ],
+  "run_id": "2026-02-13_200115",
+  "started_at": "2026-02-13T20:01:15.344081",
+  "target_domains": [
+    "allrecipes.com",
+    "diffordsguide.com",
+    "imbibemagazine.com",
+    "punchdrink.com"
+  ]
+}

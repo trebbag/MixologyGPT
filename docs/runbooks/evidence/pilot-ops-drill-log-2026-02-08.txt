@@ -1,0 +1,23 @@
+== Pilot Ops Drill ==
+API_BASE_URL=http://localhost:8000
+ALERTMANAGER_URL=http://localhost:9093
+APPLY_CALIBRATION=true
+RUN_LOAD_PROFILE=false
+
+1) Health and metrics smoke
+Health and metrics checks passed.
+
+2) Run alert threshold calibration
+Calibration preview saved to /tmp/bartenderai-calibration-preview.json
+Calibration apply saved to /tmp/bartenderai-calibration-apply.json
+
+3) Alert smoke validation
+Alert smoke output saved to /tmp/bartenderai-alert-smoke.log
+
+4) Runbook validation checks
+Runbooks present.
+
+5) Optional staging load profile and gate evaluation
+Load profile skipped (set RUN_LOAD_PROFILE=true to execute).
+
+Pilot ops drill complete.

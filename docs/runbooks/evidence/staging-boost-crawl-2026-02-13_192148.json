@@ -1,0 +1,776 @@
+{
+  "api_base_url": "http://localhost:8000",
+  "calibration_apply_written": true,
+  "final_counts": {
+    "allrecipes.com": 11
+  },
+  "finished_at": "2026-02-13T19:23:18.103928",
+  "min_jobs": 20,
+  "rounds": [
+    {
+      "auto_harvest": [
+        {
+          "compliance_rejections": 0,
+          "domain": "allrecipes.com",
+          "errors_sample": [
+            "https://www.allrecipes.com/recipes/77/drinks/: parse failed (domain-selector-mismatch)"
+          ],
+          "parsed_count": 19,
+          "queued_jobs": 0,
+          "request": {
+            "crawl_depth": 2,
+            "enqueue": true,
+            "max_links": 400,
+            "max_pages": 40,
+            "max_recipes": 20,
+            "respect_robots": true,
+            "source_type": "web",
+            "source_url": "https://www.allrecipes.com/recipes/77/drinks/"
+          },
+          "seed_url": "https://www.allrecipes.com/recipes/77/drinks/",
+          "skip_reason_counts": {
+            "existing_source": 11,
+            "insufficient_signals": 8
+          }
+        }
+      ],
+      "before_counts": {
+        "allrecipes.com": 11
+      },
+      "drain": [
+        {
+          "cycle": 1,
+          "pending": 0
+        }
+      ],
+      "round": 1
+    },
+    {
+      "auto_harvest": [
+        {
+          "compliance_rejections": 0,
+          "domain": "allrecipes.com",
+          "errors_sample": [
+            "https://www.allrecipes.com/recipes/77/drinks/: parse failed (domain-selector-mismatch)"
+          ],
+          "parsed_count": 19,
+          "queued_jobs": 0,
+          "request": {
+            "crawl_depth": 2,
+            "enqueue": true,
+            "max_links": 400,
+            "max_pages": 60,
+            "max_recipes": 30,
+            "respect_robots": true,
+            "source_type": "web",
+            "source_url": "https://www.allrecipes.com/recipes/77/drinks/"
+          },
+          "seed_url": "https://www.allrecipes.com/recipes/77/drinks/",
+          "skip_reason_counts": {
+            "existing_source": 11,
+            "insufficient_signals": 8
+          }
+        }
+      ],
+      "before_counts": {
+        "allrecipes.com": 11
+      },
+      "drain": [
+        {
+          "cycle": 1,
+          "pending": 0
+        }
+      ],
+      "round": 2
+    },
+    {
+      "auto_harvest": [
+        {
+          "compliance_rejections": 0,
+          "domain": "allrecipes.com",
+          "errors_sample": [
+            "https://www.allrecipes.com/recipes/77/drinks/: parse failed (domain-selector-mismatch)"
+          ],
+          "parsed_count": 19,
+          "queued_jobs": 0,
+          "request": {
+            "crawl_depth": 2,
+            "enqueue": true,
+            "max_links": 400,
+            "max_pages": 80,
+            "max_recipes": 40,
+            "respect_robots": true,
+            "source_type": "web",
+            "source_url": "https://www.allrecipes.com/recipes/77/drinks/"
+          },
+          "seed_url": "https://www.allrecipes.com/recipes/77/drinks/",
+          "skip_reason_counts": {
+            "existing_source": 11,
+            "insufficient_signals": 8
+          }
+        }
+      ],
+      "before_counts": {
+        "allrecipes.com": 11
+      },
+      "drain": [
+        {
+          "cycle": 1,
+          "pending": 0
+        }
+      ],
+      "round": 3
+    },
+    {
+      "auto_harvest": [
+        {
+          "compliance_rejections": 0,
+          "domain": "allrecipes.com",
+          "errors_sample": [
+            "https://www.allrecipes.com/recipes/77/drinks/: parse failed (domain-selector-mismatch)"
+          ],
+          "parsed_count": 19,
+          "queued_jobs": 0,
+          "request": {
+            "crawl_depth": 2,
+            "enqueue": true,
+            "max_links": 400,
+            "max_pages": 100,
+            "max_recipes": 50,
+            "respect_robots": true,
+            "source_type": "web",
+            "source_url": "https://www.allrecipes.com/recipes/77/drinks/"
+          },
+          "seed_url": "https://www.allrecipes.com/recipes/77/drinks/",
+          "skip_reason_counts": {
+            "existing_source": 11,
+            "insufficient_signals": 8
+          }
+        }
+      ],
+      "before_counts": {
+        "allrecipes.com": 11
+      },
+      "drain": [
+        {
+          "cycle": 1,
+          "pending": 0
+        }
+      ],
+      "round": 4
+    },
+    {
+      "auto_harvest": [
+        {
+          "compliance_rejections": 0,
+          "domain": "allrecipes.com",
+          "errors_sample": [
+            "https://www.allrecipes.com/recipes/77/drinks/: parse failed (domain-selector-mismatch)"
+          ],
+          "parsed_count": 19,
+          "queued_jobs": 0,
+          "request": {
+            "crawl_depth": 2,
+            "enqueue": true,
+            "max_links": 400,
+            "max_pages": 120,
+            "max_recipes": 60,
+            "respect_robots": true,
+            "source_type": "web",
+            "source_url": "https://www.allrecipes.com/recipes/77/drinks/"
+          },
+          "seed_url": "https://www.allrecipes.com/recipes/77/drinks/",
+          "skip_reason_counts": {
+            "existing_source": 11,
+            "insufficient_signals": 8
+          }
+        }
+      ],
+      "before_counts": {
+        "allrecipes.com": 11
+      },
+      "drain": [
+        {
+          "cycle": 1,
+          "pending": 0
+        }
+      ],
+      "round": 5
+    },
+    {
+      "auto_harvest": [
+        {
+          "compliance_rejections": 0,
+          "domain": "allrecipes.com",
+          "errors_sample": [
+            "https://www.allrecipes.com/recipes/77/drinks/: parse failed (domain-selector-mismatch)"
+          ],
+          "parsed_count": 19,
+          "queued_jobs": 0,
+          "request": {
+            "crawl_depth": 2,
+            "enqueue": true,
+            "max_links": 400,
+            "max_pages": 120,
+            "max_recipes": 70,
+            "respect_robots": true,
+            "source_type": "web",
+            "source_url": "https://www.allrecipes.com/recipes/77/drinks/"
+          },
+          "seed_url": "https://www.allrecipes.com/recipes/77/drinks/",
+          "skip_reason_counts": {
+            "existing_source": 11,
+            "insufficient_signals": 8
+          }
+        }
+      ],
+      "before_counts": {
+        "allrecipes.com": 11
+      },
+      "drain": [
+        {
+          "cycle": 1,
+          "pending": 0
+        }
+      ],
+      "round": 6
+    },
+    {
+      "auto_harvest": [
+        {
+          "compliance_rejections": 0,
+          "domain": "allrecipes.com",
+          "errors_sample": [
+            "https://www.allrecipes.com/recipes/77/drinks/: parse failed (domain-selector-mismatch)"
+          ],
+          "parsed_count": 19,
+          "queued_jobs": 0,
+          "request": {
+            "crawl_depth": 2,
+            "enqueue": true,
+            "max_links": 400,
+            "max_pages": 120,
+            "max_recipes": 80,
+            "respect_robots": true,
+            "source_type": "web",
+            "source_url": "https://www.allrecipes.com/recipes/77/drinks/"
+          },
+          "seed_url": "https://www.allrecipes.com/recipes/77/drinks/",
+          "skip_reason_counts": {
+            "existing_source": 11,
+            "insufficient_signals": 8
+          }
+        }
+      ],
+      "before_counts": {
+        "allrecipes.com": 11
+      },
+      "drain": [
+        {
+          "cycle": 1,
+          "pending": 0
+        }
+      ],
+      "round": 7
+    },
+    {
+      "auto_harvest": [
+        {
+          "compliance_rejections": 0,
+          "domain": "allrecipes.com",
+          "errors_sample": [
+            "https://www.allrecipes.com/recipes/77/drinks/: parse failed (domain-selector-mismatch)"
+          ],
+          "parsed_count": 19,
+          "queued_jobs": 0,
+          "request": {
+            "crawl_depth": 2,
+            "enqueue": true,
+            "max_links": 400,
+            "max_pages": 120,
+            "max_recipes": 80,
+            "respect_robots": true,
+            "source_type": "web",
+            "source_url": "https://www.allrecipes.com/recipes/77/drinks/"
+          },
+          "seed_url": "https://www.allrecipes.com/recipes/77/drinks/",
+          "skip_reason_counts": {
+            "existing_source": 11,
+            "insufficient_signals": 8
+          }
+        }
+      ],
+      "before_counts": {
+        "allrecipes.com": 11
+      },
+      "drain": [
+        {
+          "cycle": 1,
+          "pending": 0
+        }
+      ],
+      "round": 8
+    },
+    {
+      "auto_harvest": [
+        {
+          "compliance_rejections": 0,
+          "domain": "allrecipes.com",
+          "errors_sample": [
+            "https://www.allrecipes.com/recipes/77/drinks/: parse failed (domain-selector-mismatch)"
+          ],
+          "parsed_count": 19,
+          "queued_jobs": 0,
+          "request": {
+            "crawl_depth": 2,
+            "enqueue": true,
+            "max_links": 400,
+            "max_pages": 120,
+            "max_recipes": 80,
+            "respect_robots": true,
+            "source_type": "web",
+            "source_url": "https://www.allrecipes.com/recipes/77/drinks/"
+          },
+          "seed_url": "https://www.allrecipes.com/recipes/77/drinks/",
+          "skip_reason_counts": {
+            "existing_source": 11,
+            "insufficient_signals": 8
+          }
+        }
+      ],
+      "before_counts": {
+        "allrecipes.com": 11
+      },
+      "drain": [
+        {
+          "cycle": 1,
+          "pending": 0
+        }
+      ],
+      "round": 9
+    },
+    {
+      "auto_harvest": [
+        {
+          "compliance_rejections": 0,
+          "domain": "allrecipes.com",
+          "errors_sample": [
+            "https://www.allrecipes.com/recipes/77/drinks/: parse failed (domain-selector-mismatch)"
+          ],
+          "parsed_count": 19,
+          "queued_jobs": 0,
+          "request": {
+            "crawl_depth": 2,
+            "enqueue": true,
+            "max_links": 400,
+            "max_pages": 120,
+            "max_recipes": 80,
+            "respect_robots": true,
+            "source_type": "web",
+            "source_url": "https://www.allrecipes.com/recipes/77/drinks/"
+          },
+          "seed_url": "https://www.allrecipes.com/recipes/77/drinks/",
+          "skip_reason_counts": {
+            "existing_source": 11,
+            "insufficient_signals": 8
+          }
+        }
+      ],
+      "before_counts": {
+        "allrecipes.com": 11
+      },
+      "drain": [
+        {
+          "cycle": 1,
+          "pending": 0
+        }
+      ],
+      "round": 10
+    },
+    {
+      "auto_harvest": [
+        {
+          "compliance_rejections": 0,
+          "domain": "allrecipes.com",
+          "errors_sample": [
+            "https://www.allrecipes.com/recipes/77/drinks/: parse failed (domain-selector-mismatch)"
+          ],
+          "parsed_count": 19,
+          "queued_jobs": 0,
+          "request": {
+            "crawl_depth": 2,
+            "enqueue": true,
+            "max_links": 400,
+            "max_pages": 120,
+            "max_recipes": 80,
+            "respect_robots": true,
+            "source_type": "web",
+            "source_url": "https://www.allrecipes.com/recipes/77/drinks/"
+          },
+          "seed_url": "https://www.allrecipes.com/recipes/77/drinks/",
+          "skip_reason_counts": {
+            "existing_source": 11,
+            "insufficient_signals": 8
+          }
+        }
+      ],
+      "before_counts": {
+        "allrecipes.com": 11
+      },
+      "drain": [
+        {
+          "cycle": 1,
+          "pending": 0
+        }
+      ],
+      "round": 11
+    },
+    {
+      "auto_harvest": [
+        {
+          "compliance_rejections": 0,
+          "domain": "allrecipes.com",
+          "errors_sample": [
+            "https://www.allrecipes.com/recipes/77/drinks/: parse failed (domain-selector-mismatch)"
+          ],
+          "parsed_count": 19,
+          "queued_jobs": 0,
+          "request": {
+            "crawl_depth": 2,
+            "enqueue": true,
+            "max_links": 400,
+            "max_pages": 120,
+            "max_recipes": 80,
+            "respect_robots": true,
+            "source_type": "web",
+            "source_url": "https://www.allrecipes.com/recipes/77/drinks/"
+          },
+          "seed_url": "https://www.allrecipes.com/recipes/77/drinks/",
+          "skip_reason_counts": {
+            "existing_source": 11,
+            "insufficient_signals": 8
+          }
+        }
+      ],
+      "before_counts": {
+        "allrecipes.com": 11
+      },
+      "drain": [
+        {
+          "cycle": 1,
+          "pending": 0
+        }
+      ],
+      "round": 12
+    },
+    {
+      "auto_harvest": [
+        {
+          "compliance_rejections": 0,
+          "domain": "allrecipes.com",
+          "errors_sample": [
+            "https://www.allrecipes.com/recipes/77/drinks/: parse failed (domain-selector-mismatch)"
+          ],
+          "parsed_count": 19,
+          "queued_jobs": 0,
+          "request": {
+            "crawl_depth": 2,
+            "enqueue": true,
+            "max_links": 400,
+            "max_pages": 120,
+            "max_recipes": 80,
+            "respect_robots": true,
+            "source_type": "web",
+            "source_url": "https://www.allrecipes.com/recipes/77/drinks/"
+          },
+          "seed_url": "https://www.allrecipes.com/recipes/77/drinks/",
+          "skip_reason_counts": {
+            "existing_source": 11,
+            "insufficient_signals": 8
+          }
+        }
+      ],
+      "before_counts": {
+        "allrecipes.com": 11
+      },
+      "drain": [
+        {
+          "cycle": 1,
+          "pending": 0
+        }
+      ],
+      "round": 13
+    },
+    {
+      "auto_harvest": [
+        {
+          "compliance_rejections": 0,
+          "domain": "allrecipes.com",
+          "errors_sample": [
+            "https://www.allrecipes.com/recipes/77/drinks/: parse failed (domain-selector-mismatch)"
+          ],
+          "parsed_count": 19,
+          "queued_jobs": 0,
+          "request": {
+            "crawl_depth": 2,
+            "enqueue": true,
+            "max_links": 400,
+            "max_pages": 120,
+            "max_recipes": 80,
+            "respect_robots": true,
+            "source_type": "web",
+            "source_url": "https://www.allrecipes.com/recipes/77/drinks/"
+          },
+          "seed_url": "https://www.allrecipes.com/recipes/77/drinks/",
+          "skip_reason_counts": {
+            "existing_source": 11,
+            "insufficient_signals": 8
+          }
+        }
+      ],
+      "before_counts": {
+        "allrecipes.com": 11
+      },
+      "drain": [
+        {
+          "cycle": 1,
+          "pending": 0
+        }
+      ],
+      "round": 14
+    },
+    {
+      "auto_harvest": [
+        {
+          "compliance_rejections": 0,
+          "domain": "allrecipes.com",
+          "errors_sample": [
+            "https://www.allrecipes.com/recipes/77/drinks/: parse failed (domain-selector-mismatch)"
+          ],
+          "parsed_count": 19,
+          "queued_jobs": 0,
+          "request": {
+            "crawl_depth": 2,
+            "enqueue": true,
+            "max_links": 400,
+            "max_pages": 120,
+            "max_recipes": 80,
+            "respect_robots": true,
+            "source_type": "web",
+            "source_url": "https://www.allrecipes.com/recipes/77/drinks/"
+          },
+          "seed_url": "https://www.allrecipes.com/recipes/77/drinks/",
+          "skip_reason_counts": {
+            "existing_source": 11,
+            "insufficient_signals": 8
+          }
+        }
+      ],
+      "before_counts": {
+        "allrecipes.com": 11
+      },
+      "drain": [
+        {
+          "cycle": 1,
+          "pending": 0
+        }
+      ],
+      "round": 15
+    },
+    {
+      "auto_harvest": [
+        {
+          "compliance_rejections": 0,
+          "domain": "allrecipes.com",
+          "errors_sample": [
+            "https://www.allrecipes.com/recipes/77/drinks/: parse failed (domain-selector-mismatch)"
+          ],
+          "parsed_count": 19,
+          "queued_jobs": 0,
+          "request": {
+            "crawl_depth": 2,
+            "enqueue": true,
+            "max_links": 400,
+            "max_pages": 120,
+            "max_recipes": 80,
+            "respect_robots": true,
+            "source_type": "web",
+            "source_url": "https://www.allrecipes.com/recipes/77/drinks/"
+          },
+          "seed_url": "https://www.allrecipes.com/recipes/77/drinks/",
+          "skip_reason_counts": {
+            "existing_source": 11,
+            "insufficient_signals": 8
+          }
+        }
+      ],
+      "before_counts": {
+        "allrecipes.com": 11
+      },
+      "drain": [
+        {
+          "cycle": 1,
+          "pending": 0
+        }
+      ],
+      "round": 16
+    },
+    {
+      "auto_harvest": [
+        {
+          "compliance_rejections": 0,
+          "domain": "allrecipes.com",
+          "errors_sample": [
+            "https://www.allrecipes.com/recipes/77/drinks/: parse failed (domain-selector-mismatch)"
+          ],
+          "parsed_count": 19,
+          "queued_jobs": 0,
+          "request": {
+            "crawl_depth": 2,
+            "enqueue": true,
+            "max_links": 400,
+            "max_pages": 120,
+            "max_recipes": 80,
+            "respect_robots": true,
+            "source_type": "web",
+            "source_url": "https://www.allrecipes.com/recipes/77/drinks/"
+          },
+          "seed_url": "https://www.allrecipes.com/recipes/77/drinks/",
+          "skip_reason_counts": {
+            "existing_source": 11,
+            "insufficient_signals": 8
+          }
+        }
+      ],
+      "before_counts": {
+        "allrecipes.com": 11
+      },
+      "drain": [
+        {
+          "cycle": 1,
+          "pending": 0
+        }
+      ],
+      "round": 17
+    },
+    {
+      "auto_harvest": [
+        {
+          "compliance_rejections": 0,
+          "domain": "allrecipes.com",
+          "errors_sample": [
+            "https://www.allrecipes.com/recipes/77/drinks/: parse failed (domain-selector-mismatch)"
+          ],
+          "parsed_count": 19,
+          "queued_jobs": 0,
+          "request": {
+            "crawl_depth": 2,
+            "enqueue": true,
+            "max_links": 400,
+            "max_pages": 120,
+            "max_recipes": 80,
+            "respect_robots": true,
+            "source_type": "web",
+            "source_url": "https://www.allrecipes.com/recipes/77/drinks/"
+          },
+          "seed_url": "https://www.allrecipes.com/recipes/77/drinks/",
+          "skip_reason_counts": {
+            "existing_source": 11,
+            "insufficient_signals": 8
+          }
+        }
+      ],
+      "before_counts": {
+        "allrecipes.com": 11
+      },
+      "drain": [
+        {
+          "cycle": 1,
+          "pending": 0
+        }
+      ],
+      "round": 18
+    },
+    {
+      "auto_harvest": [
+        {
+          "compliance_rejections": 0,
+          "domain": "allrecipes.com",
+          "errors_sample": [
+            "https://www.allrecipes.com/recipes/77/drinks/: parse failed (domain-selector-mismatch)"
+          ],
+          "parsed_count": 19,
+          "queued_jobs": 0,
+          "request": {
+            "crawl_depth": 2,
+            "enqueue": true,
+            "max_links": 400,
+            "max_pages": 120,
+            "max_recipes": 80,
+            "respect_robots": true,
+            "source_type": "web",
+            "source_url": "https://www.allrecipes.com/recipes/77/drinks/"
+          },
+          "seed_url": "https://www.allrecipes.com/recipes/77/drinks/",
+          "skip_reason_counts": {
+            "existing_source": 11,
+            "insufficient_signals": 8
+          }
+        }
+      ],
+      "before_counts": {
+        "allrecipes.com": 11
+      },
+      "drain": [
+        {
+          "cycle": 1,
+          "pending": 0
+        }
+      ],
+      "round": 19
+    },
+    {
+      "auto_harvest": [
+        {
+          "compliance_rejections": 0,
+          "domain": "allrecipes.com",
+          "errors_sample": [
+            "https://www.allrecipes.com/recipes/77/drinks/: parse failed (domain-selector-mismatch)"
+          ],
+          "parsed_count": 19,
+          "queued_jobs": 0,
+          "request": {
+            "crawl_depth": 2,
+            "enqueue": true,
+            "max_links": 400,
+            "max_pages": 120,
+            "max_recipes": 80,
+            "respect_robots": true,
+            "source_type": "web",
+            "source_url": "https://www.allrecipes.com/recipes/77/drinks/"
+          },
+          "seed_url": "https://www.allrecipes.com/recipes/77/drinks/",
+          "skip_reason_counts": {
+            "existing_source": 11,
+            "insufficient_signals": 8
+          }
+        }
+      ],
+      "before_counts": {
+        "allrecipes.com": 11
+      },
+      "drain": [
+        {
+          "cycle": 1,
+          "pending": 0
+        }
+      ],
+      "round": 20
+    }
+  ],
+  "run_id": "2026-02-13_192148",
+  "started_at": "2026-02-13T19:21:48.128314",
+  "target_domains": [
+    "allrecipes.com"
+  ]
+}

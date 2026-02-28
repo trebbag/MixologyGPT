@@ -1,0 +1,14 @@
+route:
+  receiver: default
+  # Include `run_id` so alert smokes can emit fresh notifications without waiting for group_interval,
+  # while real alerts (which don't set `run_id`) remain grouped primarily by alertname.
+  group_by: ["alertname", "run_id"]
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 2h
+
+receivers:
+  - name: default
+    webhook_configs:
+      - url: __ALERT_WEBHOOK_URL__
+        send_resolved: true

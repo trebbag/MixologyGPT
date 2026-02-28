@@ -1,0 +1,134 @@
+{
+  "api_base_url": "http://localhost:8000",
+  "batch_limit": 20,
+  "cycles": [
+    {
+      "cycle": 1,
+      "jobs": [
+        {
+          "compliance_reasons": null,
+          "error": null,
+          "job_id": "6bf072bc-440a-4c8c-803c-fc2b2040bbcf",
+          "parse_strategy": "jsonld@high",
+          "status": "succeeded"
+        },
+        {
+          "compliance_reasons": null,
+          "error": null,
+          "job_id": "015a8c9a-3426-4d46-ae8b-a34c7973ab87",
+          "parse_strategy": "jsonld@medium",
+          "status": "succeeded"
+        },
+        {
+          "compliance_reasons": null,
+          "error": null,
+          "job_id": "3dff7565-923c-44f9-9da5-3e502a12f396",
+          "parse_strategy": "jsonld@medium",
+          "status": "succeeded"
+        },
+        {
+          "compliance_reasons": null,
+          "error": null,
+          "job_id": "1c827708-0689-4e44-920e-0557a7847c4a",
+          "parse_strategy": "jsonld@medium",
+          "status": "succeeded"
+        },
+        {
+          "compliance_reasons": null,
+          "error": null,
+          "job_id": "83d342ac-0a6c-4726-8f07-b51eba5b3cfb",
+          "parse_strategy": "jsonld@medium",
+          "status": "succeeded"
+        },
+        {
+          "compliance_reasons": null,
+          "error": null,
+          "job_id": "7f6508bf-deca-4a9d-8bb5-f3c48403e495",
+          "parse_strategy": "jsonld@medium",
+          "status": "succeeded"
+        },
+        {
+          "compliance_reasons": null,
+          "error": null,
+          "job_id": "7731702a-e20b-447c-a28d-160f23b3e166",
+          "parse_strategy": "jsonld@medium",
+          "status": "succeeded"
+        },
+        {
+          "compliance_reasons": null,
+          "error": null,
+          "job_id": "0833183d-fe77-4059-a979-d71bf22beb54",
+          "parse_strategy": "jsonld@high",
+          "status": "succeeded"
+        },
+        {
+          "compliance_reasons": null,
+          "error": null,
+          "job_id": "443613cf-5960-4af6-86b0-60b73e963b8a",
+          "parse_strategy": "jsonld@medium",
+          "status": "succeeded"
+        },
+        {
+          "compliance_reasons": null,
+          "error": null,
+          "job_id": "6542b3e6-aed9-4622-8ffa-793446cfa84b",
+          "parse_strategy": "jsonld@medium",
+          "status": "succeeded"
+        },
+        {
+          "compliance_reasons": null,
+          "error": null,
+          "job_id": "4ffca761-92b3-4d92-9798-a5a06f4fc8c7",
+          "parse_strategy": "jsonld@high",
+          "status": "succeeded"
+        },
+        {
+          "compliance_reasons": null,
+          "error": null,
+          "job_id": "04ada30a-4f17-42a1-a279-5588eaf88da0",
+          "parse_strategy": "jsonld@high",
+          "status": "succeeded"
+        },
+        {
+          "compliance_reasons": null,
+          "error": null,
+          "job_id": "efcb3f6f-f8a9-482b-bad8-23feabbd2a8d",
+          "parse_strategy": "jsonld@high",
+          "status": "succeeded"
+        },
+        {
+          "compliance_reasons": null,
+          "error": null,
+          "job_id": "cb4a5648-1626-4bb2-83ea-6b630e98bb74",
+          "parse_strategy": "jsonld@high",
+          "status": "succeeded"
+        },
+        {
+          "compliance_reasons": null,
+          "error": null,
+          "job_id": "8b97e5b6-7897-49c8-a74d-88373db6e1bc",
+          "parse_strategy": "jsonld@medium",
+          "status": "succeeded"
+        },
+        {
+          "compliance_reasons": null,
+          "error": null,
+          "job_id": "fa7ee947-e0e9-4265-bcd0-f36996d1d4ea",
+          "parse_strategy": "jsonld@medium",
+          "status": "succeeded"
+        }
+      ],
+      "pending": 16
+    },
+    {
+      "cycle": 2,
+      "jobs": [],
+      "pending": 0
+    }
+  ],
+  "finished_at": "2026-02-09T17:51:53.519140",
+  "max_cycles": 10,
+  "run_id": "2026-02-09_175147",
+  "started_at": "2026-02-09T17:51:47.565265",
+  "total_ran": 16
+}

@@ -1,0 +1,16 @@
+{
+  "api_base_url": "http://localhost:8000",
+  "apply": false,
+  "domains": [],
+  "finished_at": "2026-02-13T20:02:04.040259",
+  "max_classes_per_domain": 3,
+  "min_class_count": 1,
+  "run_id": "2026-02-13_200204",
+  "skipped": [
+    {
+      "domain": "allrecipes.com",
+      "reason": "no_supported_failure_classes"
+    }
+  ],
+  "started_at": "2026-02-13T20:02:04.040248"
+}

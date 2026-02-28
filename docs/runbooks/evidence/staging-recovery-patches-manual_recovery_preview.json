@@ -1,0 +1,32 @@
+{
+  "api_base_url": "http://localhost:8000",
+  "apply": false,
+  "domains": [],
+  "finished_at": "2026-02-13T20:22:41.025222",
+  "max_classes_per_domain": 5,
+  "min_class_count": 1,
+  "run_id": "manual_recovery_preview",
+  "skipped": [
+    {
+      "domain": "allrecipes.com",
+      "reason": "no_supported_failure_classes"
+    },
+    {
+      "domain": "bbcgoodfood.com",
+      "reason": "no_supported_failure_classes"
+    },
+    {
+      "domain": "diffordsguide.com",
+      "reason": "no_supported_failure_classes"
+    },
+    {
+      "domain": "imbibemagazine.com",
+      "reason": "no_supported_failure_classes"
+    },
+    {
+      "domain": "punchdrink.com",
+      "reason": "no_supported_failure_classes"
+    }
+  ],
+  "started_at": "2026-02-13T20:22:41.025202"
+}

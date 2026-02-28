@@ -1,0 +1,14 @@
+{
+  "expo": {
+    "name": "BartenderAI",
+    "slug": "bartenderai",
+    "scheme": "bartenderai",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "platforms": ["ios", "android"],
+    "sdkVersion": "50.0.0",
+    "splash": {
+      "backgroundColor": "#f5efe6"
+    }
+  }
+}

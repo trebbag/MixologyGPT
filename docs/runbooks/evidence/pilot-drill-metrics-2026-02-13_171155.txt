@@ -1,0 +1,200 @@
+# HELP python_gc_objects_collected_total Objects collected during gc
+# TYPE python_gc_objects_collected_total counter
+python_gc_objects_collected_total{generation="0"} 2.017448e+06
+python_gc_objects_collected_total{generation="1"} 7.511088e+06
+python_gc_objects_collected_total{generation="2"} 1.98906424e+08
+# HELP python_gc_objects_uncollectable_total Uncollectable objects found during GC
+# TYPE python_gc_objects_uncollectable_total counter
+python_gc_objects_uncollectable_total{generation="0"} 0.0
+python_gc_objects_uncollectable_total{generation="1"} 0.0
+python_gc_objects_uncollectable_total{generation="2"} 0.0
+# HELP python_gc_collections_total Number of times this generation was collected
+# TYPE python_gc_collections_total counter
+python_gc_collections_total{generation="0"} 432367.0
+python_gc_collections_total{generation="1"} 39306.0
+python_gc_collections_total{generation="2"} 2606.0
+# HELP python_info Python platform information
+# TYPE python_info gauge
+python_info{implementation="CPython",major="3",minor="11",patchlevel="14",version="3.11.14"} 1.0
+# HELP process_virtual_memory_bytes Virtual memory size in bytes.
+# TYPE process_virtual_memory_bytes gauge
+process_virtual_memory_bytes 3.266441216e+09
+# HELP process_resident_memory_bytes Resident memory size in bytes.
+# TYPE process_resident_memory_bytes gauge
+process_resident_memory_bytes 2.4621056e+08
+# HELP process_start_time_seconds Start time of the process since unix epoch in seconds.
+# TYPE process_start_time_seconds gauge
+process_start_time_seconds 1.77067305102e+09
+# HELP process_cpu_seconds_total Total user and system CPU time spent in seconds.
+# TYPE process_cpu_seconds_total counter
+process_cpu_seconds_total 3348.8
+# HELP process_open_fds Number of open file descriptors.
+# TYPE process_open_fds gauge
+process_open_fds 37.0
+# HELP process_max_fds Maximum number of open file descriptors.
+# TYPE process_max_fds gauge
+process_max_fds 1.048576e+06
+# HELP crawler_jobs_total Crawler job and parser outcomes by domain.
+# TYPE crawler_jobs_total counter
+crawler_jobs_total{domain="allrecipes.com",parse_strategy="jsonld",status="parsed"} 3272.0
+crawler_jobs_total{domain="bbcgoodfood.com",parse_strategy="jsonld",status="parsed"} 1760.0
+crawler_jobs_total{domain="diffordsguide.com",parse_strategy="domain_dom",status="parsed"} 88.0
+crawler_jobs_total{domain="diffordsguide.com",parse_strategy="jsonld",status="parsed"} 1052.0
+crawler_jobs_total{domain="imbibemagazine.com",parse_strategy="jsonld",status="parsed"} 1565.0
+crawler_jobs_total{domain="punchdrink.com",parse_strategy="microdata",status="parsed"} 504.0
+crawler_jobs_total{domain="allrecipes.com",parse_strategy="jsonld_high",status="succeeded"} 35.0
+crawler_jobs_total{domain="bbcgoodfood.com",parse_strategy="jsonld_medium",status="succeeded"} 1.0
+crawler_jobs_total{domain="imbibemagazine.com",parse_strategy="jsonld_medium",status="succeeded"} 1.0
+crawler_jobs_total{domain="punchdrink.com",parse_strategy="microdata_medium",status="succeeded"} 1.0
+crawler_jobs_total{domain="imbibemagazine.com",parse_strategy="jsonld_high",status="succeeded"} 1.0
+crawler_jobs_total{domain="food.com",parse_strategy="jsonld",status="parsed"} 27.0
+crawler_jobs_total{domain="food.com",parse_strategy="jsonld_high",status="succeeded"} 26.0
+crawler_jobs_total{domain="allrecipes.com",parse_strategy="jsonld_medium",status="succeeded"} 2.0
+# HELP crawler_jobs_created Crawler job and parser outcomes by domain.
+# TYPE crawler_jobs_created gauge
+crawler_jobs_created{domain="allrecipes.com",parse_strategy="jsonld",status="parsed"} 1.7706766637426476e+09
+crawler_jobs_created{domain="bbcgoodfood.com",parse_strategy="jsonld",status="parsed"} 1.7706766750019295e+09
+crawler_jobs_created{domain="diffordsguide.com",parse_strategy="domain_dom",status="parsed"} 1.7706767000971854e+09
+crawler_jobs_created{domain="diffordsguide.com",parse_strategy="jsonld",status="parsed"} 1.7706767000971966e+09
+crawler_jobs_created{domain="imbibemagazine.com",parse_strategy="jsonld",status="parsed"} 1.7706767117539637e+09
+crawler_jobs_created{domain="punchdrink.com",parse_strategy="microdata",status="parsed"} 1.770676712890081e+09
+crawler_jobs_created{domain="allrecipes.com",parse_strategy="jsonld_high",status="succeeded"} 1.7706769543727918e+09
+crawler_jobs_created{domain="bbcgoodfood.com",parse_strategy="jsonld_medium",status="succeeded"} 1.7707895595679018e+09
+crawler_jobs_created{domain="imbibemagazine.com",parse_strategy="jsonld_medium",status="succeeded"} 1.7708262786179178e+09
+crawler_jobs_created{domain="punchdrink.com",parse_strategy="microdata_medium",status="succeeded"} 1.770898137814142e+09
+crawler_jobs_created{domain="imbibemagazine.com",parse_strategy="jsonld_high",status="succeeded"} 1.7710006635089142e+09
+crawler_jobs_created{domain="food.com",parse_strategy="jsonld",status="parsed"} 1.7710150599421442e+09
+crawler_jobs_created{domain="food.com",parse_strategy="jsonld_high",status="succeeded"} 1.771015192812542e+09
+crawler_jobs_created{domain="allrecipes.com",parse_strategy="jsonld_medium",status="succeeded"} 1.771015224044615e+09
+# HELP crawler_fallback_class_total Crawler fallback parser classifications by domain.
+# TYPE crawler_fallback_class_total counter
+# HELP crawler_parse_failures_total Crawler parse failure classifications by domain.
+# TYPE crawler_parse_failures_total counter
+crawler_parse_failures_total{domain="allrecipes.com",failure_class="domain-selector-mismatch"} 172.0
+crawler_parse_failures_total{domain="bbcgoodfood.com",failure_class="domain-selector-mismatch"} 175.0
+crawler_parse_failures_total{domain="diffordsguide.com",failure_class="domain-selector-mismatch"} 1754.0
+crawler_parse_failures_total{domain="imbibemagazine.com",failure_class="domain-selector-mismatch"} 87.0
+crawler_parse_failures_total{domain="punchdrink.com",failure_class="domain-selector-mismatch"} 84.0
+crawler_parse_failures_total{domain="allrecipes.com",failure_class="fetch_failed:unknown-fetch-error"} 4.0
+crawler_parse_failures_total{domain="allrecipes.com",failure_class="fetch_failed:connect-error"} 3.0
+crawler_parse_failures_total{domain="bbcgoodfood.com",failure_class="fetch_failed:connect-error"} 2.0
+crawler_parse_failures_total{domain="diffordsguide.com",failure_class="fetch_failed:connect-error"} 2.0
+crawler_parse_failures_total{domain="food.com",failure_class="fetch_failed:connect-error"} 2.0
+crawler_parse_failures_total{domain="imbibemagazine.com",failure_class="fetch_failed:connect-error"} 2.0
+crawler_parse_failures_total{domain="punchdrink.com",failure_class="fetch_failed:connect-error"} 2.0
+crawler_parse_failures_total{domain="diffordsguide.com",failure_class="fetch_failed:unknown-fetch-error"} 4.0
+crawler_parse_failures_total{domain="imbibemagazine.com",failure_class="fetch_failed:timeout"} 1.0
+crawler_parse_failures_total{domain="bbcgoodfood.com",failure_class="fetch_failed:unknown-fetch-error"} 2.0
+crawler_parse_failures_total{domain="allrecipes.com",failure_class="fetch_failed:timeout"} 3.0
+crawler_parse_failures_total{domain="diffordsguide.com",failure_class="fetch_failed:timeout"} 6.0
+crawler_parse_failures_total{domain="allrecipes.com",failure_class="fetch_failed:http-404"} 10264.0
+crawler_parse_failures_total{domain="food.com",failure_class="domain-selector-mismatch"} 17.0
+crawler_parse_failures_total{domain="food.com",failure_class="fetch_failed:http-404"} 1.0
+crawler_parse_failures_total{domain="food.com",failure_class="fetch_failed:http-410"} 1.0
+# HELP crawler_parse_failures_created Crawler parse failure classifications by domain.
+# TYPE crawler_parse_failures_created gauge
+crawler_parse_failures_created{domain="allrecipes.com",failure_class="domain-selector-mismatch"} 1.7706766637426548e+09
+crawler_parse_failures_created{domain="bbcgoodfood.com",failure_class="domain-selector-mismatch"} 1.7706766750019379e+09
+crawler_parse_failures_created{domain="diffordsguide.com",failure_class="domain-selector-mismatch"} 1.7706767000972016e+09
+crawler_parse_failures_created{domain="imbibemagazine.com",failure_class="domain-selector-mismatch"} 1.7706767117539706e+09
+crawler_parse_failures_created{domain="punchdrink.com",failure_class="domain-selector-mismatch"} 1.770676712890088e+09
+crawler_parse_failures_created{domain="allrecipes.com",failure_class="fetch_failed:unknown-fetch-error"} 1.7707098413557353e+09
+crawler_parse_failures_created{domain="allrecipes.com",failure_class="fetch_failed:connect-error"} 1.7707355341827652e+09
+crawler_parse_failures_created{domain="bbcgoodfood.com",failure_class="fetch_failed:connect-error"} 1.770735534194489e+09
+crawler_parse_failures_created{domain="diffordsguide.com",failure_class="fetch_failed:connect-error"} 1.7707355342045906e+09
+crawler_parse_failures_created{domain="food.com",failure_class="fetch_failed:connect-error"} 1.7707355342154737e+09
+crawler_parse_failures_created{domain="imbibemagazine.com",failure_class="fetch_failed:connect-error"} 1.770735534232105e+09
+crawler_parse_failures_created{domain="punchdrink.com",failure_class="fetch_failed:connect-error"} 1.7707355342434406e+09
+crawler_parse_failures_created{domain="diffordsguide.com",failure_class="fetch_failed:unknown-fetch-error"} 1.7707666697087286e+09
+crawler_parse_failures_created{domain="imbibemagazine.com",failure_class="fetch_failed:timeout"} 1.7707748861801581e+09
+crawler_parse_failures_created{domain="bbcgoodfood.com",failure_class="fetch_failed:unknown-fetch-error"} 1.770785924304744e+09
+crawler_parse_failures_created{domain="allrecipes.com",failure_class="fetch_failed:timeout"} 1.7708183581823845e+09
+crawler_parse_failures_created{domain="diffordsguide.com",failure_class="fetch_failed:timeout"} 1.7708222029822915e+09
+crawler_parse_failures_created{domain="allrecipes.com",failure_class="fetch_failed:http-404"} 1.7710045700135643e+09
+crawler_parse_failures_created{domain="food.com",failure_class="domain-selector-mismatch"} 1.7710150599421523e+09
+crawler_parse_failures_created{domain="food.com",failure_class="fetch_failed:http-404"} 1.7710150632838397e+09
+crawler_parse_failures_created{domain="food.com",failure_class="fetch_failed:http-410"} 1.7710150636581523e+09
+# HELP crawler_compliance_rejections_total Crawler compliance rejections by reason and domain.
+# TYPE crawler_compliance_rejections_total counter
+crawler_compliance_rejections_total{domain="food.com",reason="robots-meta-blocked"} 126.0
+crawler_compliance_rejections_total{domain="food.com",reason="non-recipe-page"} 1.0
+crawler_compliance_rejections_total{domain="allrecipes.com",reason="non-recipe-page"} 1.0
+# HELP crawler_compliance_rejections_created Crawler compliance rejections by reason and domain.
+# TYPE crawler_compliance_rejections_created gauge
+crawler_compliance_rejections_created{domain="food.com",reason="robots-meta-blocked"} 1.7706767004227827e+09
+crawler_compliance_rejections_created{domain="food.com",reason="non-recipe-page"} 1.771015062944537e+09
+crawler_compliance_rejections_created{domain="allrecipes.com",reason="non-recipe-page"} 1.7710150839736462e+09
+# HELP crawler_domain_failure_rate Current crawler failure rate per domain.
+# TYPE crawler_domain_failure_rate gauge
+crawler_domain_failure_rate{domain="unknown"} 0.0
+# HELP crawler_domain_retryable_jobs Current crawler retryable queue per domain.
+# TYPE crawler_domain_retryable_jobs gauge
+crawler_domain_retryable_jobs{domain="unknown"} 0.0
+# HELP crawler_domain_parser_fallback_rate Current crawler parser fallback rate per domain.
+# TYPE crawler_domain_parser_fallback_rate gauge
+crawler_domain_parser_fallback_rate{domain="unknown"} 0.0
+# HELP crawler_domain_avg_attempt_count Current crawler average attempt count per domain.
+# TYPE crawler_domain_avg_attempt_count gauge
+crawler_domain_avg_attempt_count{domain="unknown"} 1.0
+# HELP crawler_domain_compliance_rejections Current crawler compliance rejection count per domain.
+# TYPE crawler_domain_compliance_rejections gauge
+crawler_domain_compliance_rejections{domain="unknown"} 0.0
+# HELP http_requests_total Total number of requests by method, status and handler.
+# TYPE http_requests_total counter
+http_requests_total{handler="/health",method="GET",status="2xx"} 36.0
+http_requests_total{handler="/metrics",method="GET",status="2xx"} 17525.0
+http_requests_total{handler="/v1/auth/register",method="POST",status="2xx"} 1.0
+http_requests_total{handler="/v1/recipes/harvest/jobs/pending",method="GET",status="2xx"} 954.0
+http_requests_total{handler="/v1/admin/system-jobs/{job_name}",method="POST",status="5xx"} 1620.0
+http_requests_total{handler="/v1/recipes/harvest/jobs/retryable",method="GET",status="2xx"} 451.0
+http_requests_total{handler="/v1/recipes/harvest/policies",method="GET",status="2xx"} 141.0
+http_requests_total{handler="/v1/notifications/refresh",method="POST",status="2xx"} 172.0
+http_requests_total{handler="/v1/recipes/harvest/auto",method="POST",status="2xx"} 10925.0
+http_requests_total{handler="/v1/recipes/harvest/jobs/{job_id}/run",method="POST",status="2xx"} 67.0
+http_requests_total{handler="/v1/recipes/harvest/policies",method="GET",status="4xx"} 3.0
+http_requests_total{handler="/v1/auth/dev-token",method="POST",status="2xx"} 562.0
+http_requests_total{handler="/v1/admin/crawler-ops/telemetry",method="GET",status="2xx"} 28.0
+http_requests_total{handler="/v1/admin/source-policies/calibrate-alerts",method="POST",status="2xx"} 143.0
+http_requests_total{handler="/v1/studio/analytics/summary",method="GET",status="2xx"} 10112.0
+http_requests_total{handler="/v1/studio/sessions",method="POST",status="2xx"} 20117.0
+http_requests_total{handler="/v1/recommendations/make-now",method="GET",status="2xx"} 10109.0
+http_requests_total{handler="/v1/studio/sessions/{session_id}/constraints",method="POST",status="2xx"} 20117.0
+http_requests_total{handler="/v1/studio/sessions/{session_id}/generate",method="POST",status="2xx"} 20117.0
+http_requests_total{handler="/v1/studio/sessions/{session_id}/versions",method="GET",status="2xx"} 20114.0
+http_requests_total{handler="/v1/recipes",method="GET",status="2xx"} 30046.0
+http_requests_total{handler="none",method="GET",status="4xx"} 7.0
+# HELP http_requests_created Total number of requests by method, status and handler.
+# TYPE http_requests_created gauge
+http_requests_created{handler="/health",method="GET",status="2xx"} 1.7706730581290412e+09
+http_requests_created{handler="/metrics",method="GET",status="2xx"} 1.7706730665367131e+09
+http_requests_created{handler="/v1/auth/register",method="POST",status="2xx"} 1.7706730764541743e+09
+http_requests_created{handler="/v1/recipes/harvest/jobs/pending",method="GET",status="2xx"} 1.7706733535135996e+09
+http_requests_created{handler="/v1/admin/system-jobs/{job_name}",method="POST",status="5xx"} 1.7706733535595984e+09
+http_requests_created{handler="/v1/recipes/harvest/jobs/retryable",method="GET",status="2xx"} 1.7706736534684346e+09
+http_requests_created{handler="/v1/recipes/harvest/policies",method="GET",status="2xx"} 1.770676653509746e+09
+http_requests_created{handler="/v1/notifications/refresh",method="POST",status="2xx"} 1.7706766535532682e+09
+http_requests_created{handler="/v1/recipes/harvest/auto",method="POST",status="2xx"} 1.770676663742961e+09
+http_requests_created{handler="/v1/recipes/harvest/jobs/{job_id}/run",method="POST",status="2xx"} 1.7706769543733444e+09
+http_requests_created{handler="/v1/recipes/harvest/policies",method="GET",status="4xx"} 1.7710042872020702e+09
+http_requests_created{handler="/v1/auth/dev-token",method="POST",status="2xx"} 1.771004288401231e+09
+http_requests_created{handler="/v1/admin/crawler-ops/telemetry",method="GET",status="2xx"} 1.7710042910112817e+09
+http_requests_created{handler="/v1/admin/source-policies/calibrate-alerts",method="POST",status="2xx"} 1.771004448435897e+09
+http_requests_created{handler="/v1/studio/analytics/summary",method="GET",status="2xx"} 1.7710045688658895e+09
+http_requests_created{handler="/v1/studio/sessions",method="POST",status="2xx"} 1.7710045688662293e+09
+http_requests_created{handler="/v1/recommendations/make-now",method="GET",status="2xx"} 1.771004568898214e+09
+http_requests_created{handler="/v1/studio/sessions/{session_id}/constraints",method="POST",status="2xx"} 1.7710045689097629e+09
+http_requests_created{handler="/v1/studio/sessions/{session_id}/generate",method="POST",status="2xx"} 1.7710045689484894e+09
+http_requests_created{handler="/v1/studio/sessions/{session_id}/versions",method="GET",status="2xx"} 1.7710045689670749e+09
+http_requests_created{handler="/v1/recipes",method="GET",status="2xx"} 1.7710045696624103e+09
+http_requests_created{handler="none",method="GET",status="4xx"} 1.7710162570322104e+09
+# HELP http_request_size_bytes Content length of incoming requests by handler. Only value of header is respected. Otherwise ignored. No percentile calculated. 
+# TYPE http_request_size_bytes summary
+http_request_size_bytes_count{handler="/health"} 36.0
+http_request_size_bytes_sum{handler="/health"} 0.0
+http_request_size_bytes_count{handler="/metrics"} 17525.0
+http_request_size_bytes_sum{handler="/metrics"} 0.0
+http_request_size_bytes_count{handler="/v1/auth/register"} 1.0
+http_request_size_bytes_sum{handler="/v1/auth/register"} 86.0
+http_request_size_bytes_count{handler="/v1/recipes/harvest/jobs/pending"} 954.0
+http_request_size_bytes_sum{handler="/v1/recipes/harvest/jobs/pending"} 0.0
+http_request_size_bytes_count{handler="/v1/admin/system-jobs/{job_name}"} 1620.0

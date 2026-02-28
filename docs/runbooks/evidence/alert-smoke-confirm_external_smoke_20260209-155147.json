@@ -1,0 +1,1 @@
+{"status":"ok","window_seconds":120,"latest":{"alertname":"StagingExternalSmokeAlert","run_id":"smoke_1770667989","severity":"warning","status":"firing","received_at":"2026-02-09T20:13:39.476067+00:00","age_seconds":0.19},"recent_count":1}

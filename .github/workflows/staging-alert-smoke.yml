@@ -1,0 +1,91 @@
+name: Staging Alert Smoke
+
+on:
+  workflow_dispatch:
+    inputs:
+      destination:
+        description: "Which downstream destination to verify."
+        required: false
+        default: "both"
+        type: choice
+        options:
+          - both
+          - slack
+          - pagerduty
+
+jobs:
+  alert-smoke:
+    runs-on: ubuntu-latest
+    if: ${{ secrets.STAGING_ALERTMANAGER_URL != '' && secrets.STAGING_ALERT_RECEIVER_CONFIRM_URL != '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate destination secrets
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.STAGING_SLACK_WEBHOOK_URL }}
+          PAGERDUTY_ROUTING_KEY: ${{ secrets.STAGING_PAGERDUTY_ROUTING_KEY }}
+        run: |
+          set -euo pipefail
+          if [[ -z "${SLACK_WEBHOOK_URL}" ]]; then
+            echo "Missing STAGING_SLACK_WEBHOOK_URL secret."
+            exit 1
+          fi
+          if [[ -z "${PAGERDUTY_ROUTING_KEY}" || "${PAGERDUTY_ROUTING_KEY}" == "dummy" ]]; then
+            echo "Missing or dummy STAGING_PAGERDUTY_ROUTING_KEY secret."
+            exit 1
+          fi
+      - name: Run external smoke (Slack)
+        if: ${{ github.event.inputs.destination == 'both' || github.event.inputs.destination == 'slack' }}
+        env:
+          ALERTMANAGER_URL: ${{ secrets.STAGING_ALERTMANAGER_URL }}
+          CONFIRM_URL: ${{ secrets.STAGING_ALERT_RECEIVER_CONFIRM_URL }}
+          CONFIRM_TOKEN: ${{ secrets.STAGING_ALERT_RECEIVER_CONFIRM_TOKEN }}
+        run: |
+          set -euo pipefail
+          confirm_url="${CONFIRM_URL}"
+          confirm_base="${confirm_url%%/smoke/confirm*}"
+          if [[ -z "${confirm_base}" || "${confirm_base}" == "${confirm_url}" ]]; then
+            echo "STAGING_ALERT_RECEIVER_CONFIRM_URL must end with /smoke/confirm..."
+            exit 1
+          fi
+          mkdir -p /tmp/bartenderai-evidence
+          (
+            cd infra/staging
+            ALERT_NAME="StagingExternalSmokeAlert" \
+            ALERT_RUN_ID="gh_${GITHUB_RUN_ID}_slack" \
+            CONFIRM_BASE_URL="${confirm_base}" \
+            CONFIRM_TOKEN="${CONFIRM_TOKEN}" \
+            CONFIRM_FORWARD_DESTINATION="slack" \
+            CONFIRM_FORWARD_EXPECT_TARGET_PREFIX="https://hooks.slack.com" \
+            ./external_alert_smoke.sh
+          ) | tee /tmp/bartenderai-evidence/alert-smoke-slack.log
+      - name: Run external smoke (PagerDuty)
+        if: ${{ github.event.inputs.destination == 'both' || github.event.inputs.destination == 'pagerduty' }}
+        env:
+          ALERTMANAGER_URL: ${{ secrets.STAGING_ALERTMANAGER_URL }}
+          CONFIRM_URL: ${{ secrets.STAGING_ALERT_RECEIVER_CONFIRM_URL }}
+          CONFIRM_TOKEN: ${{ secrets.STAGING_ALERT_RECEIVER_CONFIRM_TOKEN }}
+        run: |
+          set -euo pipefail
+          confirm_url="${CONFIRM_URL}"
+          confirm_base="${confirm_url%%/smoke/confirm*}"
+          if [[ -z "${confirm_base}" || "${confirm_base}" == "${confirm_url}" ]]; then
+            echo "STAGING_ALERT_RECEIVER_CONFIRM_URL must end with /smoke/confirm..."
+            exit 1
+          fi
+          mkdir -p /tmp/bartenderai-evidence
+          (
+            cd infra/staging
+            ALERT_NAME="StagingExternalSmokeAlert" \
+            ALERT_RUN_ID="gh_${GITHUB_RUN_ID}_pagerduty" \
+            CONFIRM_BASE_URL="${confirm_base}" \
+            CONFIRM_TOKEN="${CONFIRM_TOKEN}" \
+            CONFIRM_FORWARD_DESTINATION="pagerduty" \
+            CONFIRM_FORWARD_EXPECT_TARGET_PREFIX="https://events.pagerduty.com" \
+            ./external_alert_smoke.sh
+          ) | tee /tmp/bartenderai-evidence/alert-smoke-pagerduty.log
+      - name: Upload evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: staging-alert-smoke
+          path: /tmp/bartenderai-evidence/*.log

@@ -1,0 +1,17 @@
+{
+  "api_base_url": "http://localhost:8000",
+  "calibration_apply_written": true,
+  "final_counts": {
+    "bbcgoodfood.com": 30,
+    "imbibemagazine.com": 23
+  },
+  "finished_at": "2026-02-09T17:53:59.538650",
+  "min_jobs": 20,
+  "rounds": [],
+  "run_id": "2026-02-09_175359",
+  "started_at": "2026-02-09T17:53:59.494735",
+  "target_domains": [
+    "bbcgoodfood.com",
+    "imbibemagazine.com"
+  ]
+}

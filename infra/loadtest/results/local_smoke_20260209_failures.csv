@@ -1,0 +1,2 @@
+Method,Name,Error,Occurrences
+GET,recipes_search,HTTPError('500 Server Error: Internal Server Error for url: recipes_search'),147

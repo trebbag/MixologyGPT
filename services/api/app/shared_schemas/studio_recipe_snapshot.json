@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "StudioRecipeSnapshot",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "recipe", "metrics"],
+  "properties": {
+    "version": {"type": "integer"},
+    "recipe": {
+      "type": "object",
+      "required": ["name", "ingredients", "instructions"],
+      "properties": {
+        "name": {"type": "string"},
+        "ingredients": {"type": "array", "items": {"type": "object"}},
+        "instructions": {"type": "array", "items": {"type": "string"}},
+        "glassware": {"type": "string"},
+        "ice_style": {"type": "string"}
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "properties": {
+        "abv_estimate": {"type": "number"},
+        "sweetness_index": {"type": "number"},
+        "acidity_index": {"type": "number"},
+        "bitterness_index": {"type": "number"}
+      }
+    },
+    "notes": {"type": "string"}
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "non_harvest_error_rate_max": 0.02,
+  "harvest_429_rate_max": 0.1,
+  "search_error_rate_max": 0.01,
+  "studio_generate_error_rate_max": 0.01,
+  "search_p95_ms_max": 1200,
+  "studio_generate_p95_ms_max": 1000,
+  "aggregate_p95_ms_max": 1500
+}
