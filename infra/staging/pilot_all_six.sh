@@ -7,6 +7,7 @@ EVIDENCE_DIR="${EVIDENCE_DIR:-${ROOT_DIR}/docs/runbooks/evidence}"
 SUMMARY_FILE="${EVIDENCE_DIR}/pilot-all-six-summary-${RUN_ID}.md"
 
 API_BASE_URL="${API_BASE_URL:-${STAGING_BASE_URL:-}}"
+WEB_BASE_URL="${WEB_BASE_URL:-${STAGING_WEB_BASE_URL:-${API_BASE_URL:-}}}"
 ALERTMANAGER_URL="${ALERTMANAGER_URL:-${STAGING_ALERTMANAGER_URL:-}}"
 ALERT_CONFIRM_URL="${ALERT_CONFIRM_URL:-${STAGING_ALERT_RECEIVER_CONFIRM_URL:-}}"
 ALERT_CONFIRM_TOKEN="${ALERT_CONFIRM_TOKEN:-${STAGING_ALERT_RECEIVER_CONFIRM_TOKEN:-}}"
@@ -59,6 +60,35 @@ reject_local_endpoint() {
   return 0
 }
 
+probe_web_base_url() {
+  local base_url="$1"
+  local probe_url="${base_url%/}/"
+  local tmp_file
+  tmp_file="$(mktemp)"
+  local status_and_type
+  if ! status_and_type="$(curl -sS -L --max-time 10 -o "${tmp_file}" -w "%{http_code}|%{content_type}" "${probe_url}")"; then
+    rm -f "${tmp_file}"
+    echo "fail|curl-error|"
+    return 1
+  fi
+  local status="${status_and_type%%|*}"
+  local content_type="${status_and_type#*|}"
+  local body_head
+  body_head="$(head -c 256 "${tmp_file}" | tr '[:upper:]' '[:lower:]')"
+  rm -f "${tmp_file}"
+
+  if [[ "${status}" -ge 400 ]]; then
+    echo "fail|${status}|${content_type}"
+    return 1
+  fi
+  if [[ "${content_type}" == *"text/html"* || "${body_head}" == *"<html"* || "${body_head}" == *"<!doctype html"* ]]; then
+    echo "pass|${status}|${content_type}"
+    return 0
+  fi
+  echo "fail|${status}|${content_type}"
+  return 1
+}
+
 run_step() {
   local label="$1"
   local log_file="$2"
@@ -80,6 +110,7 @@ cat > "${SUMMARY_FILE}" <<EOF
 # Pilot All-Six Run ${RUN_ID}
 
 - api_base_url: \`${API_BASE_URL:-<unset>}\`
+- web_base_url: \`${WEB_BASE_URL:-<unset>}\`
 - alertmanager_url: \`${ALERTMANAGER_URL:-<unset>}\`
 - alert_confirm_url: \`${ALERT_CONFIRM_URL:-<unset>}\`
 - run_signoff: \`${RUN_SIGNOFF}\`
@@ -99,7 +130,12 @@ if [[ "${RUN_SIGNOFF}" == "true" ]]; then
   REQUIRED_PAIRS+=("INTERNAL_TOKEN:${INTERNAL_TOKEN}")
 fi
 
-if [[ "${RUN_WEB_E2E}" == "true" || "${RUN_MOBILE_E2E}" == "true" ]]; then
+if [[ "${RUN_WEB_E2E}" == "true" ]]; then
+  REQUIRED_PAIRS+=("WEB_BASE_URL:${WEB_BASE_URL}")
+  REQUIRED_PAIRS+=("STAGING_E2E_ACCESS_TOKEN:${STAGING_E2E_ACCESS_TOKEN}")
+fi
+
+if [[ "${RUN_MOBILE_E2E}" == "true" ]]; then
   REQUIRED_PAIRS+=("API_BASE_URL:${API_BASE_URL}")
   REQUIRED_PAIRS+=("STAGING_E2E_ACCESS_TOKEN:${STAGING_E2E_ACCESS_TOKEN}")
 fi
@@ -125,6 +161,20 @@ for pair in "${REQUIRED_PAIRS[@]}"; do
   fi
 done
 
+if [[ "${RUN_WEB_E2E}" == "true" && -n "${WEB_BASE_URL}" ]]; then
+  WEB_PROBE_RESULT="$(probe_web_base_url "${WEB_BASE_URL}" || true)"
+  WEB_PROBE_STATUS="${WEB_PROBE_RESULT%%|*}"
+  WEB_PROBE_REST="${WEB_PROBE_RESULT#*|}"
+  WEB_PROBE_CODE="${WEB_PROBE_REST%%|*}"
+  WEB_PROBE_TYPE="${WEB_PROBE_REST#*|}"
+  if [[ "${WEB_PROBE_STATUS}" == "pass" ]]; then
+    PRECHECK_ITEMS+=("- PASS: \`WEB_BASE_URL\` serves HTML (status ${WEB_PROBE_CODE})")
+  else
+    PRECHECK_ITEMS+=("- FAIL: \`WEB_BASE_URL\` does not appear to serve the web app (status ${WEB_PROBE_CODE}, content-type ${WEB_PROBE_TYPE:-unknown})")
+    MISSING=1
+  fi
+fi
+
 if [[ "${ALLOW_LOCAL_ENDPOINTS}" != "true" ]]; then
   LOCAL_CHECK_PAIRS=()
   if [[ "${RUN_SIGNOFF}" == "true" ]]; then
@@ -133,7 +183,12 @@ if [[ "${ALLOW_LOCAL_ENDPOINTS}" != "true" ]]; then
       LOCAL_CHECK_PAIRS+=("ALERTMANAGER_URL:${ALERTMANAGER_URL}")
     fi
   elif [[ "${RUN_WEB_E2E}" == "true" || "${RUN_MOBILE_E2E}" == "true" || "${RUN_COMPLIANCE_SMOKE}" == "true" ]]; then
-    LOCAL_CHECK_PAIRS+=("API_BASE_URL:${API_BASE_URL}")
+    if [[ "${RUN_WEB_E2E}" == "true" ]]; then
+      LOCAL_CHECK_PAIRS+=("WEB_BASE_URL:${WEB_BASE_URL}")
+    fi
+    if [[ "${RUN_MOBILE_E2E}" == "true" || "${RUN_COMPLIANCE_SMOKE}" == "true" ]]; then
+      LOCAL_CHECK_PAIRS+=("API_BASE_URL:${API_BASE_URL}")
+    fi
   fi
 
   LOCAL_SEEN=","
@@ -211,7 +266,7 @@ if [[ "${RUN_WEB_E2E}" == "true" ]]; then
       if [[ "'"${INSTALL_PLAYWRIGHT}"'" == "true" ]]; then
         npx playwright install --with-deps chromium
       fi
-      E2E_BASE_URL="'"${API_BASE_URL}"'" STAGING_E2E_ACCESS_TOKEN="'"${STAGING_E2E_ACCESS_TOKEN}"'" npm run test:e2e:staging
+      E2E_BASE_URL="'"${WEB_BASE_URL}"'" STAGING_E2E_ACCESS_TOKEN="'"${STAGING_E2E_ACCESS_TOKEN}"'" npm run test:e2e:staging
     '; then
     OVERALL=1
   fi

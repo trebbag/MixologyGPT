@@ -7,6 +7,12 @@ const STAGING_ACCESS_TOKEN = process.env.STAGING_E2E_ACCESS_TOKEN || process.env
 
 const hasStagingConfig = Boolean(STAGING_API_URL && STAGING_ACCESS_TOKEN)
 const testIfConfigured = hasStagingConfig ? test : test.skip
+if (hasStagingConfig) {
+  process.env.EXPO_PUBLIC_API_URL = STAGING_API_URL
+  process.env.STAGING_E2E_ACCESS_TOKEN = STAGING_ACCESS_TOKEN
+  process.env.EXPO_PUBLIC_E2E_ACCESS_TOKEN = STAGING_ACCESS_TOKEN
+}
+const App = require('../../App').default
 
 async function flushMicrotasks() {
   await act(async () => {
@@ -17,17 +23,12 @@ async function flushMicrotasks() {
   })
 }
 
-async function renderStagingApp() {
-  process.env.EXPO_PUBLIC_API_URL = STAGING_API_URL
-  process.env.STAGING_E2E_ACCESS_TOKEN = STAGING_ACCESS_TOKEN
-  process.env.EXPO_PUBLIC_E2E_ACCESS_TOKEN = STAGING_ACCESS_TOKEN
-  jest.resetModules()
-  const App = (await import('../../App')).default
+function renderStagingApp() {
   return render(<App />)
 }
 
 testIfConfigured('mobile staging: studio offline tertiary actions disable with explicit messaging', async () => {
-  const screen = await renderStagingApp()
+  const screen = renderStagingApp()
   await waitFor(() => expect(screen.getByText('BartenderAI')).toBeTruthy())
   await flushMicrotasks()
 
@@ -57,7 +58,7 @@ testIfConfigured('mobile staging: studio offline tertiary actions disable with e
 })
 
 testIfConfigured('mobile staging: knowledge offline path disables submit and shows tertiary message', async () => {
-  const screen = await renderStagingApp()
+  const screen = renderStagingApp()
   await waitFor(() => expect(screen.getByText('BartenderAI')).toBeTruthy())
   await flushMicrotasks()
 

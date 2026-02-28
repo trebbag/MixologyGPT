@@ -125,7 +125,8 @@ Use this to run all six remaining pilot items in one flow:
 
 ```bash
 cd /Users/gregorygabbert/Documents/GitHub/BartenderAI
-API_BASE_URL=https://<staging-host> \
+API_BASE_URL=https://<staging-api-host> \
+WEB_BASE_URL=https://<staging-web-host> \
 INTERNAL_TOKEN=<internal-token> \
 STAGING_E2E_ACCESS_TOKEN=<e2e-access-token> \
 ./infra/staging/pilot_all_six.sh

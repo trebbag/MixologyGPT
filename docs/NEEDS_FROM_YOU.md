@@ -16,6 +16,7 @@
   - `STAGING_PAGERDUTY_ROUTING_KEY` (or runtime `PAGERDUTY_ROUTING_KEY`)
 - Fast path command (real staging only): `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI && API_BASE_URL=https://<staging-host> INTERNAL_TOKEN=<token> ./infra/staging/pilot_real_signoff.sh`
 - One-shot all-six command (real staging only): `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI && API_BASE_URL=https://<staging-host> INTERNAL_TOKEN=<token> STAGING_E2E_ACCESS_TOKEN=<token> ./infra/staging/pilot_all_six.sh`
+- If web is hosted on a different domain than the API (for example Render static site + Render API service), add `WEB_BASE_URL=https://<staging-web-host>` to the all-six command.
 - Safe handling: secrets only in GitHub Actions/host secret stores; never commit
 
 ## One-click all-six staging workflow secrets
@@ -23,6 +24,7 @@
 - Why: this workflow now runs the full six-item continuation (real signoff + non-mocked web/mobile staging E2E + compliance smoke) in one job
 - Required now:
   - `STAGING_BASE_URL`
+  - `STAGING_WEB_BASE_URL` (required when staging web is not served by `STAGING_BASE_URL`)
   - `STAGING_INTERNAL_TOKEN`
   - `STAGING_E2E_ACCESS_TOKEN`
 - Optional:
@@ -109,6 +111,7 @@ Local shortcut:
   - `STAGING_GHCR_USERNAME` (optional; defaults to workflow actor)
   - `STAGING_DEPLOY_PATH`
   - `STAGING_BASE_URL`
+  - `STAGING_WEB_BASE_URL` (required when staging web host differs from API host; used by staging web E2E in all-six workflow)
   - `STAGING_ALERT_WEBHOOK_URL` (recommended; syncs `ALERT_WEBHOOK_URL` during deploy)
   - `STAGING_SLACK_WEBHOOK_URL` (recommended; enables receiver forwarding + CI external smoke validation)
   - `STAGING_PAGERDUTY_ROUTING_KEY` (recommended; enables receiver forwarding + CI external smoke validation)
