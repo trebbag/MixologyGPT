@@ -88,7 +88,7 @@ echo "EVIDENCE_DIR=${EVIDENCE_DIR}"
   MIN_JOBS="${MIN_JOBS:-20}" \
   BUFFER_MULTIPLIER="${BUFFER_MULTIPLIER:-1.25}" \
   TARGET_DOMAINS="${TARGET_DOMAINS:-allrecipes.com,bbcgoodfood.com,diffordsguide.com,food.com,imbibemagazine.com,punchdrink.com}" \
-  ./infra/staging/pilot_staging_readiness.sh
+  bash ./infra/staging/pilot_staging_readiness.sh
 )
 
 echo "Real staging pilot sign-off completed."

@@ -195,7 +195,7 @@ if [[ "${RUN_SIGNOFF}" == "true" ]]; then
       APPLY_CALIBRATION="true" \
       APPLY_RECOVERY="true" \
       LOCK_GATES="false" \
-      "${ROOT_DIR}/infra/staging/pilot_real_signoff.sh"; then
+      bash "${ROOT_DIR}/infra/staging/pilot_real_signoff.sh"; then
     OVERALL=1
   fi
 fi
@@ -236,7 +236,7 @@ if [[ "${RUN_COMPLIANCE_SMOKE}" == "true" ]]; then
     env \
       API_BASE_URL="${API_BASE_URL}" \
       INTERNAL_TOKEN="${INTERNAL_TOKEN}" \
-      "${ROOT_DIR}/infra/staging/compliance_rejection_smoke.py"; then
+      python3 "${ROOT_DIR}/infra/staging/compliance_rejection_smoke.py"; then
     OVERALL=1
   fi
 fi
