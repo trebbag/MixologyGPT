@@ -5,7 +5,7 @@ from typing import Any
 from locust import HttpUser, between, task
 
 
-SEED_HARVEST_URL = "https://www.allrecipes.com/recipe/229960/classic-old-fashioned/"
+SEED_HARVEST_URL = "https://www.diffordsguide.com/cocktails/search"
 
 
 class ApiUser(HttpUser):

@@ -29,23 +29,14 @@ DEFAULT_LOW_SAMPLE_DOMAINS = (
     "diffordsguide.com",
     "food.com",
     "imbibemagazine.com",
-    "allrecipes.com",
     "punchdrink.com",
+    "liquor.com",
 )
 
 # When a policy only contains a single seed URL, crawl coverage can stagnate quickly and prevent
 # calibration from reaching MIN_JOBS. These extra seeds are used only by this staging ops script,
 # without mutating policy seed_urls, to increase sampling diversity.
 EXTRA_SEEDS_BY_DOMAIN: dict[str, list[str]] = {
-    "allrecipes.com": [
-        "https://www.allrecipes.com/recipes/77/drinks/",
-        "https://www.allrecipes.com/recipes/77/drinks/cocktails/",
-        "https://www.allrecipes.com/recipes/13322/drinks/",
-        "https://www.allrecipes.com/recipes/13322/drinks/spirits/",
-        "https://www.allrecipes.com/recipes/13322/drinks/whiskey/",
-        "https://www.allrecipes.com/recipes/13322/drinks/vodka-drinks/",
-        "https://www.allrecipes.com/recipe/162397/classic-old-fashioned/",
-    ],
     "bbcgoodfood.com": [
         "https://www.bbcgoodfood.com/recipes/collection/gin-cocktail-recipes",
         "https://www.bbcgoodfood.com/recipes/collection/vodka-cocktail-recipes",
@@ -71,6 +62,11 @@ EXTRA_SEEDS_BY_DOMAIN: dict[str, list[str]] = {
         "https://punchdrink.com/recipes/feed/",
         "https://punchdrink.com/sitemap.xml",
         "https://punchdrink.com/sitemap_index.xml",
+    ],
+    "liquor.com": [
+        "https://www.liquor.com/cocktail-recipes-4779427",
+        "https://www.liquor.com/classic-cocktail-recipes-4844600",
+        "https://www.liquor.com/most-popular-cocktails-5020574",
     ],
 }
 
@@ -250,6 +246,20 @@ def main() -> int:
     policy_by_domain: dict[str, dict[str, Any]] = {
         str(policy.get("domain") or "").strip().lower(): policy for policy in policies
     }
+    enabled_target_domains = [domain for domain in target_domains if domain in policy_by_domain]
+    missing_policy_domains = [domain for domain in target_domains if domain not in policy_by_domain]
+    evidence["missing_policy_domains"] = missing_policy_domains
+    if missing_policy_domains:
+        print(
+            "Skipping target domains without active policy: "
+            + ", ".join(missing_policy_domains),
+            file=sys.stderr,
+        )
+    if not enabled_target_domains:
+        print("No target domains have active policies; nothing to boost.", file=sys.stderr)
+        with open(evidence_path, "w", encoding="utf-8") as handle:
+            json.dump(evidence, handle, indent=2, sort_keys=True)
+        return 1
 
     for round_idx in range(1, max_rounds + 1):
         preview = _calibration(
@@ -260,13 +270,20 @@ def main() -> int:
             buffer_multiplier=buffer_multiplier,
         )
         counts = _job_counts_from_calibration(preview)
-        missing = [d for d in target_domains if counts.get(d, 0) < min_jobs]
-        print(f"[round {round_idx}] counts={{{', '.join(f'{d}:{counts.get(d,0)}' for d in target_domains)}}}")
+        missing = [d for d in enabled_target_domains if counts.get(d, 0) < min_jobs]
+        print(
+            f"[round {round_idx}] counts={{{', '.join(f'{d}:{counts.get(d,0)}' for d in target_domains)}}}"
+        )
         if not missing:
             print("All target domains meet MIN_JOBS. Stopping boost.")
             break
 
-        round_log: dict[str, Any] = {"round": round_idx, "before_counts": {d: counts.get(d, 0) for d in target_domains}, "auto_harvest": [], "drain": []}
+        round_log: dict[str, Any] = {
+            "round": round_idx,
+            "before_counts": {d: counts.get(d, 0) for d in target_domains},
+            "auto_harvest": [],
+            "drain": [],
+        }
 
         for domain in missing:
             policy = policy_by_domain.get(domain)
@@ -383,7 +400,7 @@ def main() -> int:
     with open(evidence_path, "w", encoding="utf-8") as handle:
         json.dump(evidence, handle, indent=2, sort_keys=True)
 
-    unmet = [d for d in target_domains if final_counts.get(d, 0) < min_jobs]
+    unmet = [d for d in enabled_target_domains if final_counts.get(d, 0) < min_jobs]
     print(f"Evidence: {evidence_path}")
     if calibration_apply is not None:
         print(f"Calibration apply: {calibration_apply_path}")

@@ -71,7 +71,7 @@
   - Staging policy calibration apply: `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI/infra/staging && INTERNAL_TOKEN=<token> APPLY=true ./calibrate_alert_thresholds.sh`
   - Drain pending harvest jobs (staging/internal): `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI/infra/staging && INTERNAL_TOKEN=<token> API_BASE_URL=http://localhost:8000 python3 ./drain_pending_jobs.py`
   - Full pilot ops drill: `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI/infra/staging && API_BASE_URL=https://<staging-host> INTERNAL_TOKEN=<token> APPLY_CALIBRATION=true RUN_LOAD_PROFILE=true LOCK_GATES=true ALERTMANAGER_URL=https://<optional-alertmanager-host> ALERT_CONFIRM_URL=https://<optional-confirm-url> ALERT_CONFIRM_TOKEN=<optional> DRILL_RUN_ID=<optional-run-id> EVIDENCE_DIR=/Users/gregorygabbert/Documents/GitHub/BartenderAI/docs/runbooks/evidence ./pilot_ops_drill.sh`
-  - Rejection path smoke (compliance/parse/fetch rejection): `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI/infra/staging && API_BASE_URL=https://<staging-host> INTERNAL_TOKEN=<token> COMPLIANCE_TEST_URL=https://www.allrecipes.com/privacy-policy python3 ./compliance_rejection_smoke.py`
+  - Rejection path smoke (compliance/parse/fetch rejection): `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI/infra/staging && API_BASE_URL=https://<staging-host> INTERNAL_TOKEN=<token> COMPLIANCE_TEST_URL=https://www.diffordsguide.com/encyclopedia/ python3 ./compliance_rejection_smoke.py`
 
 - GitHub Actions workflows (staging):
   - Alert smoke (internal path by default, external forwarding optional): `.github/workflows/staging-alert-smoke.yml`

@@ -80,7 +80,8 @@
 - Safe handling: no secrets required, but confirm legal/compliance approvals for each source
 
 Current decision captured:
-- `allrecipes.com` is approved for the Drinks section only. Use Drinks-focused seeds (for example `/recipes/77/drinks/`, `/recipes/77/drinks/cocktails/`, `/recipes/13322/drinks/`) and avoid non-drink seed URLs.
+- Pilot sign-off target domains now exclude `allrecipes.com`.
+- Preferred crawl targets are `diffordsguide.com` and (optionally) `liquor.com` when an active source policy exists for `liquor.com`.
 
 ## Source compliance sign-off
 - What is needed: legal/compliance confirmation for each approved source domain

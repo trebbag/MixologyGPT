@@ -87,7 +87,7 @@ echo "EVIDENCE_DIR=${EVIDENCE_DIR}"
   LOCK_GATES="${LOCK_GATES:-false}" \
   MIN_JOBS="${MIN_JOBS:-20}" \
   BUFFER_MULTIPLIER="${BUFFER_MULTIPLIER:-1.25}" \
-  TARGET_DOMAINS="${TARGET_DOMAINS:-allrecipes.com,bbcgoodfood.com,diffordsguide.com,food.com,imbibemagazine.com,punchdrink.com}" \
+  TARGET_DOMAINS="${TARGET_DOMAINS:-bbcgoodfood.com,diffordsguide.com,food.com,imbibemagazine.com,punchdrink.com,liquor.com}" \
   bash ./infra/staging/pilot_staging_readiness.sh
 )
 

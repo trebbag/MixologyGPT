@@ -138,6 +138,6 @@ Validate that a known non-recipe URL is rejected (compliance or parse/fetch reje
 cd /Users/gregorygabbert/Documents/GitHub/BartenderAI/infra/staging
 API_BASE_URL=http://localhost:8000 \
 INTERNAL_TOKEN=<internal-token> \
-COMPLIANCE_TEST_URL=https://www.allrecipes.com/privacy-policy \
+COMPLIANCE_TEST_URL=https://www.diffordsguide.com/encyclopedia/ \
 python3 ./compliance_rejection_smoke.py
 ```

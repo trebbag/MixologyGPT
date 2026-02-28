@@ -60,7 +60,7 @@ def _request_json(
 def main() -> int:
     api_base_url = os.getenv("API_BASE_URL", "http://localhost:8000").rstrip("/")
     token = os.getenv("INTERNAL_TOKEN", "").strip()
-    source_url = os.getenv("COMPLIANCE_TEST_URL", "https://www.allrecipes.com/privacy-policy").strip()
+    source_url = os.getenv("COMPLIANCE_TEST_URL", "https://www.diffordsguide.com/encyclopedia/").strip()
     max_links = int(os.getenv("COMPLIANCE_TEST_MAX_LINKS", "8"))
     poll_tries = int(os.getenv("POLL_TRIES", "6"))
     poll_sleep_seconds = float(os.getenv("POLL_SLEEP_SECONDS", "1.5"))
