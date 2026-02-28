@@ -85,3 +85,5 @@ jobs:
             docs/runbooks/evidence/staging-readiness-load-gh_all_six_${{ github.run_id }}_signoff_*.md
             docs/runbooks/evidence/staging-readiness-load-gh_all_six_${{ github.run_id }}_signoff_*.csv
             docs/runbooks/evidence/staging-readiness-load-gh_all_six_${{ github.run_id }}_signoff*.html
+            apps/web/test-results/**
+            apps/web/playwright-report/**
