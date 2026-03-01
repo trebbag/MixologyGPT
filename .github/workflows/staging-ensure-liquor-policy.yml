@@ -1,0 +1,63 @@
+name: Staging Ensure Liquor Policy
+
+on:
+  workflow_dispatch:
+    inputs:
+      min_jobs:
+        description: "Minimum jobs for liquor.com after activation."
+        required: false
+        default: "20"
+
+jobs:
+  ensure-liquor-policy:
+    runs-on: ubuntu-latest
+    env:
+      RUN_ID: gh_liquor_policy_${{ github.run_id }}_${{ github.run_attempt }}
+      API_BASE_URL: ${{ secrets.STAGING_BASE_URL }}
+      ADMIN_BEARER_TOKEN: ${{ secrets.STAGING_E2E_ACCESS_TOKEN }}
+      INTERNAL_TOKEN: ${{ secrets.STAGING_INTERNAL_TOKEN }}
+      POLICY_DOMAIN: liquor.com
+      POLICY_NAME: Liquor.com
+      POLICY_METRIC_TYPE: pervasiveness
+      POLICY_REVIEW_POLICY: manual
+      POLICY_SEED_URLS: https://www.liquor.com/cocktail-recipes-4779427,https://www.liquor.com/classic-cocktail-recipes-4844600,https://www.liquor.com/most-popular-cocktails-5020574
+      MIN_JOBS: ${{ github.event.inputs.min_jobs || '20' }}
+      TARGET_DOMAINS: liquor.com
+      APPLY_CALIBRATION: "true"
+      MAX_ROUNDS: "6"
+      DRAIN_CYCLES: "12"
+      PENDING_LIMIT: "25"
+      BUFFER_MULTIPLIER: "1.25"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Validate required secrets
+        run: |
+          set -euo pipefail
+          for key in API_BASE_URL ADMIN_BEARER_TOKEN INTERNAL_TOKEN; do
+            if [[ -z "${!key}" ]]; then
+              echo "Missing required secret/env: ${key}"
+              exit 1
+            fi
+          done
+      - name: Ensure liquor.com policy exists and is active
+        run: |
+          set -euo pipefail
+          cd infra/staging
+          python3 ./ensure_source_policy.py
+      - name: Boost liquor.com sampling and apply calibration
+        run: |
+          set -euo pipefail
+          cd infra/staging
+          python3 ./boost_crawl_volume.py
+      - name: Upload liquor policy evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: staging-liquor-policy-${{ github.run_id }}
+          path: |
+            docs/runbooks/evidence/ensure-source-policy-liquor_com-gh_liquor_policy_${{ github.run_id }}_${{ github.run_attempt }}.json
+            docs/runbooks/evidence/staging-boost-crawl-gh_liquor_policy_${{ github.run_id }}_${{ github.run_attempt }}.json
+            docs/runbooks/evidence/calibration-apply-gh_liquor_policy_${{ github.run_id }}_${{ github.run_attempt }}.json

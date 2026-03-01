@@ -1,0 +1,147 @@
+name: Staging Weekly Drift Review
+
+on:
+  schedule:
+    - cron: "30 14 * * 1"
+  workflow_dispatch:
+    inputs:
+      min_jobs:
+        description: "Minimum jobs per domain for calibration preview."
+        required: false
+        default: "20"
+      domains:
+        description: "Comma-separated domains for recovery preview."
+        required: false
+        default: "bbcgoodfood.com,diffordsguide.com,food.com,imbibemagazine.com,punchdrink.com,liquor.com"
+
+jobs:
+  drift-review:
+    runs-on: ubuntu-latest
+    env:
+      RUN_ID: gh_drift_${{ github.run_id }}_${{ github.run_attempt }}
+      API_BASE_URL: ${{ secrets.STAGING_BASE_URL }}
+      INTERNAL_TOKEN: ${{ secrets.STAGING_INTERNAL_TOKEN }}
+      MIN_JOBS: ${{ github.event.inputs.min_jobs || '20' }}
+      TARGET_DOMAINS: ${{ github.event.inputs.domains || 'bbcgoodfood.com,diffordsguide.com,food.com,imbibemagazine.com,punchdrink.com,liquor.com' }}
+      BUFFER_MULTIPLIER: "1.25"
+      APPLY: "false"
+      MIN_CLASS_COUNT: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Validate required secrets
+        run: |
+          set -euo pipefail
+          for key in API_BASE_URL INTERNAL_TOKEN; do
+            if [[ -z "${!key}" ]]; then
+              echo "Missing required secret/env: ${key}"
+              exit 1
+            fi
+          done
+      - name: Generate calibration and recovery previews
+        run: |
+          set -euo pipefail
+          mkdir -p docs/runbooks/evidence
+          cd infra/staging
+          APPLY=false \
+          API_BASE_URL="${API_BASE_URL}" \
+          INTERNAL_TOKEN="${INTERNAL_TOKEN}" \
+          MIN_JOBS="${MIN_JOBS}" \
+          BUFFER_MULTIPLIER="${BUFFER_MULTIPLIER}" \
+          ./calibrate_alert_thresholds.sh \
+            > "../../docs/runbooks/evidence/drift-calibration-${RUN_ID}.json"
+
+          APPLY=false \
+          API_BASE_URL="${API_BASE_URL}" \
+          INTERNAL_TOKEN="${INTERNAL_TOKEN}" \
+          TARGET_DOMAINS="${TARGET_DOMAINS}" \
+          MIN_CLASS_COUNT="${MIN_CLASS_COUNT}" \
+          RUN_ID="${RUN_ID}" \
+          python3 ./apply_recovery_patches.py \
+            > "../../docs/runbooks/evidence/drift-recovery-${RUN_ID}.log"
+      - name: Snapshot telemetry and write weekly summary
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          import os
+          import urllib.request
+          from datetime import datetime, timezone
+
+          api = os.environ["API_BASE_URL"].rstrip("/")
+          token = os.environ["INTERNAL_TOKEN"]
+          run_id = os.environ["RUN_ID"]
+          evidence_dir = "docs/runbooks/evidence"
+          telemetry_path = f"{evidence_dir}/drift-telemetry-{run_id}.json"
+          summary_path = f"{evidence_dir}/drift-summary-{run_id}.md"
+          calibration_path = f"{evidence_dir}/drift-calibration-{run_id}.json"
+
+          req = urllib.request.Request(
+              f"{api}/v1/admin/crawler-ops/telemetry",
+              headers={"X-Internal-Token": token, "Accept": "application/json"},
+              method="GET",
+          )
+          with urllib.request.urlopen(req, timeout=60) as res:
+              telemetry = json.loads(res.read().decode("utf-8"))
+          with open(telemetry_path, "w", encoding="utf-8") as f:
+              json.dump(telemetry, f, indent=2, sort_keys=True)
+
+          with open(calibration_path, "r", encoding="utf-8") as f:
+              calibration = json.load(f)
+
+          domains = telemetry.get("domains") or []
+          rows = []
+          for domain in domains:
+              rows.append(
+                  "| {domain} | {total} | {failure:.3f} | {fallback:.3f} | {retryable} | {compliance} |".format(
+                      domain=domain.get("domain", ""),
+                      total=domain.get("total_jobs", 0),
+                      failure=float(domain.get("failure_rate", 0.0) or 0.0),
+                      fallback=float(domain.get("parser_fallback_rate", 0.0) or 0.0),
+                      retryable=domain.get("retryable", 0),
+                      compliance=domain.get("compliance_rejections", 0),
+                  )
+              )
+
+          recommendations = calibration.get("recommendations") or []
+          rec_lines = []
+          for rec in recommendations:
+              rec_lines.append(
+                  "- `{domain}`: {status} ({reason})".format(
+                      domain=rec.get("domain", ""),
+                      status=rec.get("status", "unknown"),
+                      reason=rec.get("reason", f"total_jobs={rec.get('total_jobs', 0)}"),
+                  )
+              )
+
+          generated_at = datetime.now(timezone.utc).isoformat()
+          with open(summary_path, "w", encoding="utf-8") as f:
+              f.write(f"# Weekly Drift Review {run_id}\n\n")
+              f.write(f"- Generated at: `{generated_at}`\n")
+              f.write(f"- API base: `{api}`\n")
+              f.write(f"- Min jobs target: `{os.environ.get('MIN_JOBS', '20')}`\n\n")
+              f.write("## Domain telemetry snapshot\n")
+              f.write("| Domain | Total Jobs | Failure Rate | Parser Fallback Rate | Retryable | Compliance Rejections |\n")
+              f.write("|---|---:|---:|---:|---:|---:|\n")
+              for row in rows:
+                  f.write(row + "\n")
+              f.write("\n## Calibration preview\n")
+              for line in rec_lines:
+                  f.write(line + "\n")
+              f.write("\n## Next actions\n")
+              f.write("- Review domains below min sample or with elevated failure/fallback trends.\n")
+              f.write("- Apply safe recovery patches only when repeated failure classes persist.\n")
+              f.write("- Keep policy/recovery maintenance workflows enabled.\n")
+          PY
+      - name: Upload drift review evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: staging-drift-review-${{ github.run_id }}
+          path: |
+            docs/runbooks/evidence/drift-calibration-${{ env.RUN_ID }}.json
+            docs/runbooks/evidence/drift-recovery-${{ env.RUN_ID }}.log
+            docs/runbooks/evidence/drift-telemetry-${{ env.RUN_ID }}.json
+            docs/runbooks/evidence/drift-summary-${{ env.RUN_ID }}.md
