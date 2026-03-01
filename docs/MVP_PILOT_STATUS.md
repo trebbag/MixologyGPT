@@ -1,33 +1,29 @@
 # MVP Pilot Status
 
-Last updated: `2026-02-28` (after pilot domain defaults update + CI pgvector fix)
+Last updated: `2026-03-01` (after all-six staging pass `22546128104`)
 
 ## Completion by Core Pilot Area
 | Area | Percent complete | Ready state summary |
 |---|---:|---|
-| Core API platform (auth, models, CRUD, migrations) | 94% | Core APIs are stable, migrations are in place, and CI migration coverage now targets a pgvector-capable Postgres image. Remaining work is full real-staging rerun validation. |
-| Inventory + ontology operations | 92% | Core inventory and ontology flows are stable across web/mobile. Remaining work is long-tail UX parity and edge-case flow polish. |
-| Recipe harvesting + compliance controls | 96% | Policy admin, telemetry, calibration automation, compliance rejection paths, and safe recovery patch automation are implemented. Remaining work is sustained real-staging telemetry on all approved domains and policy-reviewed parser hardening from live failure classes. |
-| Studio generation + review workflow | 91% | Session, version, review, and tertiary action handling are implemented across web/mobile. Remaining work is final staging validation of disabled/offline/retry/error permutations on real credentials. |
-| Recommendations + party/pilot utility | 83% | Endpoints and primary UI surfaces are in place. Remaining work is pilot-focused UX polish and operational end-to-end journey validation under staging traffic. |
-| Web UI readiness (Figma parity) | 95% | Design language and major route coverage are in place, including staging E2E hooks and runtime API override support. Remaining work is final parity sweep in tertiary/edge states after staging token+host correction. |
-| Mobile UI readiness (Figma parity) | 94% | Multi-screen navigation and tertiary-path handling are implemented and covered by mocked suites. Remaining work is real-staging execution and final deep-link/permutation polish. |
-| QA automation (unit/integration/contract/E2E) | 96% | API unit/integration/contract coverage is established, plus web/mobile E2E (mocked and staging variants). Remaining work is passing real-staging E2E with valid token/role and collecting current artifacts. |
-| Staging deploy + observability | 91% | Signoff, all-six orchestration, calibration, recovery maintenance, and in-app alert path are wired. Remaining work is environment-secret completion, real-staging reruns, and final evidence capture. |
-| Performance readiness for pilot load | 93% | Locked pilot gates and tuned profile tooling are in place. Remaining work is second representative staging-window run and explicit go/no-go decision against locked gates. |
+| Core API platform (auth, models, CRUD, migrations) | 96% | Core APIs, migrations, and CI coverage are stable, including pgvector-aware migration smoke. Remaining work is routine hardening and post-pilot defect burn-down. |
+| Inventory + ontology operations | 93% | Inventory and ontology flows are stable across web/mobile shells. Remaining work is minor UX polish on long-tail state transitions. |
+| Recipe harvesting + compliance controls | 98% | Policy admin, telemetry, calibration, compliance rejection smoke, and safe recovery patching are operational in staging. Remaining work is optional domain expansion (`liquor.com`) and ongoing parser tuning from live classes. |
+| Studio generation + review workflow | 94% | Staging pass now validates tertiary retry/offline/disabled paths across the integrated flow. Remaining work is polish-level UX refinement. |
+| Recommendations + party/pilot utility | 85% | Core endpoint + UI integration is in place and exercised by load/profile runs. Remaining work is pilot UX quality improvements and export/report ergonomics. |
+| Web UI readiness (Figma parity) | 97% | Staging web E2E now passes in all-six, including tertiary knowledge/studio/harvest interactions. Remaining work is visual consistency cleanup and final accessibility sweep. |
+| Mobile UI readiness (Figma parity) | 96% | Mobile staging tertiary suite passes in all-six with offline/disabled/retry states. Remaining work is micro-interaction polish and optional navigation refinements. |
+| QA automation (unit/integration/contract/E2E) | 98% | CI + staging all-six now pass with real credentials and artifact capture. Remaining work is expanding long-tail E2E permutations and keeping suites fast/reliable. |
+| Staging deploy + observability | 95% | Real signoff passes via all-six; internal alert path is validated as optional-internal mode. Remaining work is optional external alert forwarding and environment-specific deploy workflow alignment. |
+| Performance readiness for pilot load | 96% | Staging load profile now passes locked gates in integrated signoff. Remaining work is periodic reruns to detect drift before pilot scale increases. |
 
 ## Remaining Work Before Pilot
-1. Regenerate `STAGING_E2E_ACCESS_TOKEN` with `power` or `admin` role and update GitHub secret.
-   - Current blocker: all-six precheck on `2026-02-28` failed with `401` on `/v1/auth/sessions` and `/v1/users/me`.
-2. Redeploy staging web with current code and confirm it no longer points to `localhost` for API calls.
-   - Confirm `STAGING_WEB_BASE_URL` build/runtime points at real staging API host.
-3. Re-run `.github/workflows/staging-pilot-all-six.yml` and archive full evidence artifacts.
-4. Execute staged performance signoff in a representative traffic window and record explicit go/no-go against `infra/loadtest/gates.pilot.locked.json`.
-5. Keep low-sample approved domains at `MIN_JOBS >= 20/domain` (including `liquor.com` when active policy exists) and periodically re-apply calibration.
-6. Run recovery patch preview from live failure classes and apply only safe parser keys.
-7. Publish final pilot decision memo linking signoff summary, load-gate report, compliance smoke, and staging web/mobile E2E artifacts.
+1. Publish the final pilot decision memo using evidence from all-six run `22546128104` (summary, signoff, load gates, E2E, compliance smoke).
+2. Decide whether to activate `liquor.com` policy in staging (currently skipped because no active policy) or remove it from target-domain defaults.
+3. Keep policy/recovery maintenance running and review drift weekly (`MIN_JOBS >= 20/domain`).
+4. Optional: wire external alert forwarding destinations (Slack/PagerDuty) if you want off-platform paging; internal mode is already valid.
+5. Optional: align or disable the SSH-based `Staging Deploy` workflow if Render is your canonical deployment path.
 
 ## Dependency Items Blocking Full Pilot Launch
-1. Staging credentials/secrets and host config in `docs/NEEDS_FROM_YOU.md` (especially `STAGING_BASE_URL`, `STAGING_INTERNAL_TOKEN`, `STAGING_E2E_ACCESS_TOKEN`, `STAGING_WEB_BASE_URL`).
-2. Active approved source-policy coverage for target pilot domains (now excluding allrecipes by default pilot targets; liquor optional when policy is active).
-3. Final go/no-go owner signoff after real staging evidence is collected.
+1. Final owner signoff on pilot go/no-go with evidence package attached.
+2. Decision on optional domain coverage (`liquor.com`) for pilot scope.
+3. Decision on optional external alert forwarding requirements (internal-only is already supported).
