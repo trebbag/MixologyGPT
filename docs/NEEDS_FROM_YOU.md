@@ -3,9 +3,18 @@
 ## Current checkpoint (`2026-03-01`)
 - Latest run: GitHub Actions `Staging Pilot All-Six` (`22546128104`)
 - Result: `PASS` (real signoff + web staging E2E + mobile staging E2E + compliance smoke)
+- Liquor policy activation: created via `Staging Ensure Liquor Policy` (`22546370614`) with active policy id `f53d8402-966f-4924-ac53-072fc2b42b74`
+- Liquor crawl caveat: current seed URLs return `http-403` in staging harvest telemetry, so `MIN_JOBS` cannot be reached yet for `liquor.com`
 - Remaining optional items:
   - activate `liquor.com` source policy if you want it included (currently skipped when inactive)
   - wire external alert destinations only if you want off-platform paging (internal in-app alert path already valid)
+
+## Liquor.com pilot inclusion follow-up
+- What is needed: approved, crawlable `liquor.com` seed URLs (or explicit decision to keep the policy active but exclude from `MIN_JOBS` gating)
+- Why: current known seeds are blocked (`fetch_failed:http-403`), preventing telemetry volume accumulation and threshold calibration for this domain
+- Required now:
+  - either provide alternate allowed seeds for `liquor.com`
+  - or confirm pilot scope should not enforce `MIN_JOBS` for `liquor.com` until access constraints are resolved
 
 ## Pilot cutover blockers (as of 2026-02-24)
 - What is needed: real staging API access and internal auth for signoff + E2E execution

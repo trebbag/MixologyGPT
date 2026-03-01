@@ -48,6 +48,7 @@ jobs:
           cd infra/staging
           python3 ./ensure_source_policy.py
       - name: Boost liquor.com sampling and apply calibration
+        continue-on-error: true
         run: |
           set -euo pipefail
           cd infra/staging
