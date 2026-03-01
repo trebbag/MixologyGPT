@@ -16,6 +16,7 @@
 - Required now:
   - `STAGING_BASE_URL`
   - `STAGING_INTERNAL_TOKEN` (required by pilot signoff + policy/recovery maintenance workflows)
+  - `STAGING_E2E_ACCESS_TOKEN` (required for authenticated staging load-profile calls during signoff/all-six)
 - Optional (recommended for in-app alert smoke):
   - `STAGING_ALERTMANAGER_URL`
 - Optional (recommended for receiver confirmation):

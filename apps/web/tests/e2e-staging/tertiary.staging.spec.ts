@@ -33,7 +33,7 @@ test.describe('staging tertiary smoke', () => {
 
   test('knowledge search handles offline path with disabled tertiary actions', async ({ page }) => {
     await page.goto('/knowledge')
-    await expect(page.getByText('Knowledge')).toBeVisible()
+    await expect(page.getByTestId('app-section-title')).toHaveText('Knowledge')
 
     await page.getByPlaceholder('e.g. Daiquiri balance, shaking technique, acid adjustment').fill('daiquiri')
     await page.route('**/v1/knowledge/search', async (route) => route.abort('failed'))

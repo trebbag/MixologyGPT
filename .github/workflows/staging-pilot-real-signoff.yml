@@ -61,6 +61,7 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.STAGING_SLACK_WEBHOOK_URL }}
           PAGERDUTY_ROUTING_KEY: ${{ secrets.STAGING_PAGERDUTY_ROUTING_KEY }}
           FORWARD_WEBHOOK_URLS: ${{ secrets.STAGING_FORWARD_WEBHOOK_URLS }}
+          LOADTEST_ACCESS_TOKEN: ${{ secrets.STAGING_E2E_ACCESS_TOKEN }}
           USERS: ${{ github.event.inputs.users }}
           SPAWN_RATE: ${{ github.event.inputs.spawn_rate }}
           DURATION: ${{ github.event.inputs.duration }}

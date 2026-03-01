@@ -56,8 +56,8 @@
   - Run headless baseline: `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI && USERS=20 SPAWN_RATE=4 DURATION=3m ./infra/loadtest/run_loadtest.sh http://127.0.0.1:8000`
   - Run tuned profile: `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI && USERS=40 SPAWN_RATE=8 DURATION=5m RUN_ID=pilot_tuned_20260208 ./infra/loadtest/run_loadtest.sh http://127.0.0.1:8000`
   - Evaluate gates: `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI && python3 ./infra/loadtest/evaluate_gates.py --stats infra/loadtest/results/<run_id>_stats.csv --gates infra/loadtest/gates.json --run-id <run_id> --output-md infra/loadtest/results/<run_id>_gates.md`
-  - Run staging tuned profile + gate evaluation: `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI && STAGING_BASE_URL=https://<staging-host> ./infra/loadtest/run_staging_profile.sh`
-  - Run staging profile and lock tightened pilot gates: `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI && STAGING_BASE_URL=https://<staging-host> LOCK_GATES=true ./infra/loadtest/run_staging_profile.sh`
+  - Run staging tuned profile + gate evaluation: `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI && STAGING_BASE_URL=https://<staging-host> LOADTEST_ACCESS_TOKEN=<staging-access-token> ./infra/loadtest/run_staging_profile.sh`
+  - Run staging profile and lock tightened pilot gates: `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI && STAGING_BASE_URL=https://<staging-host> LOADTEST_ACCESS_TOKEN=<staging-access-token> LOCK_GATES=true ./infra/loadtest/run_staging_profile.sh`
   - Lock gates from an existing run artifact: `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI && python3 ./infra/loadtest/lock_gates.py --stats infra/loadtest/results/<run_id>_stats.csv --gates-in infra/loadtest/gates.json --gates-out infra/loadtest/gates.pilot.locked.json --run-id <run_id> --output-md infra/loadtest/results/<run_id>_locked_gates.md`
 
 - Alerting operations:
@@ -65,7 +65,7 @@
   - Staging internal alert smoke (in-app path): `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI/infra/staging && ALERTMANAGER_URL=https://<alertmanager-host> ./external_alert_smoke.sh`
   - Staging alert smoke with receiver confirmation (optional): `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI/infra/staging && ALERTMANAGER_URL=https://<alertmanager-host> CONFIRM_BASE_URL=https://<alert-receiver-host> CONFIRM_TOKEN=<optional> ./external_alert_smoke.sh`
   - Staging external forwarding smoke (optional): `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI/infra/staging && ALERTMANAGER_URL=https://<alertmanager-host> CONFIRM_BASE_URL=https://<alert-receiver-host> CONFIRM_FORWARD_DESTINATION=slack CONFIRM_TOKEN=<optional> ./external_alert_smoke.sh`
-  - Real staging pilot signoff wrapper (rejects local API endpoints): `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI && API_BASE_URL=https://<staging-host> INTERNAL_TOKEN=<token> ./infra/staging/pilot_real_signoff.sh`
+  - Real staging pilot signoff wrapper (rejects local API endpoints): `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI && API_BASE_URL=https://<staging-host> INTERNAL_TOKEN=<token> LOADTEST_ACCESS_TOKEN=<staging-access-token> ./infra/staging/pilot_real_signoff.sh`
   - Full all-six pilot continuation (real signoff + web/mobile staging E2E + compliance smoke): `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI && API_BASE_URL=https://<staging-api-host> WEB_BASE_URL=https://<staging-web-host> INTERNAL_TOKEN=<token> STAGING_E2E_ACCESS_TOKEN=<token> ./infra/staging/pilot_all_six.sh`
   - Staging policy calibration preview: `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI/infra/staging && INTERNAL_TOKEN=<token> APPLY=false ./calibrate_alert_thresholds.sh`
   - Staging policy calibration apply: `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI/infra/staging && INTERNAL_TOKEN=<token> APPLY=true ./calibrate_alert_thresholds.sh`

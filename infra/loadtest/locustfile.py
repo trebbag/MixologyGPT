@@ -1,22 +1,27 @@
 from __future__ import annotations
 
+import os
 from typing import Any
 
 from locust import HttpUser, between, task
 
 
 SEED_HARVEST_URL = "https://www.diffordsguide.com/cocktails/search"
+LOADTEST_ACCESS_TOKEN = os.getenv("LOADTEST_ACCESS_TOKEN", "").strip()
+LOADTEST_REFRESH_TOKEN = os.getenv("LOADTEST_REFRESH_TOKEN", "").strip()
 
 
 class ApiUser(HttpUser):
     wait_time = between(0.5, 2.0)
 
     def on_start(self):
-        self.token = None
-        self.refresh_token = None
+        self.use_static_token = bool(LOADTEST_ACCESS_TOKEN)
+        self.token = LOADTEST_ACCESS_TOKEN or None
+        self.refresh_token = LOADTEST_REFRESH_TOKEN or None
         self.active_session_id = None
         self.latest_version_ids: list[str] = []
-        self._bootstrap_auth()
+        if not self.use_static_token:
+            self._bootstrap_auth()
 
     def _bootstrap_auth(self) -> None:
         dev_token = self.client.post("/v1/auth/dev-token?unique=true")
@@ -118,6 +123,8 @@ class ApiUser(HttpUser):
 
     @task(1)
     def refresh_login(self):
+        if self.use_static_token:
+            return
         if not self.refresh_token:
             return
         res = self.client.post(
