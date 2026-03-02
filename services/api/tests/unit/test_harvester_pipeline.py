@@ -1,5 +1,6 @@
 import asyncio
 
+import httpx
 import pytest
 
 from app.domain.harvester_pipeline import (
@@ -608,3 +609,171 @@ def test_classify_parse_failure_instruction_structure_mismatch():
         "https://www.allrecipes.com/recipe/999/mismatch-sour",
     )
     assert failure in {"instruction-structure-mismatch", "domain-instructions-sparse"}
+
+
+def _http_error(status_code: int) -> httpx.HTTPStatusError:
+    request = httpx.Request("GET", "https://www.thecocktaildb.com/")
+    response = httpx.Response(status_code, request=request)
+    return httpx.HTTPStatusError("error", request=request, response=response)
+
+
+def test_crawl_source_cocktaildb_provider_parses_records_and_dedupes_ids(monkeypatch):
+    class _FakeResponse:
+        def __init__(self, payload: dict, status_code: int = 200):
+            self._payload = payload
+            self.status_code = status_code
+
+        def raise_for_status(self):
+            if self.status_code >= 400:
+                raise _http_error(self.status_code)
+
+        def json(self):
+            return self._payload
+
+    class _FakeClient:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, exc_type, exc, tb):
+            return False
+
+        async def get(self, url, params=None):
+            if url.endswith("/filter.php"):
+                if params == {"c": "Cocktail"}:
+                    return _FakeResponse({"drinks": [{"idDrink": "11000"}, {"idDrink": "11001"}]})
+                if params == {"c": "Ordinary_Drink"}:
+                    return _FakeResponse({"drinks": [{"idDrink": "11001"}, {"idDrink": "11002"}]})
+            if url.endswith("/lookup.php"):
+                drink_id = params.get("i")
+                records = {
+                    "11000": {
+                        "idDrink": "11000",
+                        "strDrink": "Mojito",
+                        "strInstructions": "Muddle mint.\nShake with ice.\nServe.",
+                        "strIngredient1": "White Rum",
+                        "strMeasure1": "2 oz",
+                        "strIngredient2": "Lime juice",
+                        "strMeasure2": "1 oz",
+                        "strIngredient3": "Mint",
+                        "strMeasure3": "8 leaves",
+                    },
+                    "11001": {
+                        "idDrink": "11001",
+                        "strDrink": "Old Fashioned",
+                        "strInstructions": "Stir with ice. Strain into rocks glass.",
+                        "strIngredient1": "Bourbon",
+                        "strMeasure1": "2 oz",
+                        "strIngredient2": "Bitters",
+                        "strMeasure2": "2 dashes",
+                        "strIngredient3": "Simple syrup",
+                        "strMeasure3": "0.25 oz",
+                    },
+                    "11002": {
+                        "idDrink": "11002",
+                        "strDrink": "Long Island Iced Tea",
+                        "strInstructions": "Build in a glass.",
+                        "strIngredient1": "Vodka",
+                        "strMeasure1": "0.5 oz",
+                        "strIngredient2": "Rum",
+                        "strMeasure2": "0.5 oz",
+                    },
+                }
+                return _FakeResponse({"drinks": [records.get(drink_id)] if records.get(drink_id) else []})
+            return _FakeResponse({}, status_code=404)
+
+    monkeypatch.setattr("app.domain.harvester_pipeline.httpx.AsyncClient", _FakeClient)
+
+    result = asyncio.run(
+        crawl_source(
+            "https://www.thecocktaildb.com/",
+            max_recipes=2,
+            parser_settings={
+                "source_provider": "cocktaildb_api",
+                "cocktaildb_api_key": "supporter-key",
+                "cocktaildb_api_base_url": "https://www.thecocktaildb.com/api/json/v1",
+                "cocktaildb_filters": ["c=Cocktail", "c=Ordinary_Drink"],
+            },
+        )
+    )
+    assert len(result.parsed_recipes) == 2
+    assert result.parser_stats.get("cocktaildb_api") == 2
+    assert result.parse_failure_counts == {}
+    assert len(set(recipe.source_url for recipe in result.parsed_recipes)) == 2
+    assert all(recipe.extraction_confidence == pytest.approx(0.9, rel=1e-6) for recipe in result.parsed_recipes)
+
+
+def test_crawl_source_cocktaildb_provider_requires_api_key():
+    result = asyncio.run(
+        crawl_source(
+            "https://www.thecocktaildb.com/",
+            parser_settings={"source_provider": "cocktaildb_api"},
+        )
+    )
+    assert result.parsed_recipes == []
+    assert result.parse_failure_counts.get("fetch_failed:cocktaildb-key-missing", 0) == 1
+    assert any("cocktaildb-key-missing" in error for error in result.errors)
+
+
+def test_crawl_source_cocktaildb_provider_tracks_lookup_and_record_failures(monkeypatch):
+    class _FakeResponse:
+        def __init__(self, payload: dict, status_code: int = 200):
+            self._payload = payload
+            self.status_code = status_code
+
+        def raise_for_status(self):
+            if self.status_code >= 400:
+                raise _http_error(self.status_code)
+
+        def json(self):
+            return self._payload
+
+    class _FakeClient:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, exc_type, exc, tb):
+            return False
+
+        async def get(self, url, params=None):
+            if url.endswith("/filter.php"):
+                return _FakeResponse({"drinks": [{"idDrink": "11000"}, {"idDrink": "11001"}]})
+            if url.endswith("/lookup.php"):
+                if params.get("i") == "11000":
+                    return _FakeResponse(
+                        {
+                            "drinks": [
+                                {
+                                    "idDrink": "11000",
+                                    "strDrink": "Broken Drink",
+                                    "strIngredient1": "Gin",
+                                    "strMeasure1": "1 oz",
+                                }
+                            ]
+                        }
+                    )
+                return _FakeResponse({}, status_code=500)
+            return _FakeResponse({}, status_code=404)
+
+    monkeypatch.setattr("app.domain.harvester_pipeline.httpx.AsyncClient", _FakeClient)
+
+    result = asyncio.run(
+        crawl_source(
+            "https://www.thecocktaildb.com/",
+            max_recipes=5,
+            parser_settings={
+                "source_provider": "cocktaildb_api",
+                "cocktaildb_api_key": "supporter-key",
+                "cocktaildb_api_base_url": "https://www.thecocktaildb.com/api/json/v1",
+                "cocktaildb_filters": ["c=Cocktail"],
+            },
+        )
+    )
+    assert result.parsed_recipes == []
+    assert result.parse_failure_counts.get("cocktaildb-record-incomplete", 0) == 1
+    assert result.parse_failure_counts.get("fetch_failed:cocktaildb-lookup-http", 0) == 1

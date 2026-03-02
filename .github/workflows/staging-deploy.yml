@@ -99,7 +99,7 @@ jobs:
           username: ${{ secrets.STAGING_SSH_USER }}
           key: ${{ secrets.STAGING_SSH_KEY }}
           script_stop: true
-          envs: IMAGE_TAG,GHCR_OWNER,GHCR_USERNAME,GHCR_TOKEN,DEPLOY_PATH,ALERT_WEBHOOK_URL,SLACK_WEBHOOK_URL,PAGERDUTY_ROUTING_KEY,FORWARD_WEBHOOK_URLS,ALERT_RECEIVER_CONFIRM_TOKEN
+          envs: IMAGE_TAG,GHCR_OWNER,GHCR_USERNAME,GHCR_TOKEN,DEPLOY_PATH,ALERT_WEBHOOK_URL,SLACK_WEBHOOK_URL,PAGERDUTY_ROUTING_KEY,FORWARD_WEBHOOK_URLS,ALERT_RECEIVER_CONFIRM_TOKEN,COCKTAILDB_API_KEY,COCKTAILDB_API_BASE_URL,COCKTAILDB_REQUEST_TIMEOUT_SECONDS
           script: |
             set -e
             cd "$DEPLOY_PATH"
@@ -126,6 +126,9 @@ jobs:
                 "PAGERDUTY_ROUTING_KEY": os.environ.get("PAGERDUTY_ROUTING_KEY", "").strip(),
                 "FORWARD_WEBHOOK_URLS": os.environ.get("FORWARD_WEBHOOK_URLS", "").strip(),
                 "ALERT_RECEIVER_CONFIRM_TOKEN": os.environ.get("ALERT_RECEIVER_CONFIRM_TOKEN", "").strip(),
+                "COCKTAILDB_API_KEY": os.environ.get("COCKTAILDB_API_KEY", "").strip(),
+                "COCKTAILDB_API_BASE_URL": os.environ.get("COCKTAILDB_API_BASE_URL", "").strip(),
+                "COCKTAILDB_REQUEST_TIMEOUT_SECONDS": os.environ.get("COCKTAILDB_REQUEST_TIMEOUT_SECONDS", "").strip(),
             }
 
             updates = {k: v for k, v in updates.items() if v}
@@ -158,6 +161,9 @@ jobs:
           PAGERDUTY_ROUTING_KEY: ${{ secrets.STAGING_PAGERDUTY_ROUTING_KEY }}
           FORWARD_WEBHOOK_URLS: ${{ secrets.STAGING_FORWARD_WEBHOOK_URLS }}
           ALERT_RECEIVER_CONFIRM_TOKEN: ${{ secrets.STAGING_ALERT_RECEIVER_CONFIRM_TOKEN }}
+          COCKTAILDB_API_KEY: ${{ secrets.STAGING_COCKTAILDB_API_KEY || secrets.COCKTAILDB_API_KEY }}
+          COCKTAILDB_API_BASE_URL: ${{ secrets.STAGING_COCKTAILDB_API_BASE_URL || 'https://www.thecocktaildb.com/api/json/v1' }}
+          COCKTAILDB_REQUEST_TIMEOUT_SECONDS: ${{ secrets.STAGING_COCKTAILDB_REQUEST_TIMEOUT_SECONDS || '15' }}
 
   staging-smoke:
     runs-on: ubuntu-latest

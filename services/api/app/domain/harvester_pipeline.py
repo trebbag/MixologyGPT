@@ -4,10 +4,12 @@ import xml.etree.ElementTree as ET
 from collections import deque
 from dataclasses import dataclass
 from typing import Any, Iterable, Optional
-from urllib.parse import urljoin, urlparse
+from urllib.parse import parse_qsl, urljoin, urlparse
 
 import httpx
 from bs4 import BeautifulSoup
+
+from app.core.config import settings
 
 
 USER_AGENT = (
@@ -1827,6 +1829,219 @@ async def discover_sitemap_links(
     return discovered[:max_links]
 
 
+def _cocktaildb_filters(parser_settings: Optional[dict[str, Any]]) -> list[str]:
+    raw_filters = (parser_settings or {}).get("cocktaildb_filters")
+    if isinstance(raw_filters, list):
+        normalized = [str(value).strip() for value in raw_filters if str(value).strip()]
+        if normalized:
+            return normalized
+    return ["c=Cocktail", "c=Ordinary_Drink"]
+
+
+def _cocktaildb_filter_params(filter_query: str) -> dict[str, str]:
+    parsed: dict[str, str] = {}
+    for key, value in parse_qsl(filter_query, keep_blank_values=False):
+        key_norm = str(key).strip()
+        value_norm = str(value).strip()
+        if key_norm and value_norm:
+            parsed[key_norm] = value_norm
+    return parsed
+
+
+def _split_cocktaildb_instructions(text: str) -> list[str]:
+    if not text:
+        return []
+    normalized = text.replace("\r\n", "\n").replace("\r", "\n")
+    chunks = [line.strip() for line in normalized.split("\n") if line.strip()]
+    if len(chunks) == 1:
+        chunks = [part.strip() for part in re.split(r"(?<=[.!?])\s+(?=[A-Z0-9])", chunks[0]) if part.strip()]
+    return chunks
+
+
+def _parse_cocktaildb_record(record: dict[str, Any]) -> Optional[ParsedRecipe]:
+    drink_id = str(record.get("idDrink") or "").strip()
+    canonical_name = str(record.get("strDrink") or "").strip()
+    instructions = _split_cocktaildb_instructions(str(record.get("strInstructions") or "").strip())
+
+    ingredients: list[dict[str, Any]] = []
+    for idx in range(1, 16):
+        ingredient = str(record.get(f"strIngredient{idx}") or "").strip()
+        if not ingredient:
+            continue
+        measure = str(record.get(f"strMeasure{idx}") or "").strip()
+        ingredient_line = f"{measure} {ingredient}".strip() if measure else ingredient
+        ingredients.append(_parse_ingredient_line(ingredient_line))
+
+    if not drink_id or not canonical_name or len(ingredients) < 2 or len(instructions) < 1:
+        return None
+
+    tags: list[str] = []
+    raw_tags = str(record.get("strTags") or "").strip()
+    if raw_tags:
+        tags.extend([part.strip() for part in raw_tags.split(",") if part.strip()])
+    for field in ("strCategory", "strAlcoholic", "strGlass"):
+        value = str(record.get(field) or "").strip()
+        if value:
+            tags.append(value)
+
+    return ParsedRecipe(
+        canonical_name=canonical_name,
+        description=str(record.get("strInstructions") or "").strip()[:400] or None,
+        ingredients=ingredients,
+        instructions=instructions,
+        author=None,
+        rating_value=None,
+        rating_count=None,
+        like_count=None,
+        share_count=None,
+        source_url=f"https://www.thecocktaildb.com/drink/{drink_id}",
+        tags=list(dict.fromkeys(tags)),
+        parser_used="cocktaildb_api",
+        extraction_confidence=0.9,
+    )
+
+
+async def _crawl_cocktaildb_source(
+    source_url: str,
+    max_recipes: int,
+    parser_settings: Optional[dict[str, Any]] = None,
+) -> CrawlResult:
+    settings_map = parser_settings or {}
+    api_key = str(settings_map.get("cocktaildb_api_key") or settings.cocktaildb_api_key or "").strip()
+    api_base_url = str(
+        settings_map.get("cocktaildb_api_base_url") or settings.cocktaildb_api_base_url or ""
+    ).strip().rstrip("/")
+    timeout_seconds = float(
+        settings_map.get("cocktaildb_request_timeout_seconds")
+        or settings.cocktaildb_request_timeout_seconds
+        or 15
+    )
+    filters = _cocktaildb_filters(settings_map)
+
+    discovered_urls: list[str] = []
+    parsed_recipes: list[ParsedRecipe] = []
+    parser_stats: dict[str, int] = {}
+    confidence_buckets: dict[str, int] = {}
+    fallback_class_counts: dict[str, int] = {}
+    parse_failure_counts: dict[str, int] = {}
+    compliance_reason_counts: dict[str, int] = {}
+    errors: list[str] = []
+
+    if not api_key:
+        parse_failure_counts["fetch_failed:cocktaildb-key-missing"] = 1
+        errors.append(f"{source_url}: fetch_failed (cocktaildb-key-missing)")
+        return CrawlResult(
+            discovered_urls=[],
+            parsed_recipes=[],
+            parser_stats={},
+            confidence_buckets={},
+            fallback_class_counts={},
+            parse_failure_counts=parse_failure_counts,
+            compliance_rejections=0,
+            compliance_reason_counts={},
+            errors=errors,
+        )
+
+    if not api_base_url:
+        parse_failure_counts["fetch_failed:cocktaildb-list-http"] = 1
+        errors.append(f"{source_url}: fetch_failed (cocktaildb-list-http)")
+        return CrawlResult(
+            discovered_urls=[],
+            parsed_recipes=[],
+            parser_stats={},
+            confidence_buckets={},
+            fallback_class_counts={},
+            parse_failure_counts=parse_failure_counts,
+            compliance_rejections=0,
+            compliance_reason_counts={},
+            errors=errors,
+        )
+
+    drink_ids: list[str] = []
+    seen_ids: set[str] = set()
+
+    async with httpx.AsyncClient(timeout=timeout_seconds, follow_redirects=True, headers={"User-Agent": USER_AGENT}) as client:
+        for filter_query in filters:
+            params = _cocktaildb_filter_params(filter_query)
+            if not params:
+                continue
+            try:
+                list_response = await client.get(f"{api_base_url}/{api_key}/filter.php", params=params)
+                list_response.raise_for_status()
+                payload = list_response.json()
+            except Exception:  # noqa: BLE001
+                parse_failure_counts["fetch_failed:cocktaildb-list-http"] = (
+                    parse_failure_counts.get("fetch_failed:cocktaildb-list-http", 0) + 1
+                )
+                errors.append(f"{source_url}: fetch_failed (cocktaildb-list-http)")
+                continue
+
+            drinks = payload.get("drinks") if isinstance(payload, dict) else None
+            if not isinstance(drinks, list):
+                continue
+            for item in drinks:
+                if not isinstance(item, dict):
+                    continue
+                drink_id = str(item.get("idDrink") or "").strip()
+                if not drink_id or drink_id in seen_ids:
+                    continue
+                seen_ids.add(drink_id)
+                drink_ids.append(drink_id)
+                if len(drink_ids) >= max(max_recipes * 4, max_recipes):
+                    break
+            if len(drink_ids) >= max(max_recipes * 4, max_recipes):
+                break
+
+        for drink_id in drink_ids:
+            if len(parsed_recipes) >= max_recipes:
+                break
+            try:
+                lookup_response = await client.get(f"{api_base_url}/{api_key}/lookup.php", params={"i": drink_id})
+                lookup_response.raise_for_status()
+                lookup_payload = lookup_response.json()
+            except Exception:  # noqa: BLE001
+                parse_failure_counts["fetch_failed:cocktaildb-lookup-http"] = (
+                    parse_failure_counts.get("fetch_failed:cocktaildb-lookup-http", 0) + 1
+                )
+                errors.append(f"{source_url}: fetch_failed (cocktaildb-lookup-http)")
+                continue
+
+            drinks = lookup_payload.get("drinks") if isinstance(lookup_payload, dict) else None
+            record = drinks[0] if isinstance(drinks, list) and drinks and isinstance(drinks[0], dict) else None
+            if record is None:
+                parse_failure_counts["cocktaildb-record-incomplete"] = (
+                    parse_failure_counts.get("cocktaildb-record-incomplete", 0) + 1
+                )
+                errors.append(f"https://www.thecocktaildb.com/drink/{drink_id}: parse failed (cocktaildb-record-incomplete)")
+                continue
+
+            parsed = _parse_cocktaildb_record(record)
+            if parsed is None:
+                parse_failure_counts["cocktaildb-record-incomplete"] = (
+                    parse_failure_counts.get("cocktaildb-record-incomplete", 0) + 1
+                )
+                errors.append(f"https://www.thecocktaildb.com/drink/{drink_id}: parse failed (cocktaildb-record-incomplete)")
+                continue
+
+            parsed_recipes.append(parsed)
+            discovered_urls.append(parsed.source_url)
+            parser_stats["cocktaildb_api"] = parser_stats.get("cocktaildb_api", 0) + 1
+            bucket = _extraction_confidence_bucket(parsed.extraction_confidence)
+            confidence_buckets[bucket] = confidence_buckets.get(bucket, 0) + 1
+
+    return CrawlResult(
+        discovered_urls=list(dict.fromkeys(discovered_urls)),
+        parsed_recipes=parsed_recipes,
+        parser_stats=parser_stats,
+        confidence_buckets=confidence_buckets,
+        fallback_class_counts=fallback_class_counts,
+        parse_failure_counts=parse_failure_counts,
+        compliance_rejections=0,
+        compliance_reason_counts=compliance_reason_counts,
+        errors=errors,
+    )
+
+
 async def crawl_source(
     source_url: str,
     max_pages: int = 40,
@@ -1838,6 +2053,15 @@ async def crawl_source(
 ) -> CrawlResult:
     normalized_source = normalize_url(source_url)
     settings = parser_settings or {}
+    source_provider = str(settings.get("source_provider") or "").strip().lower()
+    source_host = _normalized_hostname(normalized_source)
+    if source_provider == "cocktaildb_api" and source_host.endswith("thecocktaildb.com"):
+        return await _crawl_cocktaildb_source(
+            source_url=normalized_source,
+            max_recipes=max_recipes,
+            parser_settings=settings,
+        )
+
     discovered_urls: list[str] = []
     parsed_recipes: list[ParsedRecipe] = []
     parser_stats: dict[str, int] = {}

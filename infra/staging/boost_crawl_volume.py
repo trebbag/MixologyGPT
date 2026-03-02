@@ -30,7 +30,7 @@ DEFAULT_LOW_SAMPLE_DOMAINS = (
     "food.com",
     "imbibemagazine.com",
     "punchdrink.com",
-    "liquor.com",
+    "thecocktaildb.com",
 )
 
 # When a policy only contains a single seed URL, crawl coverage can stagnate quickly and prevent
@@ -63,10 +63,8 @@ EXTRA_SEEDS_BY_DOMAIN: dict[str, list[str]] = {
         "https://punchdrink.com/sitemap.xml",
         "https://punchdrink.com/sitemap_index.xml",
     ],
-    "liquor.com": [
-        "https://www.liquor.com/cocktail-recipes-4779427",
-        "https://www.liquor.com/classic-cocktail-recipes-4844600",
-        "https://www.liquor.com/most-popular-cocktails-5020574",
+    "thecocktaildb.com": [
+        "https://www.thecocktaildb.com/",
     ],
 }
 

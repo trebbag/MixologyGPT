@@ -74,6 +74,7 @@
   - Rejection path smoke (compliance/parse/fetch rejection): `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI/infra/staging && API_BASE_URL=https://<staging-host> INTERNAL_TOKEN=<token> COMPLIANCE_TEST_URL=https://www.diffordsguide.com/encyclopedia/ python3 ./compliance_rejection_smoke.py`
 
 - GitHub Actions workflows (staging):
+  - Ensure/activate TheCocktailDB policy + sample/calibrate: `.github/workflows/staging-ensure-cocktaildb-policy.yml`
   - Alert smoke (internal path by default, external forwarding optional): `.github/workflows/staging-alert-smoke.yml`
   - Full real signoff (alerts + calibration + recovery + load gates): `.github/workflows/staging-pilot-real-signoff.yml`
   - Full all-six continuation (real signoff + non-mocked web/mobile staging E2E + compliance smoke): `.github/workflows/staging-pilot-all-six.yml`

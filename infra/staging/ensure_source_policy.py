@@ -17,19 +17,18 @@ from datetime import datetime
 from typing import Any
 
 
-DEFAULT_POLICY_DOMAIN = "liquor.com"
-DEFAULT_POLICY_NAME = "Liquor.com"
+DEFAULT_POLICY_DOMAIN = "thecocktaildb.com"
+DEFAULT_POLICY_NAME = "TheCocktailDB"
 DEFAULT_POLICY_METRIC_TYPE = "pervasiveness"
 DEFAULT_POLICY_REVIEW_POLICY = "manual"
 DEFAULT_POLICY_SEEDS = [
-    "https://www.liquor.com/cocktail-recipes-4779427",
-    "https://www.liquor.com/classic-cocktail-recipes-4844600",
-    "https://www.liquor.com/most-popular-cocktails-5020574",
+    "https://www.thecocktaildb.com/",
 ]
 DEFAULT_POLICY_PARSER_SETTINGS: dict[str, Any] = {
-    "recipe_path_hints": ["/recipes/"],
-    "blocked_path_hints": ["/best-", "/what-is-", "/how-to-", "/news/"],
-    "required_text_markers": ["ingredients", "directions", "instructions", "method"],
+    "source_provider": "cocktaildb_api",
+    "cocktaildb_filters": ["c=Cocktail", "c=Ordinary_Drink"],
+    "recipe_path_hints": ["/drink/"],
+    "required_text_markers": ["ingredients", "instructions"],
 }
 
 

@@ -16,7 +16,7 @@ on:
       domains:
         description: "Comma-separated domains (optional)."
         required: false
-        default: "bbcgoodfood.com,diffordsguide.com,food.com,imbibemagazine.com,punchdrink.com,liquor.com"
+        default: "bbcgoodfood.com,diffordsguide.com,food.com,imbibemagazine.com,punchdrink.com,thecocktaildb.com"
 
 jobs:
   preview-and-apply:
@@ -47,7 +47,7 @@ jobs:
           INTERNAL_TOKEN: ${{ secrets.STAGING_INTERNAL_TOKEN }}
           APPLY: "false"
           MIN_CLASS_COUNT: ${{ github.event.inputs.min_class_count || '1' }}
-          TARGET_DOMAINS: ${{ github.event.inputs.domains || 'bbcgoodfood.com,diffordsguide.com,food.com,imbibemagazine.com,punchdrink.com,liquor.com' }}
+          TARGET_DOMAINS: ${{ github.event.inputs.domains || 'bbcgoodfood.com,diffordsguide.com,food.com,imbibemagazine.com,punchdrink.com,thecocktaildb.com' }}
         run: |
           set -euo pipefail
           cd infra/staging
@@ -60,7 +60,7 @@ jobs:
           INTERNAL_TOKEN: ${{ secrets.STAGING_INTERNAL_TOKEN }}
           APPLY: "true"
           MIN_CLASS_COUNT: ${{ github.event.inputs.min_class_count || '1' }}
-          TARGET_DOMAINS: ${{ github.event.inputs.domains || 'bbcgoodfood.com,diffordsguide.com,food.com,imbibemagazine.com,punchdrink.com,liquor.com' }}
+          TARGET_DOMAINS: ${{ github.event.inputs.domains || 'bbcgoodfood.com,diffordsguide.com,food.com,imbibemagazine.com,punchdrink.com,thecocktaildb.com' }}
         run: |
           set -euo pipefail
           cd infra/staging

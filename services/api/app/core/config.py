@@ -17,6 +17,9 @@ class Settings(BaseSettings):
     llm_provider: str = "openai"
     llm_model: str = "chatgpt-5.2-thinking"
     llm_temperature: float = 0.3
+    cocktaildb_api_key: str = ""
+    cocktaildb_api_base_url: str = "https://www.thecocktaildb.com/api/json/v1"
+    cocktaildb_request_timeout_seconds: int = 15
     otlp_endpoint: Optional[str] = None
     enable_metrics: bool = True
     rate_limit_per_minute: int = 60

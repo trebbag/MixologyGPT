@@ -7,6 +7,9 @@ class Settings(BaseSettings):
     api_url: str = "http://localhost:8000"
     internal_token: str = "dev-internal"
     environment: str = "local"
+    cocktaildb_api_key: str = ""
+    cocktaildb_api_base_url: str = "https://www.thecocktaildb.com/api/json/v1"
+    cocktaildb_request_timeout_seconds: int = 15
 
     # Periodic alert-threshold calibration is intended for staging to keep per-domain
     # alert settings representative as crawl volume shifts.

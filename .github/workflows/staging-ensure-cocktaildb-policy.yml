@@ -1,28 +1,28 @@
-name: Staging Ensure Liquor Policy
+name: Staging Ensure CocktailDB Policy
 
 on:
   workflow_dispatch:
     inputs:
       min_jobs:
-        description: "Minimum jobs for liquor.com after activation."
+        description: "Minimum jobs for thecocktaildb.com after activation."
         required: false
         default: "20"
 
 jobs:
-  ensure-liquor-policy:
+  ensure-cocktaildb-policy:
     runs-on: ubuntu-latest
     env:
-      RUN_ID: gh_liquor_policy_${{ github.run_id }}_${{ github.run_attempt }}
+      RUN_ID: gh_cocktaildb_policy_${{ github.run_id }}_${{ github.run_attempt }}
       API_BASE_URL: ${{ secrets.STAGING_BASE_URL }}
       ADMIN_BEARER_TOKEN: ${{ secrets.STAGING_E2E_ACCESS_TOKEN }}
       INTERNAL_TOKEN: ${{ secrets.STAGING_INTERNAL_TOKEN }}
-      POLICY_DOMAIN: liquor.com
-      POLICY_NAME: Liquor.com
+      POLICY_DOMAIN: thecocktaildb.com
+      POLICY_NAME: TheCocktailDB
       POLICY_METRIC_TYPE: pervasiveness
       POLICY_REVIEW_POLICY: manual
-      POLICY_SEED_URLS: https://www.liquor.com/cocktail-recipes-4779427,https://www.liquor.com/classic-cocktail-recipes-4844600,https://www.liquor.com/most-popular-cocktails-5020574
+      POLICY_SEED_URLS: https://www.thecocktaildb.com/
       MIN_JOBS: ${{ github.event.inputs.min_jobs || '20' }}
-      TARGET_DOMAINS: liquor.com
+      TARGET_DOMAINS: thecocktaildb.com
       APPLY_CALIBRATION: "true"
       MAX_ROUNDS: "6"
       DRAIN_CYCLES: "12"
@@ -42,23 +42,23 @@ jobs:
               exit 1
             fi
           done
-      - name: Ensure liquor.com policy exists and is active
+      - name: Ensure thecocktaildb.com policy exists and is active
         run: |
           set -euo pipefail
           cd infra/staging
           python3 ./ensure_source_policy.py
-      - name: Boost liquor.com sampling and apply calibration
+      - name: Boost thecocktaildb.com sampling and apply calibration
         continue-on-error: true
         run: |
           set -euo pipefail
           cd infra/staging
           python3 ./boost_crawl_volume.py
-      - name: Upload liquor policy evidence
+      - name: Upload thecocktaildb policy evidence
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
-          name: staging-liquor-policy-${{ github.run_id }}
+          name: staging-cocktaildb-policy-${{ github.run_id }}
           path: |
-            docs/runbooks/evidence/ensure-source-policy-liquor_com-gh_liquor_policy_${{ github.run_id }}_${{ github.run_attempt }}.json
-            docs/runbooks/evidence/staging-boost-crawl-gh_liquor_policy_${{ github.run_id }}_${{ github.run_attempt }}.json
-            docs/runbooks/evidence/calibration-apply-gh_liquor_policy_${{ github.run_id }}_${{ github.run_attempt }}.json
+            docs/runbooks/evidence/ensure-source-policy-thecocktaildb_com-gh_cocktaildb_policy_${{ github.run_id }}_${{ github.run_attempt }}.json
+            docs/runbooks/evidence/staging-boost-crawl-gh_cocktaildb_policy_${{ github.run_id }}_${{ github.run_attempt }}.json
+            docs/runbooks/evidence/calibration-apply-gh_cocktaildb_policy_${{ github.run_id }}_${{ github.run_attempt }}.json

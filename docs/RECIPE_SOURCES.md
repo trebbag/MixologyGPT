@@ -9,6 +9,7 @@
 - Difford's Guide (most-viewed + hall-of-fame signals; pervasiveness handled by cross-source matches)
 - Imbibe Magazine (editorial; require pervasiveness across sources)
 - Punch (editorial; require pervasiveness across sources)
+- TheCocktailDB (API-backed cocktail catalog; pervasiveness handled by cross-source matches)
 
 ## Requirements
 - For Tier A sources, recipes must include rating/like/share/review signals or meet the minimum rating count.
@@ -29,8 +30,9 @@ These signals are stored on ingestion/harvest payloads and used to compute a qua
 - `diffordsguide.com`: tuned selectors for cocktail ingredient/method sections with pervasiveness-first scoring.
 - `imbibemagazine.com`: tuned selectors for editorial recipe widgets (WPRM/MV-style ingredients and instructions).
 - `punchdrink.com`: tuned selectors for editorial recipe layouts and share counters.
+- `thecocktaildb.com`: API-backed provider using `filter.php` + `lookup.php` with normalized ingredient/instruction extraction.
 
-Fallback extraction still runs for all domains:
+Fallback extraction still runs for HTML domains:
 - JSON-LD recipe payloads.
 - microdata recipe attributes.
 - page text pattern matching for ratings/reviews/likes/shares.
@@ -61,6 +63,8 @@ Fallback extraction still runs for all domains:
 - `recipe_path_hints`: override URL path hints for recipe discovery.
 - `prefer_domain_dom`: prioritize per-domain DOM parsing before JSON-LD.
 - `enable_jsonld`, `enable_domain_dom`, `enable_microdata`, `enable_dom_fallback`: toggle parser stages.
+- `source_provider`: optional provider override (`cocktaildb_api` for TheCocktailDB API path).
+- `cocktaildb_filters`: optional list of filter queries for TheCocktailDB listing (for example `["c=Cocktail","c=Ordinary_Drink"]`).
 
 ## Alert Settings (per source policy)
 - `max_failure_rate` (default `0.35`)
@@ -86,3 +90,4 @@ These thresholds are evaluated in Admin → Crawler Ops telemetry.
 - Difford's Guide: `https://www.diffordsguide.com/cocktails/search`
 - Imbibe Magazine: `https://imbibemagazine.com/category/recipes/`
 - Punch: `https://punchdrink.com/` (enables sitemap discovery) and `https://punchdrink.com/recipes/feed/`
+- TheCocktailDB: `https://www.thecocktaildb.com/` (API-backed provider, requires `COCKTAILDB_API_KEY` in staging/prod)

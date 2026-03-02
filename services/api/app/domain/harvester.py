@@ -72,6 +72,18 @@ DEFAULT_POLICIES = [
         },
     ),
     SourcePolicy(
+        name="TheCocktailDB",
+        domain="thecocktaildb.com",
+        metric_type="pervasiveness",
+        seed_urls=["https://www.thecocktaildb.com/"],
+        parser_settings={
+            "source_provider": "cocktaildb_api",
+            "cocktaildb_filters": ["c=Cocktail", "c=Ordinary_Drink"],
+            "recipe_path_hints": ["/drink/"],
+            "required_text_markers": ["ingredients", "instructions"],
+        },
+    ),
+    SourcePolicy(
         name="Imbibe",
         domain="imbibemagazine.com",
         metric_type="pervasiveness",

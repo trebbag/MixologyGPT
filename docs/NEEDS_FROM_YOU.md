@@ -3,18 +3,11 @@
 ## Current checkpoint (`2026-03-01`)
 - Latest run: GitHub Actions `Staging Pilot All-Six` (`22546128104`)
 - Result: `PASS` (real signoff + web staging E2E + mobile staging E2E + compliance smoke)
-- Liquor policy activation: created via `Staging Ensure Liquor Policy` (`22546370614`) with active policy id `f53d8402-966f-4924-ac53-072fc2b42b74`
-- Liquor crawl caveat: current seed URLs return `http-403` in staging harvest telemetry, so `MIN_JOBS` cannot be reached yet for `liquor.com`
-- Remaining optional items:
-  - activate `liquor.com` source policy if you want it included (currently skipped when inactive)
-  - wire external alert destinations only if you want off-platform paging (internal in-app alert path already valid)
-
-## Liquor.com pilot inclusion follow-up
-- What is needed: approved, crawlable `liquor.com` seed URLs (or explicit decision to keep the policy active but exclude from `MIN_JOBS` gating)
-- Why: current known seeds are blocked (`fetch_failed:http-403`), preventing telemetry volume accumulation and threshold calibration for this domain
-- Required now:
-  - either provide alternate allowed seeds for `liquor.com`
-  - or confirm pilot scope should not enforce `MIN_JOBS` for `liquor.com` until access constraints are resolved
+- Source migration decision: `liquor.com` replaced with `thecocktaildb.com` for pilot calibration/maintenance.
+- Remaining required item:
+  - provide/supporter `COCKTAILDB_API_KEY` in staging/prod runtime so API-backed harvest can run.
+- Remaining optional item:
+  - wire external alert destinations only if you want off-platform paging (internal in-app alert path already valid).
 
 ## Pilot cutover blockers (as of 2026-02-24)
 - What is needed: real staging API access and internal auth for signoff + E2E execution
@@ -89,6 +82,13 @@
 - How to obtain: verify model access in OpenAI dashboard/project settings and run a staging smoke embedding request
 - Safe handling: keep keys in secret managers or env vars only
 
+## TheCocktailDB production key
+- What is needed: `COCKTAILDB_API_KEY` (supporter/premium key, not test key `1`) in staging/prod runtime.
+- Why: pilot harvest now includes API-backed `thecocktaildb.com`; missing key yields `fetch_failed:cocktaildb-key-missing` and no ingest volume.
+- Config keys: `COCKTAILDB_API_KEY`, optional `COCKTAILDB_API_BASE_URL`, optional `COCKTAILDB_REQUEST_TIMEOUT_SECONDS`.
+- How to obtain: generate/purchase a supporter API key from TheCocktailDB account portal and store it in Render/GitHub/host secret store.
+- Safe handling: treat as secret; never commit into repo or policy JSON.
+
 ## Approved source allowlist + seed URLs
 - What is needed: final list of allowed domains and their seed URLs for crawling
 - Why: automated harvest uses source policies to crawl only approved sources and honor rating/pervasiveness requirements
@@ -98,7 +98,7 @@
 
 Current decision captured:
 - Pilot sign-off target domains now exclude `allrecipes.com`.
-- Preferred crawl targets are `diffordsguide.com` and (optionally) `liquor.com` when an active source policy exists for `liquor.com`.
+- Preferred crawl targets are `bbcgoodfood.com`, `diffordsguide.com`, `food.com`, `imbibemagazine.com`, `punchdrink.com`, and `thecocktaildb.com`.
 
 ## Source compliance sign-off
 - What is needed: legal/compliance confirmation for each approved source domain
@@ -157,6 +157,9 @@ Local shortcut:
   - `POSTGRES_PASSWORD`
   - `JWT_SECRET`
   - `OPENAI_API_KEY`
+  - `COCKTAILDB_API_KEY`
+  - `COCKTAILDB_API_BASE_URL` (default `https://www.thecocktaildb.com/api/json/v1`)
+  - `COCKTAILDB_REQUEST_TIMEOUT_SECONDS` (default `15`)
   - `INTERNAL_TOKEN`
   - `EMBEDDINGS_PROVIDER`, `EMBEDDINGS_MODEL`, `EMBEDDINGS_DIMENSIONS`
   - `LLM_PROVIDER`, `LLM_MODEL`, `LLM_TEMPERATURE`
