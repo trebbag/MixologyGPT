@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import random
 import time
 from typing import Any
 
@@ -22,6 +23,7 @@ class ApiUser(HttpUser):
         self.refresh_token = LOADTEST_REFRESH_TOKEN or None
         self.active_session_id = None
         self.latest_version_ids: list[str] = []
+        self._studio_generations_since_new_session = 0
         self._next_harvest_allowed_at = 0.0
         if not self.use_static_token:
             self._bootstrap_auth()
@@ -84,19 +86,27 @@ class ApiUser(HttpUser):
 
     @task(2)
     def studio_create_constraint_generate(self):
-        create = self.client.post(
-            "/v1/studio/sessions",
-            headers=self._headers(),
-            json={"status": "active"},
-            name="studio_create_session",
+        session_id = self.active_session_id
+        should_rotate_session = (
+            not session_id
+            or self._studio_generations_since_new_session >= 3
+            or random.random() < 0.15
         )
-        if not create.ok:
-            return
-        payload = self._json(create)
-        session_id = payload.get("id")
-        if not session_id:
-            return
-        self.active_session_id = session_id
+        if should_rotate_session:
+            create = self.client.post(
+                "/v1/studio/sessions",
+                headers=self._headers(),
+                json={"status": "active"},
+                name="studio_create_session",
+            )
+            if not create.ok:
+                return
+            payload = self._json(create)
+            session_id = payload.get("id")
+            if not session_id:
+                return
+            self.active_session_id = session_id
+            self._studio_generations_since_new_session = 0
         self.client.post(
             f"/v1/studio/sessions/{session_id}/constraints",
             headers=self._headers(),
@@ -118,6 +128,7 @@ class ApiUser(HttpUser):
             name="studio_generate",
         )
         if generated.ok:
+            self._studio_generations_since_new_session += 1
             self.client.get(
                 f"/v1/studio/sessions/{session_id}/versions",
                 headers=self._headers(),
