@@ -46,6 +46,8 @@ let forceReviewOffline = false
 let forceReviewError = false
 let forceStudioOffline = false
 let forceKnowledgeOffline = false
+let forceInventoryOffline = false
+let forceRecommendationsOffline = false
 
 const nextId = (prefix: string) => `${prefix}-${idCounter++}`
 
@@ -74,6 +76,8 @@ beforeEach(() => {
   forceReviewError = false
   forceStudioOffline = false
   forceKnowledgeOffline = false
+  forceInventoryOffline = false
+  forceRecommendationsOffline = false
 
   global.fetch = jest.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
     const url = typeof input === 'string' ? input : input.toString()
@@ -84,6 +88,9 @@ beforeEach(() => {
       return ok({ access_token: 'dev-token' })
     }
 
+    if (forceInventoryOffline && url.includes('/v1/inventory/')) {
+      throw new TypeError('Network request failed')
+    }
     if (url.includes('/v1/inventory/ingredients') && method === 'GET') return ok(ingredients)
     if (url.includes('/v1/inventory/ingredients') && method === 'POST') {
       ingredients.push({ id: nextId('ing'), canonical_name: body.canonical_name })
@@ -252,6 +259,9 @@ beforeEach(() => {
     if (url.includes('/diff') && method === 'GET') return ok({ from_version_id: 'a', to_version_id: 'b', diff: {} })
     if (url.includes('/revert') && method === 'POST') return ok({ status: 'ok' })
 
+    if (forceRecommendationsOffline && url.includes('/v1/recommendations/')) {
+      throw new TypeError('Network request failed')
+    }
     if (url.includes('/v1/recommendations/make-now')) return ok([])
     if (url.includes('/v1/recommendations/missing-one')) return ok([])
     if (url.includes('/v1/recommendations/tonight-flight')) return ok([])
@@ -577,5 +587,38 @@ test('knowledge search enters offline state and disables submit action', async (
   await waitFor(() => expect(screen.getByText('Offline Mode')).toBeTruthy())
   await waitFor(() => expect(screen.getByText(/Knowledge search is disabled while offline/)).toBeTruthy())
   expect(screen.getByTestId('knowledge-search-submit')).toBeDisabled()
+  await flushTimers()
+})
+
+test('inventory offline state disables create and refresh actions', async () => {
+  const screen = render(<App />)
+  await waitFor(() => expect(screen.getByText('BartenderAI')).toBeTruthy())
+  await flushTimers()
+
+  forceInventoryOffline = true
+  fireEvent.press(screen.getAllByText('Inventory')[0])
+  fireEvent.press(screen.getByTestId('inventory-refresh'))
+
+  await waitFor(() => expect(screen.getByText('Offline Mode')).toBeTruthy())
+  await waitFor(() => expect(screen.getByText(/Inventory write actions are disabled while offline/)).toBeTruthy())
+  expect(screen.getByTestId('inventory-create-ingredient')).toBeDisabled()
+  expect(screen.getByTestId('inventory-create-item')).toBeDisabled()
+  expect(screen.getByTestId('inventory-refresh')).toBeDisabled()
+  await flushTimers()
+})
+
+test('recommendations offline state disables refresh and keeps snapshot visible', async () => {
+  const screen = render(<App />)
+  await waitFor(() => expect(screen.getByText('BartenderAI')).toBeTruthy())
+  await flushTimers()
+
+  fireEvent.press(screen.getAllByText('Recommendations')[0])
+  forceRecommendationsOffline = true
+  fireEvent.press(screen.getByTestId('recommendations-refresh'))
+
+  await waitFor(() => expect(screen.getByText('Offline Mode')).toBeTruthy())
+  await waitFor(() => expect(screen.getByText(/Recommendation refresh is disabled while offline/)).toBeTruthy())
+  await waitFor(() => expect(screen.getByText('Recommendation Snapshot')).toBeTruthy())
+  expect(screen.getByTestId('recommendations-refresh')).toBeDisabled()
   await flushTimers()
 })

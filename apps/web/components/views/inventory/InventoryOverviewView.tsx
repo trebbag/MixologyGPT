@@ -46,6 +46,8 @@ export function InventoryOverviewView({ role }: { role: string }) {
   const [newItemDisplayName, setNewItemDisplayName] = useState('')
   const [creatingItem, setCreatingItem] = useState(false)
   const [createItemError, setCreateItemError] = useState('')
+  const isOffline = error.toLowerCase().includes('offline')
+  const actionDisabled = loading || isOffline
 
   const ingredientById = useMemo(() => {
     const map: Record<string, Ingredient> = {}
@@ -149,14 +151,24 @@ export function InventoryOverviewView({ role }: { role: string }) {
             type="button"
             onClick={load}
             className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-sm text-white"
-            disabled={loading}
+            disabled={actionDisabled}
+            aria-disabled={actionDisabled}
           >
             Refresh
           </button>
         </div>
 
         {loading ? <LoadState tone="loading" title="Loading inventory" message="Fetching items, lots, and insights." /> : null}
-        {error ? <LoadState tone="error" title="Inventory error" message={error} actionLabel="Retry" onAction={load} /> : null}
+        {isOffline ? (
+          <LoadState
+            tone="error"
+            title="Offline Mode"
+            message="Network appears offline. Inventory refresh and write actions are disabled until connectivity returns."
+            actionLabel="Retry"
+            onAction={load}
+          />
+        ) : null}
+        {error && !isOffline ? <LoadState tone="error" title="Inventory error" message={error} actionLabel="Retry" onAction={load} /> : null}
 
         {!loading && !error && (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -227,11 +239,13 @@ export function InventoryOverviewView({ role }: { role: string }) {
               <button
                 type="button"
                 onClick={createItem}
-                disabled={creatingItem || loading}
+                disabled={creatingItem || actionDisabled}
                 className="px-5 py-2 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-medium disabled:opacity-60"
+                data-testid="inventory-create-item"
               >
                 {creatingItem ? 'Creating…' : 'Create Item'}
               </button>
+              {isOffline ? <p className="text-xs text-gray-500">Item creation is disabled while offline.</p> : null}
               <p className="text-xs text-gray-500">
                 Ingredient creation is <span className="font-semibold">admin-only</span>. Your role: <span className="font-mono">{role}</span>.
               </p>
@@ -344,4 +358,3 @@ export function InventoryOverviewView({ role }: { role: string }) {
     </div>
   )
 }
-

@@ -5,6 +5,8 @@ import { SectionStateCard } from '../components/SectionStateCard'
 import { colors, ui } from '../theme'
 import type { Ingredient, InventoryItem, SectionState } from '../types'
 
+const OFFLINE_MESSAGE = 'Network appears offline. Check your connection and try again.'
+
 type InventoryScreenProps = {
   ingredients: Ingredient[]
   items: InventoryItem[]
@@ -26,6 +28,7 @@ export function InventoryScreen({
   const [itemIngredientId, setItemIngredientId] = useState('')
   const [itemUnit, setItemUnit] = useState('oz')
   const [itemPreferredUnit, setItemPreferredUnit] = useState('')
+  const isOffline = status.error.toLowerCase().includes('offline')
 
   const ingredientMap = useMemo(() => {
     const map: Record<string, string> = {}
@@ -38,10 +41,22 @@ export function InventoryScreen({
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
       <Text style={styles.header}>Inventory</Text>
+      {isOffline ? (
+        <SectionStateCard
+          mode="error"
+          title="Offline Mode"
+          message={OFFLINE_MESSAGE}
+          actionLabel="Retry"
+          onAction={() => {
+            void onRefresh()
+          }}
+          disabled={status.loading}
+        />
+      ) : null}
       {status.loading && (
         <SectionStateCard mode="loading" title="Loading inventory" message="Syncing ingredients and items." />
       )}
-      {status.error ? (
+      {status.error && !isOffline ? (
         <SectionStateCard
           mode="error"
           title="Inventory error"
@@ -69,12 +84,13 @@ export function InventoryScreen({
           onChangeText={setIngredientName}
         />
         <Pressable
-          style={[styles.button, !ingredientName || status.loading ? styles.buttonDisabled : null]}
-          disabled={!ingredientName || status.loading}
+          style={[styles.button, !ingredientName || status.loading || isOffline ? styles.buttonDisabled : null]}
+          disabled={!ingredientName || status.loading || isOffline}
           onPress={async () => {
             await onCreateIngredient(ingredientName.trim())
             setIngredientName('')
           }}
+          testID="inventory-create-ingredient"
         >
           <Text style={styles.buttonText}>Create Ingredient</Text>
         </Pressable>
@@ -96,26 +112,29 @@ export function InventoryScreen({
           onChangeText={setItemPreferredUnit}
         />
         <Pressable
-          style={[styles.button, (!itemIngredientId || !itemUnit || status.loading) && styles.buttonDisabled]}
-          disabled={!itemIngredientId || !itemUnit || status.loading}
+          style={[styles.button, (!itemIngredientId || !itemUnit || status.loading || isOffline) && styles.buttonDisabled]}
+          disabled={!itemIngredientId || !itemUnit || status.loading || isOffline}
           onPress={async () => {
             await onCreateItem(itemIngredientId.trim(), itemUnit.trim(), itemPreferredUnit.trim() || undefined)
             setItemIngredientId('')
             setItemUnit('oz')
             setItemPreferredUnit('')
           }}
+          testID="inventory-create-item"
         >
           <Text style={styles.buttonText}>Create Item</Text>
         </Pressable>
       </View>
 
       <Pressable
-        style={[styles.refreshButton, status.loading ? styles.buttonDisabled : null]}
-        disabled={status.loading}
+        style={[styles.refreshButton, status.loading || isOffline ? styles.buttonDisabled : null]}
+        disabled={status.loading || isOffline}
         onPress={onRefresh}
+        testID="inventory-refresh"
       >
         <Text style={styles.refreshText}>Refresh Inventory</Text>
       </Pressable>
+      {isOffline ? <Text style={styles.meta}>Inventory write actions are disabled while offline.</Text> : null}
 
       <View style={styles.card}>
         <Text style={styles.label}>Ingredient List ({ingredients.length})</Text>

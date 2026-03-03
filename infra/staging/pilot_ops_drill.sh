@@ -3,13 +3,14 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 API_BASE_URL="${API_BASE_URL:-${STAGING_BASE_URL:-}}"
-ALERTMANAGER_URL="${ALERTMANAGER_URL:-http://localhost:9093}"
+ALERTMANAGER_URL="${ALERTMANAGER_URL:-${STAGING_ALERTMANAGER_URL:-}}"
 INTERNAL_TOKEN="${INTERNAL_TOKEN:-}"
 APPLY_CALIBRATION="${APPLY_CALIBRATION:-false}"
 MIN_JOBS="${MIN_JOBS:-20}"
 BUFFER_MULTIPLIER="${BUFFER_MULTIPLIER:-1.25}"
 RUN_LOAD_PROFILE="${RUN_LOAD_PROFILE:-false}"
 LOCK_GATES="${LOCK_GATES:-false}"
+RUN_ALERT_SMOKE="${RUN_ALERT_SMOKE:-auto}"
 ALERT_CONFIRM_URL="${ALERT_CONFIRM_URL:-}"
 ALERT_CONFIRM_BASE_URL="${ALERT_CONFIRM_BASE_URL:-}"
 ALERT_CONFIRM_TOKEN="${ALERT_CONFIRM_TOKEN:-}"
@@ -38,12 +39,21 @@ if [[ -z "${INTERNAL_TOKEN}" ]]; then
   exit 1
 fi
 
+if [[ "${RUN_ALERT_SMOKE}" == "auto" ]]; then
+  if [[ -n "${ALERTMANAGER_URL}" ]]; then
+    RUN_ALERT_SMOKE="true"
+  else
+    RUN_ALERT_SMOKE="false"
+  fi
+fi
+
 echo "== Pilot Ops Drill =="
 echo "API_BASE_URL=${API_BASE_URL}"
-echo "ALERTMANAGER_URL=${ALERTMANAGER_URL}"
+echo "ALERTMANAGER_URL=${ALERTMANAGER_URL:-disabled}"
 echo "APPLY_CALIBRATION=${APPLY_CALIBRATION}"
 echo "RUN_LOAD_PROFILE=${RUN_LOAD_PROFILE}"
 echo "LOCK_GATES=${LOCK_GATES}"
+echo "RUN_ALERT_SMOKE=${RUN_ALERT_SMOKE}"
 echo "DRILL_RUN_ID=${DRILL_RUN_ID}"
 echo "EVIDENCE_DIR=${EVIDENCE_DIR}"
 
@@ -85,17 +95,30 @@ fi
 
 echo ""
 echo "3) Alert smoke validation"
-(
-  cd "${ROOT_DIR}/infra/staging"
-  ALERTMANAGER_URL="${ALERTMANAGER_URL}" \
-  CONFIRM_URL="${ALERT_CONFIRM_URL}" \
-  CONFIRM_BASE_URL="${ALERT_CONFIRM_BASE_URL}" \
-  CONFIRM_TOKEN="${ALERT_CONFIRM_TOKEN}" \
-  CONFIRM_FORWARD_DESTINATION="${ALERT_CONFIRM_FORWARD_DESTINATION}" \
-  CONFIRM_FORWARD_EXPECT_TARGET_PREFIX="${ALERT_CONFIRM_FORWARD_EXPECT_TARGET_PREFIX}" \
-  ./external_alert_smoke.sh >"${ALERT_FILE}"
-)
-echo "Alert smoke output saved to ${ALERT_FILE}"
+if [[ "${RUN_ALERT_SMOKE}" == "true" ]]; then
+  if [[ -z "${ALERTMANAGER_URL}" ]]; then
+    echo "RUN_ALERT_SMOKE=true requires ALERTMANAGER_URL or STAGING_ALERTMANAGER_URL."
+    exit 1
+  fi
+  (
+    cd "${ROOT_DIR}/infra/staging"
+    ALERTMANAGER_URL="${ALERTMANAGER_URL}" \
+    CONFIRM_URL="${ALERT_CONFIRM_URL}" \
+    CONFIRM_BASE_URL="${ALERT_CONFIRM_BASE_URL}" \
+    CONFIRM_TOKEN="${ALERT_CONFIRM_TOKEN}" \
+    CONFIRM_FORWARD_DESTINATION="${ALERT_CONFIRM_FORWARD_DESTINATION}" \
+    CONFIRM_FORWARD_EXPECT_TARGET_PREFIX="${ALERT_CONFIRM_FORWARD_EXPECT_TARGET_PREFIX}" \
+    ./external_alert_smoke.sh >"${ALERT_FILE}"
+  )
+  echo "Alert smoke output saved to ${ALERT_FILE}"
+else
+  cat > "${ALERT_FILE}" <<EOF
+Alert smoke skipped.
+- RUN_ALERT_SMOKE=${RUN_ALERT_SMOKE}
+- ALERTMANAGER_URL=${ALERTMANAGER_URL:-disabled}
+EOF
+  echo "Alert smoke skipped. Evidence note saved to ${ALERT_FILE}"
+fi
 
 echo ""
 echo "4) Runbook validation checks"
@@ -134,8 +157,9 @@ cat > "${SUMMARY_FILE}" <<EOF
 
 - Run id: \`${DRILL_RUN_ID}\`
 - API base URL: \`${API_BASE_URL}\`
-- Alertmanager URL: \`${ALERTMANAGER_URL}\`
+- Alertmanager URL: \`${ALERTMANAGER_URL:-disabled}\`
 - Calibration applied: \`${APPLY_CALIBRATION}\`
+- Alert smoke executed: \`${RUN_ALERT_SMOKE}\`
 - Load profile executed: \`${RUN_LOAD_PROFILE}\`
 - Gate lock executed: \`${LOCK_GATES}\`
 

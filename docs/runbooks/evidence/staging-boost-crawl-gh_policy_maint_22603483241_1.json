@@ -1,0 +1,26 @@
+{
+  "api_base_url": "https://mixologygpt.onrender.com",
+  "calibration_apply_written": true,
+  "final_counts": {
+    "bbcgoodfood.com": 69,
+    "diffordsguide.com": 25,
+    "food.com": 52,
+    "imbibemagazine.com": 100,
+    "punchdrink.com": 39,
+    "thecocktaildb.com": 20
+  },
+  "finished_at": "2026-03-03T01:10:05.082224",
+  "min_jobs": 20,
+  "missing_policy_domains": [],
+  "rounds": [],
+  "run_id": "gh_policy_maint_22603483241_1",
+  "started_at": "2026-03-03T01:10:04.397753",
+  "target_domains": [
+    "bbcgoodfood.com",
+    "diffordsguide.com",
+    "food.com",
+    "imbibemagazine.com",
+    "punchdrink.com",
+    "thecocktaildb.com"
+  ]
+}

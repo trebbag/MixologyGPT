@@ -25,6 +25,8 @@ export function LoadState({
     <div
       className={`rounded-xl border ${palette.border} ${palette.bg} backdrop-blur-xl p-5`}
       role={tone === 'error' ? 'alert' : 'status'}
+      aria-live={tone === 'error' ? 'assertive' : 'polite'}
+      aria-atomic="true"
     >
       <h3 className={`text-base font-semibold ${palette.title}`}>{title}</h3>
       <p className="mt-1 text-sm text-gray-300">{message}</p>

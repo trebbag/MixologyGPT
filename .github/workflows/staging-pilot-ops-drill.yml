@@ -1,0 +1,104 @@
+name: Staging Pilot Ops Drill
+
+on:
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: "Staging API base URL (optional override for STAGING_BASE_URL)."
+        required: false
+        default: ""
+      apply_calibration:
+        description: "Apply calibration updates during drill."
+        required: false
+        default: "true"
+      run_alert_smoke:
+        description: "Run alert smoke (auto|true|false)."
+        required: false
+        default: "auto"
+      run_load_profile:
+        description: "Run tuned load profile in drill."
+        required: false
+        default: "true"
+      lock_gates:
+        description: "Lock gates during drill load run."
+        required: false
+        default: "false"
+      min_jobs:
+        description: "Minimum jobs/domain before calibration apply."
+        required: false
+        default: "20"
+      users:
+        description: "Concurrent users for tuned load profile."
+        required: false
+        default: "40"
+      spawn_rate:
+        description: "User spawn rate per second."
+        required: false
+        default: "8"
+      duration:
+        description: "Load duration (locust -t), e.g. 5m."
+        required: false
+        default: "5m"
+
+jobs:
+  pilot-ops-drill:
+    runs-on: ubuntu-latest
+    env:
+      DRILL_RUN_ID: gh_pilot_drill_${{ github.run_id }}_${{ github.run_attempt }}
+      API_BASE_URL: ${{ github.event.inputs.base_url || secrets.STAGING_BASE_URL }}
+      INTERNAL_TOKEN: ${{ secrets.STAGING_INTERNAL_TOKEN }}
+      ALERTMANAGER_URL: ${{ secrets.STAGING_ALERTMANAGER_URL }}
+      ALERT_CONFIRM_URL: ${{ secrets.STAGING_ALERT_RECEIVER_CONFIRM_URL }}
+      ALERT_CONFIRM_TOKEN: ${{ secrets.STAGING_ALERT_RECEIVER_CONFIRM_TOKEN }}
+      APPLY_CALIBRATION: ${{ github.event.inputs.apply_calibration }}
+      RUN_ALERT_SMOKE: ${{ github.event.inputs.run_alert_smoke }}
+      RUN_LOAD_PROFILE: ${{ github.event.inputs.run_load_profile }}
+      LOCK_GATES: ${{ github.event.inputs.lock_gates }}
+      MIN_JOBS: ${{ github.event.inputs.min_jobs }}
+      USERS: ${{ github.event.inputs.users }}
+      SPAWN_RATE: ${{ github.event.inputs.spawn_rate }}
+      DURATION: ${{ github.event.inputs.duration }}
+      BUFFER_MULTIPLIER: "1.25"
+      LOADTEST_ACCESS_TOKEN: ${{ secrets.STAGING_E2E_ACCESS_TOKEN }}
+      EVIDENCE_DIR: docs/runbooks/evidence
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Validate required config
+        run: |
+          set -euo pipefail
+          if [[ -z "${API_BASE_URL}" ]]; then
+            echo "Missing STAGING_BASE_URL (or workflow input base_url)."
+            exit 1
+          fi
+          if [[ -z "${INTERNAL_TOKEN}" ]]; then
+            echo "Missing STAGING_INTERNAL_TOKEN."
+            exit 1
+          fi
+      - name: Install load/perf dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install -r infra/loadtest/requirements.txt
+      - name: Run pilot ops drill
+        run: |
+          set -euo pipefail
+          ./infra/staging/pilot_ops_drill.sh
+      - name: Upload pilot drill evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: staging-pilot-ops-drill-${{ github.run_id }}
+          path: |
+            docs/runbooks/evidence/pilot-drill-summary-gh_pilot_drill_${{ github.run_id }}_${{ github.run_attempt }}.md
+            docs/runbooks/evidence/pilot-drill-health-gh_pilot_drill_${{ github.run_id }}_${{ github.run_attempt }}.json
+            docs/runbooks/evidence/pilot-drill-metrics-gh_pilot_drill_${{ github.run_id }}_${{ github.run_attempt }}.txt
+            docs/runbooks/evidence/pilot-drill-calibration-preview-gh_pilot_drill_${{ github.run_id }}_${{ github.run_attempt }}.json
+            docs/runbooks/evidence/pilot-drill-calibration-apply-gh_pilot_drill_${{ github.run_id }}_${{ github.run_attempt }}.json
+            docs/runbooks/evidence/pilot-drill-alert-smoke-gh_pilot_drill_${{ github.run_id }}_${{ github.run_attempt }}.log
+            docs/runbooks/evidence/pilot-drill-runbook-check-gh_pilot_drill_${{ github.run_id }}_${{ github.run_attempt }}.txt
+            infra/loadtest/results/gh_pilot_drill_${{ github.run_id }}_${{ github.run_attempt }}_stats.csv
+            infra/loadtest/results/gh_pilot_drill_${{ github.run_id }}_${{ github.run_attempt }}_stats_history.csv
+            infra/loadtest/results/gh_pilot_drill_${{ github.run_id }}_${{ github.run_attempt }}.html
+            infra/loadtest/results/gh_pilot_drill_${{ github.run_id }}_${{ github.run_attempt }}_gates.md

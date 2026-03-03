@@ -60,6 +60,8 @@ export function RecommendationsView() {
     return unlock.suggestions ?? []
   }, [unlock])
 
+  const isOffline = error.toLowerCase().includes('offline')
+
   const load = useCallback(async () => {
     setLoading(true)
     setError('')
@@ -104,6 +106,34 @@ export function RecommendationsView() {
     void load()
   }, [load])
 
+  const exportSnapshot = useCallback(() => {
+    if (typeof window === 'undefined') return
+    const payload = {
+      generated_at: new Date().toISOString(),
+      make_now_count: makeNow.length,
+      missing_one_count: missingOne.length,
+      tonight_flight_count: tonightFlight.length,
+      unlock_score: unlockScore,
+      unlock_suggestions: unlockSuggestions,
+      make_now: makeNow,
+      missing_one: missingOne,
+      tonight_flight: tonightFlight,
+    }
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {
+      type: 'application/json',
+    })
+    const url = window.URL.createObjectURL(blob)
+    const anchor = document.createElement('a')
+    anchor.href = url
+    anchor.download = `recommendations-snapshot-${new Date().toISOString().replace(/[:.]/g, '-')}.json`
+    document.body.appendChild(anchor)
+    anchor.click()
+    anchor.remove()
+    window.URL.revokeObjectURL(url)
+  }, [makeNow, missingOne, tonightFlight, unlockScore, unlockSuggestions])
+
+  const actionDisabled = loading || Boolean(error)
+
   return (
     <div className="p-8">
       <div className="max-w-7xl mx-auto space-y-8">
@@ -112,18 +142,43 @@ export function RecommendationsView() {
             <h2 className="text-2xl font-bold text-white">Recommendations</h2>
             <p className="text-sm text-gray-400 mt-1">What to make now, what you are one ingredient away from, and how to unlock more.</p>
           </div>
-          <button
-            type="button"
-            onClick={load}
-            className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-sm text-white disabled:opacity-60"
-            disabled={loading}
-          >
-            Refresh
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={exportSnapshot}
+              className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-sm text-white disabled:opacity-60"
+              disabled={actionDisabled}
+              data-testid="recommendations-export-snapshot"
+              aria-disabled={actionDisabled}
+            >
+              Export Snapshot
+            </button>
+            <button
+              type="button"
+              onClick={load}
+              className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-sm text-white disabled:opacity-60"
+              disabled={actionDisabled}
+              aria-disabled={actionDisabled}
+            >
+              Refresh
+            </button>
+          </div>
         </div>
 
         {loading ? <LoadState tone="loading" title="Loading recommendations" message="Crunching your inventory and library." /> : null}
-        {error ? <LoadState tone="error" title="Recommendations error" message={error} actionLabel="Retry" onAction={load} /> : null}
+        {isOffline ? (
+          <LoadState
+            tone="error"
+            title="Offline Mode"
+            message="Network appears offline. Recommendation refresh and export are disabled until connectivity returns."
+            actionLabel="Retry"
+            onAction={load}
+            disabled={loading}
+          />
+        ) : null}
+        {error && !isOffline ? (
+          <LoadState tone="error" title="Recommendations error" message={error} actionLabel="Retry" onAction={load} />
+        ) : null}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="bg-black/40 backdrop-blur-xl rounded-2xl border border-white/10 p-6 lg:col-span-2">

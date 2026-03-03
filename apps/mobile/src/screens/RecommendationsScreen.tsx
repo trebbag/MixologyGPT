@@ -21,6 +21,8 @@ export function RecommendationsScreen({
   onRefresh,
 }: RecommendationsScreenProps) {
   const isOffline = status.error.toLowerCase().includes('offline')
+  const disableActions = status.loading || isOffline
+  const generatedAt = new Date().toISOString()
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
       <Text style={styles.header}>Recommendations</Text>
@@ -38,7 +40,7 @@ export function RecommendationsScreen({
       {status.loading && (
         <SectionStateCard mode="loading" title="Loading suggestions" message="Computing make-now and flight options." />
       )}
-      {status.error ? (
+      {status.error && !isOffline ? (
         <SectionStateCard
           mode="error"
           title="Recommendation error"
@@ -53,9 +55,15 @@ export function RecommendationsScreen({
         <SectionStateCard mode="empty" title="No recommendations" message="Refresh after inventory and recipes are populated." />
       ) : null}
 
-      <Pressable style={[styles.button, status.loading ? styles.buttonDisabled : null]} disabled={status.loading} onPress={onRefresh}>
+      <Pressable
+        style={[styles.button, disableActions ? styles.buttonDisabled : null]}
+        disabled={disableActions}
+        onPress={onRefresh}
+        testID="recommendations-refresh"
+      >
         <Text style={styles.buttonText}>Refresh Recommendations</Text>
       </Pressable>
+      {isOffline ? <Text style={styles.meta}>Recommendation refresh is disabled while offline.</Text> : null}
 
       <View style={styles.card}>
         <Text style={styles.label}>Make Now ({makeNow.length})</Text>
@@ -80,6 +88,15 @@ export function RecommendationsScreen({
             {item.recipe_name ?? item.canonical_name ?? 'Recipe'}
           </Text>
         ))}
+      </View>
+
+      <View style={styles.card}>
+        <Text style={styles.label}>Recommendation Snapshot</Text>
+        <Text style={styles.meta}>Generated: {generatedAt}</Text>
+        <Text style={styles.rowText}>make-now: {makeNow.length}</Text>
+        <Text style={styles.rowText}>missing-one: {missingOne.length}</Text>
+        <Text style={styles.rowText}>flight: {tonightFlight.length}</Text>
+        <Text style={styles.meta}>Use this summary for pilot reports or incident handoff notes.</Text>
       </View>
     </ScrollView>
   )
@@ -108,4 +125,5 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     paddingVertical: 2,
   },
+  meta: ui.muted,
 })

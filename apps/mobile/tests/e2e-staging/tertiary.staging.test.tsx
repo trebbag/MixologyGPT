@@ -85,3 +85,72 @@ testIfConfigured('mobile staging: knowledge offline path disables submit and sho
     ;(global as any).fetch = realFetch
   }
 })
+
+testIfConfigured('mobile staging: harvest offline path disables import and retry tertiary actions', async () => {
+  const screen = renderStagingApp()
+  await waitFor(() => expect(screen.getByText('BartenderAI')).toBeTruthy())
+  await flushMicrotasks()
+
+  const realFetch = global.fetch.bind(globalThis)
+  const offlineProxy = jest.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+    const url = typeof input === 'string' ? input : input.toString()
+    const method = (init?.method || 'GET').toUpperCase()
+    if (method === 'GET' && url.includes('/v1/recipes/harvest/jobs')) {
+      throw new TypeError('Network request failed')
+    }
+    return realFetch(input as any, init as any)
+  }) as unknown as typeof fetch
+
+  ;(global as any).fetch = offlineProxy
+  try {
+    fireEvent.press(screen.getAllByText('Recipes')[0])
+    await flushMicrotasks()
+    fireEvent.press(screen.getByTestId('recipes-quick-import'))
+
+    await waitFor(() => expect(screen.getByText('Offline Mode')).toBeTruthy())
+    await waitFor(() => expect(screen.getByText(/Harvest is disabled while offline/)).toBeTruthy())
+    expect(screen.getByTestId('harvest-start-import')).toBeDisabled()
+    expect(screen.getByTestId('harvest-retry-ready')).toBeDisabled()
+  } finally {
+    ;(global as any).fetch = realFetch
+  }
+})
+
+testIfConfigured('mobile staging: review offline path shows tertiary messaging for moderation actions', async () => {
+  const screen = renderStagingApp()
+  await waitFor(() => expect(screen.getByText('BartenderAI')).toBeTruthy())
+  await flushMicrotasks()
+
+  const realFetch = global.fetch.bind(globalThis)
+  const offlineProxy = jest.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+    const url = typeof input === 'string' ? input : input.toString()
+    const method = (init?.method || 'GET').toUpperCase()
+    if (method === 'GET' && url.includes('/v1/recipes')) {
+      return {
+        ok: true,
+        status: 200,
+        json: async () => [{ id: 'staging-review-1', canonical_name: 'Staging Review Recipe', review_status: 'pending' }],
+      } as Response
+    }
+    if (method === 'GET' && url.includes('/v1/reviews/recipes/') && url.includes('/moderations')) {
+      throw new TypeError('Network request failed')
+    }
+    return realFetch(input as any, init as any)
+  }) as unknown as typeof fetch
+
+  ;(global as any).fetch = offlineProxy
+  try {
+    fireEvent.press(screen.getAllByText('Recipes')[0])
+    await flushMicrotasks()
+    fireEvent.press(screen.getByTestId('recipes-quick-reviews'))
+    await flushMicrotasks()
+
+    fireEvent.press(screen.getByTestId('reviews-select-staging-review-1'))
+    fireEvent.press(screen.getByText('Load History'))
+
+    await waitFor(() => expect(screen.getByText('Offline Mode')).toBeTruthy())
+    await waitFor(() => expect(screen.getByText(/Review actions are disabled while offline/)).toBeTruthy())
+  } finally {
+    ;(global as any).fetch = realFetch
+  }
+})
