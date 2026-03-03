@@ -234,7 +234,6 @@ async def create_session(
     session = StudioSession(user_id=user.id, status=payload.status or "active")
     db.add(session)
     await db.commit()
-    await db.refresh(session)
     return session
 
 
@@ -296,7 +295,6 @@ async def create_constraint(
     constraint = StudioConstraint(studio_session_id=session_id, constraints=payload.constraints)
     db.add(constraint)
     await db.commit()
-    await db.refresh(constraint)
     return constraint
 
 
@@ -320,29 +318,30 @@ async def generate_version(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(current_active_user),
 ):
-    session = await db.get(StudioSession, session_id)
-    if not session or session.user_id != user.id:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Session not found")
-
-    constraints = payload.constraints or {}
-    if not constraints:
-        latest = await db.execute(
-            select(StudioConstraint)
+    context_result = await db.execute(
+        select(
+            StudioSession.id.label("session_id"),
+            select(StudioConstraint.constraints)
             .where(StudioConstraint.studio_session_id == session_id)
             .order_by(StudioConstraint.created_at.desc())
-        )
-        last_constraint = latest.scalars().first()
-        if last_constraint:
-            constraints = last_constraint.constraints
+            .limit(1)
+            .scalar_subquery()
+            .label("latest_constraints"),
+            select(func.max(StudioVersion.version))
+            .where(StudioVersion.studio_session_id == session_id)
+            .scalar_subquery()
+            .label("current_max_version"),
+        ).where(StudioSession.id == session_id, StudioSession.user_id == user.id)
+    )
+    context_row = context_result.first()
+    if not context_row:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Session not found")
+
+    constraints = payload.constraints or context_row.latest_constraints or {}
 
     template = (payload.template or constraints.get("style") or "sour").lower()
     recipe = build_recipe(template, constraints)
-
-    max_version_result = await db.execute(
-        select(func.max(StudioVersion.version)).where(StudioVersion.studio_session_id == session_id)
-    )
-    current_max = max_version_result.scalar() or 0
-    version_number = current_max + 1
+    version_number = int(context_row.current_max_version or 0) + 1
 
     snapshot = {
         "version": version_number,
@@ -361,7 +360,6 @@ async def generate_version(
     )
     db.add(version)
     await db.commit()
-    await db.refresh(version)
     return version
 
 

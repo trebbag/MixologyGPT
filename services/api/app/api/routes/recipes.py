@@ -72,6 +72,9 @@ router = APIRouter()
 AUTO_HARVEST_CACHE_TTL_SECONDS = 300
 AUTO_HARVEST_CACHE_MAX_ENTRIES = 256
 _auto_harvest_cache: Dict[str, Tuple[datetime, object]] = {}
+RECIPE_SEARCH_CACHE_TTL_SECONDS = 45
+RECIPE_SEARCH_CACHE_MAX_ENTRIES = 256
+_recipe_search_cache: Dict[str, Tuple[datetime, List[dict]]] = {}
 
 
 def _auto_harvest_cache_key(payload: RecipeHarvestAutoRequest, policy: SourcePolicy) -> str:
@@ -106,6 +109,41 @@ def _set_cached_auto_harvest_result(cache_key: str, result: object) -> None:
         return
     oldest_key = min(_auto_harvest_cache.items(), key=lambda item: item[1][0])[0]
     _auto_harvest_cache.pop(oldest_key, None)
+
+
+def _recipe_search_cache_key(q: str, limit: int, offset: int) -> str:
+    return json.dumps(
+        {
+            "q": q.strip().lower(),
+            "limit": limit,
+            "offset": offset,
+        },
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+
+
+def _get_cached_recipe_search_result(cache_key: str) -> Optional[List[dict]]:
+    cached = _recipe_search_cache.get(cache_key)
+    if not cached:
+        return None
+    created_at, result = cached
+    if datetime.utcnow() - created_at > timedelta(seconds=RECIPE_SEARCH_CACHE_TTL_SECONDS):
+        _recipe_search_cache.pop(cache_key, None)
+        return None
+    return result
+
+
+def _set_cached_recipe_search_result(cache_key: str, result: List[dict]) -> None:
+    _recipe_search_cache[cache_key] = (datetime.utcnow(), result)
+    if len(_recipe_search_cache) <= RECIPE_SEARCH_CACHE_MAX_ENTRIES:
+        return
+    oldest_key = min(_recipe_search_cache.items(), key=lambda item: item[1][0])[0]
+    _recipe_search_cache.pop(oldest_key, None)
+
+
+def _invalidate_recipe_search_cache() -> None:
+    _recipe_search_cache.clear()
 
 
 def _confidence_bucket(score: float) -> str:
@@ -385,6 +423,7 @@ async def create_recipe(
             ingredient_rows.append(row)
         recipe.ingredient_rows = ingredient_rows
     await db.commit()
+    _invalidate_recipe_search_cache()
     await db.refresh(recipe)
     await ensure_recipe_embedding(db, recipe)
     await db.commit()
@@ -396,11 +435,18 @@ async def list_recipes(
     db: AsyncSession = Depends(get_db),
     _user: User = Depends(current_active_user),
     q: Optional[str] = None,
-    limit: int = 50,
+    limit: int = 30,
     offset: int = 0,
 ):
     limit = max(1, min(limit, 200))
     offset = max(0, offset)
+    normalized_q = (q or "").strip()
+    cache_key: Optional[str] = None
+    if normalized_q:
+        cache_key = _recipe_search_cache_key(normalized_q, limit, offset)
+        cached = _get_cached_recipe_search_result(cache_key)
+        if cached is not None:
+            return cached
     query = (
         select(Recipe)
         .options(selectinload(Recipe.ingredient_rows))
@@ -408,12 +454,15 @@ async def list_recipes(
         .offset(offset)
         .limit(limit)
     )
-    if q:
-        query = query.where(Recipe.canonical_name.ilike(f"%{q}%"))
+    if normalized_q:
+        query = query.where(Recipe.canonical_name.ilike(f"%{normalized_q}%"))
     result = await db.execute(query)
     recipes = list(result.unique().scalars().all())
     overrides = await _load_overrides(db, [recipe.id for recipe in recipes])
-    return [_apply_overrides(recipe, overrides.get(str(recipe.id))) for recipe in recipes]
+    payload = [_apply_overrides(recipe, overrides.get(str(recipe.id))) for recipe in recipes]
+    if cache_key:
+        _set_cached_recipe_search_result(cache_key, payload)
+    return payload
 
 
 @router.get("/{recipe_id}", response_model=RecipeRead)
@@ -504,6 +553,7 @@ async def ingest_recipe(
     )
     db.add(source)
     await db.commit()
+    _invalidate_recipe_search_cache()
     await db.refresh(recipe)
     await ensure_recipe_embedding(db, recipe)
     await db.commit()
@@ -710,6 +760,7 @@ async def _perform_harvest_parsed(
             )
         )
         await db.commit()
+        _invalidate_recipe_search_cache()
         return RecipeHarvestResponse(
             status="ok",
             recipe_id=related_recipe.id,
@@ -760,6 +811,7 @@ async def _perform_harvest_parsed(
             )
         )
     await db.commit()
+    _invalidate_recipe_search_cache()
     await db.refresh(recipe)
     await ensure_recipe_embedding(db, recipe)
     await db.commit()
