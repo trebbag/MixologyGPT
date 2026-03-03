@@ -60,7 +60,6 @@ jobs:
       DURATION: ${{ github.event.inputs.duration }}
       BUFFER_MULTIPLIER: "1.25"
       LOADTEST_ACCESS_TOKEN: ${{ secrets.STAGING_E2E_ACCESS_TOKEN }}
-      EVIDENCE_DIR: docs/runbooks/evidence
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
