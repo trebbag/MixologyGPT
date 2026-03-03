@@ -28,10 +28,15 @@ jobs:
       - name: Validate required config
         env:
           BASE_URL: ${{ github.event.inputs.base_url || secrets.STAGING_BASE_URL }}
+          LOADTEST_ACCESS_TOKEN: ${{ secrets.STAGING_E2E_ACCESS_TOKEN }}
         run: |
           set -euo pipefail
           if [[ -z "${BASE_URL}" ]]; then
             echo "Missing STAGING_BASE_URL (or workflow input base_url)."
+            exit 1
+          fi
+          if [[ -z "${LOADTEST_ACCESS_TOKEN}" ]]; then
+            echo "Missing STAGING_E2E_ACCESS_TOKEN."
             exit 1
           fi
       - uses: actions/setup-python@v5
@@ -47,6 +52,7 @@ jobs:
           USERS: ${{ github.event.inputs.users }}
           SPAWN_RATE: ${{ github.event.inputs.spawn_rate }}
           DURATION: ${{ github.event.inputs.duration }}
+          LOADTEST_ACCESS_TOKEN: ${{ secrets.STAGING_E2E_ACCESS_TOKEN }}
         run: |
           set -euo pipefail
           RUN_ID="staging_signoff_${GITHUB_RUN_ID}"
