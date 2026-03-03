@@ -84,7 +84,7 @@ class ApiUser(HttpUser):
             name="harvest_auto",
         )
 
-    @task(2)
+    @task(1)
     def studio_create_constraint_generate(self):
         session_id = self.active_session_id
         should_rotate_session = (
@@ -137,6 +137,9 @@ class ApiUser(HttpUser):
 
     @task(1)
     def studio_summary(self):
+        # Keep analytics traffic in profile, but reduce frequency so it does not dominate DB load.
+        if random.random() < 0.7:
+            return
         self.client.get("/v1/studio/analytics/summary", headers=self._headers(), name="studio_summary")
 
     @task(1)
