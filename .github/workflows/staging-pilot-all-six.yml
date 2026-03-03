@@ -69,6 +69,7 @@ jobs:
       - name: Bootstrap staging access token
         env:
           BASE_URL: ${{ github.event.inputs.base_url || secrets.STAGING_BASE_URL }}
+          INTERNAL_TOKEN: ${{ secrets.STAGING_INTERNAL_TOKEN }}
           RUN_ID: ${{ github.run_id }}
         run: |
           set -euo pipefail
@@ -79,15 +80,19 @@ jobs:
           import urllib.error
 
           base_url = os.environ["BASE_URL"].rstrip("/")
+          internal_token = os.environ.get("INTERNAL_TOKEN", "").strip()
           run_id = os.environ["RUN_ID"]
           email = f"staging.e2e+{run_id}@bartender.ai"
           password = f"Staging-{run_id}-Aa1!"
 
-          def post(path, payload):
+          def post(path, payload, headers=None):
+              request_headers = {"Content-Type": "application/json"}
+              if headers:
+                  request_headers.update(headers)
               req = urllib.request.Request(
                   f"{base_url}{path}",
                   data=json.dumps(payload).encode("utf-8"),
-                  headers={"Content-Type": "application/json"},
+                  headers=request_headers,
                   method="POST",
               )
               try:
@@ -104,6 +109,17 @@ jobs:
           register_status, register_body = post("/v1/auth/register", {"email": email, "password": password})
           if register_status not in (200, 201, 400):
               raise SystemExit(f"register failed: status={register_status} body={register_body}")
+
+          if not internal_token:
+              raise SystemExit("missing INTERNAL_TOKEN for power-role bootstrap")
+
+          promote_status, promote_body = post(
+              "/v1/admin/users/bootstrap-role-by-email",
+              {"email": email, "role": "power", "is_active": True, "is_verified": True},
+              headers={"X-Internal-Token": internal_token},
+          )
+          if promote_status != 200:
+              raise SystemExit(f"power role bootstrap failed: status={promote_status} body={promote_body}")
 
           login_status, login_body = post("/v1/auth/jwt/login", {"email": email, "password": password})
           if login_status != 200:

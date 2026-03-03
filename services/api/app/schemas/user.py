@@ -1,7 +1,8 @@
 import uuid
-from typing import Optional
+from typing import Literal, Optional
 
 from fastapi_users import schemas
+from pydantic import BaseModel, EmailStr
 
 
 class UserRead(schemas.BaseUser[uuid.UUID]):
@@ -23,3 +24,10 @@ class UserCreate(schemas.BaseUserCreate):
 class UserUpdate(schemas.BaseUserUpdate):
     # Security: role changes are admin-only and handled via /v1/admin/users/{id}.
     pass
+
+
+class UserRoleBootstrapRequest(BaseModel):
+    email: EmailStr
+    role: Literal["consumer", "user", "power", "admin"] = "power"
+    is_active: bool = True
+    is_verified: bool = True

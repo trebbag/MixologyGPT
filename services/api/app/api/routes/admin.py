@@ -15,7 +15,7 @@ from app.db.models.user import User
 from app.db.models.recipe import RecipeHarvestJob, RecipeSourcePolicy
 from app.db.models.system import SystemJob
 from app.db.session import get_db
-from app.schemas.user import UserRead
+from app.schemas.user import UserRead, UserRoleBootstrapRequest
 from app.schemas.source_policy import (
     ParserRecoverySuggestionRequest,
     ParserRecoverySuggestionResponse,
@@ -149,6 +149,28 @@ async def list_users(
 ):
     result = await db.execute(select(User).order_by(User.email))
     return list(result.scalars().all())
+
+
+@router.post("/users/bootstrap-role-by-email", response_model=UserRead)
+async def bootstrap_user_role_by_email(
+    payload: UserRoleBootstrapRequest,
+    db: AsyncSession = Depends(get_db),
+    internal_token: Optional[str] = Header(default=None, alias="X-Internal-Token"),
+    user: Optional[User] = Depends(optional_user),
+):
+    """Internal/admin helper for staging E2E token bootstrap."""
+    _require_admin_or_internal(internal_token, user)
+    email = payload.email.strip().lower()
+    result = await db.execute(select(User).where(User.email == email))
+    target = result.scalars().first()
+    if not target:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    target.role = payload.role
+    target.is_active = bool(payload.is_active)
+    target.is_verified = bool(payload.is_verified)
+    await db.commit()
+    await db.refresh(target)
+    return target
 
 
 @router.patch("/users/{user_id}", response_model=UserRead)
