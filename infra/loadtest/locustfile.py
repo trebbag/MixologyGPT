@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import time
 from typing import Any
 
 from locust import HttpUser, between, task
@@ -9,6 +10,7 @@ from locust import HttpUser, between, task
 SEED_HARVEST_URL = "https://www.diffordsguide.com/cocktails/search"
 LOADTEST_ACCESS_TOKEN = os.getenv("LOADTEST_ACCESS_TOKEN", "").strip()
 LOADTEST_REFRESH_TOKEN = os.getenv("LOADTEST_REFRESH_TOKEN", "").strip()
+HARVEST_MIN_INTERVAL_SECONDS = float(os.getenv("HARVEST_MIN_INTERVAL_SECONDS", "20"))
 
 
 class ApiUser(HttpUser):
@@ -20,6 +22,7 @@ class ApiUser(HttpUser):
         self.refresh_token = LOADTEST_REFRESH_TOKEN or None
         self.active_session_id = None
         self.latest_version_ids: list[str] = []
+        self._next_harvest_allowed_at = 0.0
         if not self.use_static_token:
             self._bootstrap_auth()
 
@@ -60,6 +63,10 @@ class ApiUser(HttpUser):
 
     @task(1)
     def harvest_auto(self):
+        now = time.monotonic()
+        if now < self._next_harvest_allowed_at:
+            return
+        self._next_harvest_allowed_at = now + HARVEST_MIN_INTERVAL_SECONDS
         self.client.post(
             "/v1/recipes/harvest/auto",
             headers=self._headers(),
