@@ -145,6 +145,7 @@ testIfConfigured('mobile staging: review offline path shows tertiary messaging f
     fireEvent.press(screen.getByTestId('recipes-quick-reviews'))
     await flushMicrotasks()
 
+    await waitFor(() => expect(screen.getByTestId('reviews-select-staging-review-1')).toBeTruthy())
     fireEvent.press(screen.getByTestId('reviews-select-staging-review-1'))
     fireEvent.press(screen.getByText('Load History'))
 
