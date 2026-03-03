@@ -1,13 +1,17 @@
 # Needs From You
 
-## Current checkpoint (`2026-03-01`)
-- Latest run: GitHub Actions `Staging Pilot All-Six` (`22546128104`)
-- Result: `PASS` (real signoff + web staging E2E + mobile staging E2E + compliance smoke)
+## Current checkpoint (`2026-03-03`)
+- Latest all-six run: GitHub Actions `Staging Pilot All-Six` (`22602842408`) -> `PASS`
+- Latest policy baseline freeze evidence: `docs/runbooks/evidence/policy-baseline-freeze-2026-03-03.md`
+- Latest pilot ops drill: GitHub Actions `Staging Pilot Ops Drill` (`22603591164`) -> `PASS`
+- Latest staged load signoff: GitHub Actions `Staging Sign-Off (Load + Gates)` (`22603893539`) -> `FAIL`
+  - failing gates: `search_p95_ms` (`730 > 700`), `studio_generate_p95_ms` (`1100 > 600`)
 - Source migration decision: `liquor.com` replaced with `thecocktaildb.com` for pilot calibration/maintenance.
-- Remaining required item:
-  - provide/supporter `COCKTAILDB_API_KEY` in staging/prod runtime so API-backed harvest can run.
+- Current required items before pilot go-live:
+  - performance remediation to pass locked load gates (`docs/runbooks/evidence/staging-signoff-decision-2026-03-03.md`)
+  - final owner go/no-go approval after a passing staged signoff rerun
 - Remaining optional item:
-  - wire external alert destinations only if you want off-platform paging (internal in-app alert path already valid).
+  - wire external alert destinations only if you want off-platform paging (internal in-app alert path remains valid).
 
 ## Pilot cutover blockers (as of 2026-02-24)
 - What is needed: real staging API access and internal auth for signoff + E2E execution
@@ -46,12 +50,13 @@
 - Safe handling: GitHub Actions secrets only; never commit to repo files
 
 ## Real staging load sign-off window
-- What is needed: approved staging host/window for the second tuned load sign-off run
-- Why: local lock/gate pass exists, but pilot go/no-go must be tied to representative non-local staging traffic
+- What is needed: performance remediation and a passing rerun of staged load signoff
+- Why: second tuned staging signoff run (`22603893539`) failed locked gates
 - Required now:
-  - `STAGING_BASE_URL`
-  - staging traffic window (timebox where representative load is acceptable)
-  - explicit go/no-go owner for final gate sign-off
+  - reduce `search_p95_ms` to `<= 700` (latest observed `730`)
+  - reduce `studio_generate_p95_ms` to `<= 600` (latest observed `1100`)
+  - rerun `.github/workflows/staging-signoff.yml` to `PASS`
+  - explicit owner decision after rerun (`GO` or `NO-GO`)
 - Safe handling: no secrets in logs; keep run artifacts in `docs/runbooks/evidence`
 
 ## Staging non-mocked E2E execution token
