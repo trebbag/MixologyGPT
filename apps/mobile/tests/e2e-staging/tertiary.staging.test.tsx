@@ -142,6 +142,8 @@ testIfConfigured('mobile staging: review offline path shows tertiary messaging f
   try {
     fireEvent.press(screen.getAllByText('Recipes')[0])
     await flushMicrotasks()
+    fireEvent.press(screen.getByTestId('recipes-search-clear'))
+    await waitFor(() => expect(screen.getByTestId('recipes-library-staging-review-1')).toBeTruthy())
     fireEvent.press(screen.getByTestId('recipes-quick-reviews'))
     await flushMicrotasks()
 
