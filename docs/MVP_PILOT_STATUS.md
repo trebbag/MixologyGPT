@@ -1,30 +1,28 @@
 # MVP Pilot Status
 
-Last updated: `2026-03-03` (policy baseline freeze + pilot ops drill passed; second staged load signoff is NO-GO on two p95 gates)
+Last updated: `2026-03-03` (staged locked-gate signoff PASS + all-six PASS on real staging)
 
 ## Completion by Core Pilot Area
 | Area | Percent complete | Ready state summary |
 |---|---:|---|
-| Core API platform (auth, models, CRUD, migrations) | 97% | Core APIs and migrations are stable; clean-DB migration smoke was re-validated (`core-api-migration-smoke-20260303_010256.md`). Remaining work is routine hardening and post-pilot defect burn-down. |
-| Inventory + ontology operations | 95% | Web/mobile inventory flows now include explicit offline/disabled tertiary states and E2E coverage. Remaining work is minor visual polish only. |
+| Core API platform (auth, models, CRUD, migrations) | 98% | Core APIs and migrations are stable; clean-DB migration smoke remains green (`core-api-migration-smoke-20260303_010256.md`). |
+| Inventory + ontology operations | 96% | Web/mobile inventory flows include explicit offline/disabled tertiary states and E2E coverage; only minor polish remains. |
 | Recipe harvesting + compliance controls | 99% | Policy maintenance + weekly drift review succeeded on staging with `MIN_JOBS >= 20` on approved domains and a frozen baseline (`policy-baseline-freeze-2026-03-03.md`). |
-| Studio generation + review workflow | 95% | Tertiary offline/retry/disabled flows are covered in staging and mocked suites. Remaining work is latency reduction under load, not feature completeness. |
-| Recommendations + party/pilot utility | 92% | Recommendations now include offline-safe controls and snapshot export on web/mobile. Remaining work is final UX polish and optional analytics refinements. |
+| Studio generation + review workflow | 97% | Tertiary offline/retry/disabled flows are covered in staging and mocked suites, and locked-gate staged load has passed. |
+| Recommendations + party/pilot utility | 93% | Recommendations include offline-safe controls and snapshot export on web/mobile; remaining work is polish and optional analytics refinements. |
 | Web UI readiness (Figma parity) | 98% | Additional tertiary-state parity is implemented (inventory/recommendations offline + export paths) and covered by Playwright E2E. |
-| Mobile UI readiness (Figma parity) | 97% | Additional tertiary-state parity is implemented for inventory/recommendations and covered by mobile E2E suites. |
-| QA automation (unit/integration/contract/E2E) | 99% | Expanded web/mobile E2E matrices pass locally and all-six staging remains green; ops drill workflow is now codified and passing. |
-| Staging deploy + observability | 98% | Policy maintenance, weekly drift review, and pilot ops drill all pass in GitHub Actions with evidence artifacts. |
-| Performance readiness for pilot load | 90% | Second staged signoff run (`22603893539`) is `FAIL` against locked gates (`search_p95_ms=730>700`, `studio_generate_p95_ms=1100>600`); explicit decision is NO-GO until remediated. |
+| Mobile UI readiness (Figma parity) | 98% | Tertiary review/harvest offline paths are covered; staging mobile matrix is now green in all-six. |
+| QA automation (unit/integration/contract/E2E) | 99% | Unit/integration suites are green locally and the latest all-six staging run (`22606179707`) is PASS. |
+| Staging deploy + observability | 95% | Signoff/all-six/policy maintenance workflows are green, but automated `Staging Deploy` remains blocked until deploy secrets are populated. |
+| Performance readiness for pilot load | 98% | Locked-gate staged signoff is PASS (`22605681114`: `search_p95_ms=140`, `studio_generate_p95_ms=240`, `aggregate_p95_ms=200`). |
 
 ## Remaining Work Before Pilot
-1. Fix staged performance regressions and clear locked gates:
-   - bring `search_p95_ms` under `700`
-   - bring `studio_generate_p95_ms` under `600`
-   - rerun `Staging Sign-Off (Load + Gates)` and require `Overall result: PASS`
-2. Re-run `Staging Pilot All-Six` after performance fixes to confirm end-to-end readiness with the same traffic profile.
-3. Keep hourly policy maintenance + weekly drift review active and continue reviewing generated evidence.
-4. Confirm final owner go/no-go decision after a passing staged signoff run.
+1. Complete staging deployment automation by setting required deploy secrets (`STAGING_SSH_HOST`, `STAGING_SSH_USER`, `STAGING_SSH_KEY`, `STAGING_GHCR_TOKEN`, `STAGING_DEPLOY_PATH`).
+2. Confirm owner go/no-go pilot decision using latest PASS evidence bundle:
+   - `Staging Sign-Off (Load + Gates)` run `22605681114`
+   - `Staging Pilot All-Six` run `22606179707`
+3. Keep hourly policy maintenance + weekly drift review active and continue reviewing evidence drift.
 
 ## Dependency Items Blocking Full Pilot Launch
-1. Performance gate pass against `infra/loadtest/gates.pilot.locked.json` on real staging traffic.
-2. Final owner signoff on pilot go/no-go with evidence package attached.
+1. Final owner signoff on pilot go/no-go with evidence package attached.
+2. If CI-driven staging deploy is required for pilot ops, populate staging deploy secrets (current workflow fails precheck due missing secrets).

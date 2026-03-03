@@ -1,15 +1,15 @@
 # Needs From You
 
 ## Current checkpoint (`2026-03-03`)
-- Latest all-six run: GitHub Actions `Staging Pilot All-Six` (`22602842408`) -> `PASS`
+- Latest all-six run: GitHub Actions `Staging Pilot All-Six` (`22606179707`) -> `PASS`
 - Latest policy baseline freeze evidence: `docs/runbooks/evidence/policy-baseline-freeze-2026-03-03.md`
 - Latest pilot ops drill: GitHub Actions `Staging Pilot Ops Drill` (`22603591164`) -> `PASS`
-- Latest staged load signoff: GitHub Actions `Staging Sign-Off (Load + Gates)` (`22603893539`) -> `FAIL`
-  - failing gates: `search_p95_ms` (`730 > 700`), `studio_generate_p95_ms` (`1100 > 600`)
+- Latest staged load signoff: GitHub Actions `Staging Sign-Off (Load + Gates)` (`22605681114`) -> `PASS`
+  - key gates: `search_p95_ms=140`, `studio_generate_p95_ms=240`, `aggregate_p95_ms=200`
 - Source migration decision: `liquor.com` replaced with `thecocktaildb.com` for pilot calibration/maintenance.
 - Current required items before pilot go-live:
-  - performance remediation to pass locked load gates (`docs/runbooks/evidence/staging-signoff-decision-2026-03-03.md`)
-  - final owner go/no-go approval after a passing staged signoff rerun
+  - final owner go/no-go approval with the latest evidence package
+  - staging deploy secret population if CI-driven staging deploys are required
 - Remaining optional item:
   - wire external alert destinations only if you want off-platform paging (internal in-app alert path remains valid).
 
@@ -40,7 +40,8 @@
   - `STAGING_BASE_URL`
   - `STAGING_WEB_BASE_URL` (required when staging web is not served by `STAGING_BASE_URL`)
   - `STAGING_INTERNAL_TOKEN`
-  - `STAGING_E2E_ACCESS_TOKEN`
+- Optional/fallback:
+  - `STAGING_E2E_ACCESS_TOKEN` (workflow now bootstraps an ephemeral power token automatically using `STAGING_INTERNAL_TOKEN`)
 - Optional:
   - `STAGING_ALERTMANAGER_URL`
   - `STAGING_ALERT_RECEIVER_CONFIRM_URL`
@@ -51,12 +52,14 @@
 
 ## Real staging load sign-off window
 - What is needed: performance remediation and a passing rerun of staged load signoff
-- Why: second tuned staging signoff run (`22603893539`) failed locked gates
+- Why: owner signoff requires a fresh PASS on locked gates against staging traffic
+- Latest PASS:
+  - run `22605681114`
+  - `search_p95_ms=140` (`<=700`)
+  - `studio_generate_p95_ms=240` (`<=600`)
+  - `aggregate_p95_ms=200` (`<=900`)
 - Required now:
-  - reduce `search_p95_ms` to `<= 700` (latest observed `730`)
-  - reduce `studio_generate_p95_ms` to `<= 600` (latest observed `1100`)
-  - rerun `.github/workflows/staging-signoff.yml` to `PASS`
-  - explicit owner decision after rerun (`GO` or `NO-GO`)
+  - explicit owner decision (`GO` or `NO-GO`) against this run + latest all-six run (`22606179707`)
 - Safe handling: no secrets in logs; keep run artifacts in `docs/runbooks/evidence`
 
 ## Staging non-mocked E2E execution token
