@@ -28,15 +28,10 @@ jobs:
       - name: Validate required config
         env:
           BASE_URL: ${{ github.event.inputs.base_url || secrets.STAGING_BASE_URL }}
-          LOADTEST_ACCESS_TOKEN: ${{ secrets.STAGING_E2E_ACCESS_TOKEN }}
         run: |
           set -euo pipefail
           if [[ -z "${BASE_URL}" ]]; then
             echo "Missing STAGING_BASE_URL (or workflow input base_url)."
-            exit 1
-          fi
-          if [[ -z "${LOADTEST_ACCESS_TOKEN}" ]]; then
-            echo "Missing STAGING_E2E_ACCESS_TOKEN."
             exit 1
           fi
       - uses: actions/setup-python@v5
@@ -46,13 +41,62 @@ jobs:
         run: |
           python3 -m pip install --upgrade pip
           python3 -m pip install -r infra/loadtest/requirements.txt
+      - name: Bootstrap loadtest access token
+        env:
+          BASE_URL: ${{ github.event.inputs.base_url || secrets.STAGING_BASE_URL }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          import os
+          import urllib.request
+          import urllib.error
+
+          base_url = os.environ["BASE_URL"].rstrip("/")
+          run_id = os.environ["RUN_ID"]
+          email = f"loadtest+{run_id}@bartender.ai"
+          password = f"LoadTest-{run_id}-Aa1!"
+
+          def post(path, payload):
+              req = urllib.request.Request(
+                  f"{base_url}{path}",
+                  data=json.dumps(payload).encode("utf-8"),
+                  headers={"Content-Type": "application/json"},
+                  method="POST",
+              )
+              try:
+                  with urllib.request.urlopen(req, timeout=30) as res:
+                      body = res.read().decode("utf-8") or "{}"
+                      return res.status, json.loads(body)
+              except urllib.error.HTTPError as exc:
+                  body = exc.read().decode("utf-8") or "{}"
+                  try:
+                      return exc.code, json.loads(body)
+                  except Exception:
+                      return exc.code, {"detail": body}
+
+          register_status, register_body = post("/v1/auth/register", {"email": email, "password": password})
+          # 201=create, 400=already exists; either is acceptable for this ephemeral account pattern.
+          if register_status not in (200, 201, 400):
+              raise SystemExit(f"register failed: status={register_status} body={register_body}")
+
+          login_status, login_body = post("/v1/auth/jwt/login", {"email": email, "password": password})
+          if login_status != 200:
+              raise SystemExit(f"login failed: status={login_status} body={login_body}")
+          token = login_body.get("access_token")
+          if not token:
+              raise SystemExit(f"login missing access_token: {login_body}")
+
+          with open(os.environ["GITHUB_ENV"], "a", encoding="utf-8") as f:
+              f.write(f"LOADTEST_ACCESS_TOKEN={token}\n")
+          PY
       - name: Run tuned profile against staging and evaluate locked gates
         env:
           BASE_URL: ${{ github.event.inputs.base_url || secrets.STAGING_BASE_URL }}
           USERS: ${{ github.event.inputs.users }}
           SPAWN_RATE: ${{ github.event.inputs.spawn_rate }}
           DURATION: ${{ github.event.inputs.duration }}
-          LOADTEST_ACCESS_TOKEN: ${{ secrets.STAGING_E2E_ACCESS_TOKEN }}
         run: |
           set -euo pipefail
           RUN_ID="staging_signoff_${GITHUB_RUN_ID}"

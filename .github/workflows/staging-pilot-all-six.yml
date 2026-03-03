@@ -43,7 +43,6 @@ jobs:
       SLACK_WEBHOOK_URL: ${{ secrets.STAGING_SLACK_WEBHOOK_URL }}
       PAGERDUTY_ROUTING_KEY: ${{ secrets.STAGING_PAGERDUTY_ROUTING_KEY }}
       FORWARD_WEBHOOK_URLS: ${{ secrets.STAGING_FORWARD_WEBHOOK_URLS }}
-      STAGING_E2E_ACCESS_TOKEN: ${{ secrets.STAGING_E2E_ACCESS_TOKEN }}
       USERS: ${{ github.event.inputs.users }}
       SPAWN_RATE: ${{ github.event.inputs.spawn_rate }}
       DURATION: ${{ github.event.inputs.duration }}
@@ -67,6 +66,56 @@ jobs:
         run: |
           python3 -m pip install --upgrade pip
           python3 -m pip install -r infra/loadtest/requirements.txt
+      - name: Bootstrap staging access token
+        env:
+          BASE_URL: ${{ github.event.inputs.base_url || secrets.STAGING_BASE_URL }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          import os
+          import urllib.request
+          import urllib.error
+
+          base_url = os.environ["BASE_URL"].rstrip("/")
+          run_id = os.environ["RUN_ID"]
+          email = f"staging.e2e+{run_id}@bartender.ai"
+          password = f"Staging-{run_id}-Aa1!"
+
+          def post(path, payload):
+              req = urllib.request.Request(
+                  f"{base_url}{path}",
+                  data=json.dumps(payload).encode("utf-8"),
+                  headers={"Content-Type": "application/json"},
+                  method="POST",
+              )
+              try:
+                  with urllib.request.urlopen(req, timeout=30) as res:
+                      body = res.read().decode("utf-8") or "{}"
+                      return res.status, json.loads(body)
+              except urllib.error.HTTPError as exc:
+                  body = exc.read().decode("utf-8") or "{}"
+                  try:
+                      return exc.code, json.loads(body)
+                  except Exception:
+                      return exc.code, {"detail": body}
+
+          register_status, register_body = post("/v1/auth/register", {"email": email, "password": password})
+          if register_status not in (200, 201, 400):
+              raise SystemExit(f"register failed: status={register_status} body={register_body}")
+
+          login_status, login_body = post("/v1/auth/jwt/login", {"email": email, "password": password})
+          if login_status != 200:
+              raise SystemExit(f"login failed: status={login_status} body={login_body}")
+          token = login_body.get("access_token")
+          if not token:
+              raise SystemExit(f"login missing access_token: {login_body}")
+
+          with open(os.environ["GITHUB_ENV"], "a", encoding="utf-8") as f:
+              f.write(f"STAGING_E2E_ACCESS_TOKEN={token}\n")
+              f.write(f"LOADTEST_ACCESS_TOKEN={token}\n")
+          PY
       - name: Run full all-six staging pipeline
         run: |
           set -euo pipefail
