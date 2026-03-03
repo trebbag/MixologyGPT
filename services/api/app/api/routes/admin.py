@@ -45,6 +45,16 @@ RECOVERY_SUPPORTED_FAILURES = {
 }
 
 
+def _is_admin_user(user: Optional[User]) -> bool:
+    return bool(user and (user.role == "admin" or user.is_superuser))
+
+
+def _require_admin_or_internal(internal_token: Optional[str], user: Optional[User]) -> None:
+    if internal_token == settings.internal_token or _is_admin_user(user):
+        return
+    raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized")
+
+
 def _normalize_parse_failure(parse_failure: str) -> str:
     normalized = (parse_failure or "").strip()
     if not normalized:
@@ -167,8 +177,10 @@ async def update_user(
 @router.get("/source-policies", response_model=List[RecipeSourcePolicyRead])
 async def list_source_policies(
     db: AsyncSession = Depends(get_db),
-    _admin: User = Depends(current_active_admin),
+    internal_token: Optional[str] = Header(default=None, alias="X-Internal-Token"),
+    user: Optional[User] = Depends(optional_user),
 ):
+    _require_admin_or_internal(internal_token, user)
     result = await db.execute(select(RecipeSourcePolicy).order_by(RecipeSourcePolicy.name))
     return list(result.scalars().all())
 
@@ -177,8 +189,10 @@ async def list_source_policies(
 async def create_source_policy(
     payload: RecipeSourcePolicyCreate,
     db: AsyncSession = Depends(get_db),
-    _admin: User = Depends(current_active_admin),
+    internal_token: Optional[str] = Header(default=None, alias="X-Internal-Token"),
+    user: Optional[User] = Depends(optional_user),
 ):
+    _require_admin_or_internal(internal_token, user)
     policy = RecipeSourcePolicy(**payload.model_dump())
     db.add(policy)
     await db.commit()
@@ -191,8 +205,10 @@ async def update_source_policy(
     policy_id: str,
     payload: RecipeSourcePolicyUpdate,
     db: AsyncSession = Depends(get_db),
-    _admin: User = Depends(current_active_admin),
+    internal_token: Optional[str] = Header(default=None, alias="X-Internal-Token"),
+    user: Optional[User] = Depends(optional_user),
 ):
+    _require_admin_or_internal(internal_token, user)
     policy = await db.get(RecipeSourcePolicy, policy_id)
     if not policy:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Source policy not found")
@@ -207,8 +223,10 @@ async def update_source_policy(
 async def delete_source_policy(
     policy_id: str,
     db: AsyncSession = Depends(get_db),
-    _admin: User = Depends(current_active_admin),
+    internal_token: Optional[str] = Header(default=None, alias="X-Internal-Token"),
+    user: Optional[User] = Depends(optional_user),
 ):
+    _require_admin_or_internal(internal_token, user)
     policy = await db.get(RecipeSourcePolicy, policy_id)
     if not policy:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Source policy not found")

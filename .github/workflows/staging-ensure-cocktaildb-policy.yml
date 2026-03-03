@@ -36,12 +36,15 @@ jobs:
       - name: Validate required secrets
         run: |
           set -euo pipefail
-          for key in API_BASE_URL ADMIN_BEARER_TOKEN INTERNAL_TOKEN; do
+          for key in API_BASE_URL INTERNAL_TOKEN; do
             if [[ -z "${!key}" ]]; then
               echo "Missing required secret/env: ${key}"
               exit 1
             fi
           done
+          if [[ -z "${ADMIN_BEARER_TOKEN}" ]]; then
+            echo "ADMIN_BEARER_TOKEN is empty; proceeding with INTERNAL_TOKEN auth path."
+          fi
       - name: Ensure thecocktaildb.com policy exists and is active
         run: |
           set -euo pipefail

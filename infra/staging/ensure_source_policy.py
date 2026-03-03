@@ -35,14 +35,16 @@ DEFAULT_POLICY_PARSER_SETTINGS: dict[str, Any] = {
 def _request_json(
     method: str,
     url: str,
-    bearer_token: str,
+    bearer_token: str = "",
+    internal_token: str = "",
     body: dict[str, Any] | None = None,
     timeout: float = 60.0,
 ) -> tuple[int, Any]:
-    headers = {
-        "Accept": "application/json",
-        "Authorization": f"Bearer {bearer_token}",
-    }
+    headers = {"Accept": "application/json"}
+    if bearer_token:
+        headers["Authorization"] = f"Bearer {bearer_token}"
+    if internal_token:
+        headers["X-Internal-Token"] = internal_token
     data = None
     if body is not None:
         headers["Content-Type"] = "application/json"
@@ -76,11 +78,15 @@ def main() -> int:
         os.getenv("ADMIN_BEARER_TOKEN", "").strip()
         or os.getenv("STAGING_E2E_ACCESS_TOKEN", "").strip()
     )
+    internal_token = os.getenv("INTERNAL_TOKEN", "").strip()
     if not api_base_url:
         print("API_BASE_URL is required", file=sys.stderr)
         return 2
-    if not bearer_token:
-        print("ADMIN_BEARER_TOKEN (or STAGING_E2E_ACCESS_TOKEN) is required", file=sys.stderr)
+    if not bearer_token and not internal_token:
+        print(
+            "Either ADMIN_BEARER_TOKEN/STAGING_E2E_ACCESS_TOKEN or INTERNAL_TOKEN is required",
+            file=sys.stderr,
+        )
         return 2
 
     policy_domain = _normalize_domain(os.getenv("POLICY_DOMAIN", DEFAULT_POLICY_DOMAIN))
@@ -105,7 +111,10 @@ def main() -> int:
     )
 
     status, policies = _request_json(
-        "GET", f"{api_base_url}/v1/admin/source-policies", bearer_token=bearer_token
+        "GET",
+        f"{api_base_url}/v1/admin/source-policies",
+        bearer_token=bearer_token,
+        internal_token=internal_token,
     )
     if status >= 400 or not isinstance(policies, list):
         print(f"Failed to list source policies: HTTP {status} {policies}", file=sys.stderr)
@@ -150,6 +159,7 @@ def main() -> int:
             "POST",
             f"{api_base_url}/v1/admin/source-policies",
             bearer_token=bearer_token,
+            internal_token=internal_token,
             body=create_payload,
         )
         if create_status >= 400:
@@ -187,6 +197,7 @@ def main() -> int:
                 "PATCH",
                 f"{api_base_url}/v1/admin/source-policies/{policy_id}",
                 bearer_token=bearer_token,
+                internal_token=internal_token,
                 body=patch_payload,
             )
             if patch_status >= 400:
