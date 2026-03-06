@@ -17,11 +17,11 @@
 
 ## Immediate fixes required
 1. Update the live staging API runtime config so `CORS_ALLOWED_ORIGINS` includes `https://mixologygpt-app.onrender.com`, then redeploy the API/web pair.
-2. If GitHub-driven staging deploy is required, populate the missing deploy secrets and rerun `Staging Deploy`.
-3. After the live runtime smoke passes, rerun:
+2. After the live runtime smoke passes, rerun:
    - `Staging Sign-Off (Load + Gates)`
    - `Staging Pilot All-Six`
-4. Use the refreshed PASS evidence for the final owner `GO/NO-GO`.
+3. Use the refreshed PASS evidence for the final owner `GO/NO-GO`.
+4. Only if GitHub-driven staging deploy matters to your ops model, populate the missing deploy secrets and rerun `Staging Deploy`.
 
 ## Notes
 - The last historical locked-gate PASS remains `22605681114`, but it is now stale because the current live runtime surface is failing before load tests begin.

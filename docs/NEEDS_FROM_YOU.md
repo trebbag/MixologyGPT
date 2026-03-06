@@ -18,7 +18,7 @@
   - fix the live staging API `CORS_ALLOWED_ORIGINS` / runtime configuration so `https://mixologygpt-app.onrender.com` is accepted
   - rerun signoff + all-six after the live runtime smoke passes again
   - final owner go/no-go approval with the refreshed evidence package
-  - staging deploy secret population if CI-driven staging deploys are required
+  - only if you want GitHub-driven staging deploys: populate the staging deploy secrets
 - Remaining optional item:
   - wire external alert destinations only if you want off-platform paging (internal in-app alert path remains valid).
 - Exact operator sequence:
@@ -35,6 +35,19 @@
   - `NEXT_PUBLIC_API_URL=https://mixologygpt.onrender.com`
   - `EXPO_PUBLIC_API_URL=https://mixologygpt.onrender.com`
 - Safe handling: these are configuration values rather than secrets, but keep them accurate per environment.
+
+## Render-specific fix for the current live blocker
+- API service (`https://mixologygpt.onrender.com`) environment values:
+  - `CORS_ALLOWED_ORIGINS=https://mixologygpt-app.onrender.com`
+  - `ENVIRONMENT=production`
+- Web service (`https://mixologygpt-app.onrender.com`) environment values:
+  - `NEXT_PUBLIC_API_URL=https://mixologygpt.onrender.com`
+  - `ENVIRONMENT=production`
+- Optional mobile build value:
+  - `EXPO_PUBLIC_API_URL=https://mixologygpt.onrender.com`
+- Why: the latest live API rejects browser preflight from the deployed web origin, which blocks signoff/all-six before load and E2E begin.
+- Verification after redeploy:
+  - `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI && python3 ./infra/staging/runtime_surface_smoke.py --api-base-url https://mixologygpt.onrender.com --web-base-url https://mixologygpt-app.onrender.com`
 
 ## AI agent client runtime outside local development
 - What is needed:
