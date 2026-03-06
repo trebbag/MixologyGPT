@@ -24,7 +24,9 @@ require_command() {
 }
 
 is_truthy() {
-  case "${1,,}" in
+  local normalized
+  normalized="$(printf '%s' "${1}" | tr '[:upper:]' '[:lower:]')"
+  case "${normalized}" in
     1|true|yes|y|on) return 0 ;;
     *) return 1 ;;
   esac
