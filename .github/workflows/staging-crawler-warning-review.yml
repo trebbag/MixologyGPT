@@ -1,0 +1,53 @@
+name: Staging Crawler Warning Review
+
+on:
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: "Staging API base URL to inspect (leave empty to use STAGING_BASE_URL secret)."
+        required: false
+        default: ""
+      min_jobs:
+        description: "Minimum jobs per domain before alerts are treated as actionable."
+        required: false
+        default: "20"
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate required config
+        env:
+          BASE_URL: ${{ github.event.inputs.base_url || secrets.STAGING_BASE_URL }}
+          INTERNAL_TOKEN: ${{ secrets.STAGING_INTERNAL_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [[ -z "${BASE_URL}" ]]; then
+            echo "Missing STAGING_BASE_URL (or workflow input base_url)."
+            exit 1
+          fi
+          if [[ -z "${INTERNAL_TOKEN}" ]]; then
+            echo "Missing STAGING_INTERNAL_TOKEN."
+            exit 1
+          fi
+      - name: Review crawler warning signal quality
+        env:
+          BASE_URL: ${{ github.event.inputs.base_url || secrets.STAGING_BASE_URL }}
+          INTERNAL_TOKEN: ${{ secrets.STAGING_INTERNAL_TOKEN }}
+          MIN_JOBS: ${{ github.event.inputs.min_jobs }}
+        run: |
+          set -euo pipefail
+          python3 ./infra/staging/review_crawler_warning_signal.py \
+            --api-base-url "${BASE_URL}" \
+            --internal-token "${INTERNAL_TOKEN}" \
+            --min-jobs "${MIN_JOBS}" \
+            --output-md "docs/runbooks/evidence/crawler-warning-review-gh_${GITHUB_RUN_ID}.md" \
+            --output-json "docs/runbooks/evidence/crawler-warning-review-gh_${GITHUB_RUN_ID}.json"
+      - name: Upload crawler warning review
+        uses: actions/upload-artifact@v4
+        with:
+          name: staging-crawler-warning-review
+          path: |
+            docs/runbooks/evidence/crawler-warning-review-gh_${{ github.run_id }}.md
+            docs/runbooks/evidence/crawler-warning-review-gh_${{ github.run_id }}.json

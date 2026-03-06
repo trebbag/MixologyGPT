@@ -51,7 +51,13 @@ import sys
 from datetime import datetime
 
 started_at = datetime.strptime(sys.argv[1], "%Y-%m-%dT%H:%M:%SZ")
-runs = json.load(sys.stdin)
+payload = sys.stdin.read().strip()
+if not payload:
+    sys.exit(0)
+try:
+    runs = json.loads(payload)
+except json.JSONDecodeError:
+    sys.exit(0)
 for run in runs:
     created_raw = run.get("createdAt")
     if not created_raw:

@@ -74,6 +74,7 @@
   - Dispatch deploy + signoff + all-six in order via GitHub CLI: `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI && DEPLOY_REF=<branch> BASE_URL=https://<staging-api-host> WEB_BASE_URL=https://<staging-web-host> ./infra/staging/run_ci_sequence.sh`
   - Drain pending harvest jobs (staging/internal): `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI/infra/staging && INTERNAL_TOKEN=<token> API_BASE_URL=http://localhost:8000 python3 ./drain_pending_jobs.py`
   - Review crawler warning signal quality from staging telemetry: `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI/infra/staging && API_BASE_URL=https://<staging-host> INTERNAL_TOKEN=<token> python3 ./review_crawler_warning_signal.py --min-jobs 20 --output-md /Users/gregorygabbert/Documents/GitHub/BartenderAI/docs/runbooks/evidence/crawler-warning-review.md`
+  - Run crawler warning review through GitHub Actions: `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI && gh workflow run staging-crawler-warning-review.yml --ref <branch> -f base_url=https://<staging-host> -f min_jobs=20`
   - Full pilot ops drill: `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI/infra/staging && API_BASE_URL=https://<staging-host> INTERNAL_TOKEN=<token> APPLY_CALIBRATION=true RUN_LOAD_PROFILE=true LOCK_GATES=true ALERTMANAGER_URL=https://<optional-alertmanager-host> ALERT_CONFIRM_URL=https://<optional-confirm-url> ALERT_CONFIRM_TOKEN=<optional> DRILL_RUN_ID=<optional-run-id> EVIDENCE_DIR=/Users/gregorygabbert/Documents/GitHub/BartenderAI/docs/runbooks/evidence ./pilot_ops_drill.sh`
   - Rejection path smoke (compliance/parse/fetch rejection): `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI/infra/staging && API_BASE_URL=https://<staging-host> INTERNAL_TOKEN=<token> COMPLIANCE_TEST_URL=https://www.diffordsguide.com/encyclopedia/ python3 ./compliance_rejection_smoke.py`
 
@@ -82,6 +83,7 @@
   - Alert smoke (internal path by default, external forwarding optional): `.github/workflows/staging-alert-smoke.yml`
   - Full real signoff (alerts + calibration + recovery + load gates): `.github/workflows/staging-pilot-real-signoff.yml`
   - Full all-six continuation (real signoff + non-mocked web/mobile staging E2E + compliance smoke): `.github/workflows/staging-pilot-all-six.yml`
+  - Crawler warning signal review: `.github/workflows/staging-crawler-warning-review.yml`
   - Hourly domain volume + calibration maintenance: `.github/workflows/staging-policy-maintenance.yml`
   - Recovery preview/apply-safe maintenance: `.github/workflows/staging-recovery-maintenance.yml`
   - Non-mocked web+mobile staging E2E matrix: `.github/workflows/staging-e2e-matrix.yml`
