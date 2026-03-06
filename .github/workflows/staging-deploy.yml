@@ -32,6 +32,20 @@ jobs:
       - id: meta
         name: Compute image tag
         run: echo "image_tag=${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+      - name: Validate staging web build config
+        env:
+          STAGING_API_BASE_URL: ${{ secrets.STAGING_NEXT_PUBLIC_API_URL || secrets.STAGING_BASE_URL }}
+        run: |
+          set -euo pipefail
+          if [[ -z "${STAGING_API_BASE_URL}" ]]; then
+            echo "Missing STAGING_NEXT_PUBLIC_API_URL or STAGING_BASE_URL for web client build."
+            exit 1
+          fi
+          normalized="$(echo "${STAGING_API_BASE_URL}" | tr '[:upper:]' '[:lower:]')"
+          if [[ "${normalized}" == *"localhost"* || "${normalized}" == *"127.0.0.1"* ]]; then
+            echo "Staging web API base URL must not be local: ${STAGING_API_BASE_URL}"
+            exit 1
+          fi
       - name: Build and push API image
         run: |
           docker buildx build \
@@ -51,10 +65,13 @@ jobs:
             --push \
             services/workers
       - name: Build and push web image
+        env:
+          STAGING_API_BASE_URL: ${{ secrets.STAGING_NEXT_PUBLIC_API_URL || secrets.STAGING_BASE_URL }}
         run: |
           docker buildx build \
             --platform linux/amd64 \
             -f apps/web/Dockerfile \
+            --build-arg NEXT_PUBLIC_API_URL="${STAGING_API_BASE_URL}" \
             -t ghcr.io/${{ github.repository_owner }}/bartenderai-web:${{ steps.meta.outputs.image_tag }} \
             -t ghcr.io/${{ github.repository_owner }}/bartenderai-web:staging-latest \
             --push \
@@ -80,15 +97,22 @@ jobs:
           STAGING_SSH_KEY: ${{ secrets.STAGING_SSH_KEY }}
           STAGING_GHCR_TOKEN: ${{ secrets.STAGING_GHCR_TOKEN }}
           STAGING_DEPLOY_PATH: ${{ secrets.STAGING_DEPLOY_PATH }}
+          STAGING_BASE_URL: ${{ secrets.STAGING_BASE_URL }}
+          STAGING_WEB_BASE_URL: ${{ secrets.STAGING_WEB_BASE_URL }}
+          STAGING_CORS_ALLOWED_ORIGINS: ${{ secrets.STAGING_CORS_ALLOWED_ORIGINS }}
         run: |
           set -euo pipefail
           missing=0
-          for key in STAGING_SSH_HOST STAGING_SSH_USER STAGING_SSH_KEY STAGING_GHCR_TOKEN STAGING_DEPLOY_PATH; do
+          for key in STAGING_SSH_HOST STAGING_SSH_USER STAGING_SSH_KEY STAGING_GHCR_TOKEN STAGING_DEPLOY_PATH STAGING_BASE_URL; do
             if [[ -z "${!key}" ]]; then
               echo "Missing required secret: ${key}"
               missing=1
             fi
           done
+          if [[ -z "${STAGING_WEB_BASE_URL}" && -z "${STAGING_CORS_ALLOWED_ORIGINS}" ]]; then
+            echo "Missing staging web origin configuration: set STAGING_WEB_BASE_URL or STAGING_CORS_ALLOWED_ORIGINS."
+            missing=1
+          fi
           if [[ "${missing}" -ne 0 ]]; then
             exit 1
           fi
@@ -99,7 +123,7 @@ jobs:
           username: ${{ secrets.STAGING_SSH_USER }}
           key: ${{ secrets.STAGING_SSH_KEY }}
           script_stop: true
-          envs: IMAGE_TAG,GHCR_OWNER,GHCR_USERNAME,GHCR_TOKEN,DEPLOY_PATH,ALERT_WEBHOOK_URL,SLACK_WEBHOOK_URL,PAGERDUTY_ROUTING_KEY,FORWARD_WEBHOOK_URLS,ALERT_RECEIVER_CONFIRM_TOKEN,COCKTAILDB_API_KEY,COCKTAILDB_API_BASE_URL,COCKTAILDB_REQUEST_TIMEOUT_SECONDS
+          envs: IMAGE_TAG,GHCR_OWNER,GHCR_USERNAME,GHCR_TOKEN,DEPLOY_PATH,ALERT_WEBHOOK_URL,SLACK_WEBHOOK_URL,PAGERDUTY_ROUTING_KEY,FORWARD_WEBHOOK_URLS,ALERT_RECEIVER_CONFIRM_TOKEN,COCKTAILDB_API_KEY,COCKTAILDB_API_BASE_URL,COCKTAILDB_REQUEST_TIMEOUT_SECONDS,NEXT_PUBLIC_API_URL_VALUE,CORS_ALLOWED_ORIGINS_VALUE,ENVIRONMENT_VALUE,WEB_BASE_URL_VALUE
           script: |
             set -e
             cd "$DEPLOY_PATH"
@@ -121,6 +145,9 @@ jobs:
 
             env_file = Path(".env.staging")
             updates = {
+                "ENVIRONMENT": os.environ.get("ENVIRONMENT_VALUE", "").strip(),
+                "NEXT_PUBLIC_API_URL": os.environ.get("NEXT_PUBLIC_API_URL_VALUE", "").strip(),
+                "CORS_ALLOWED_ORIGINS": os.environ.get("CORS_ALLOWED_ORIGINS_VALUE", "").strip(),
                 "ALERT_WEBHOOK_URL": os.environ.get("ALERT_WEBHOOK_URL", "").strip(),
                 "SLACK_WEBHOOK_URL": os.environ.get("SLACK_WEBHOOK_URL", "").strip(),
                 "PAGERDUTY_ROUTING_KEY": os.environ.get("PAGERDUTY_ROUTING_KEY", "").strip(),
@@ -147,6 +174,10 @@ jobs:
             lines = [line for line in lines if not line.startswith("PAGERDUTY_EVENTS_URL=")]
             env_file.write_text("\n".join(lines) + "\n", encoding="utf-8")
             PY
+            python3 ./validate_runtime_env.py \
+              --env-file .env.staging \
+              --expected-api-base-url "${NEXT_PUBLIC_API_URL_VALUE}" \
+              --expected-web-base-url "${WEB_BASE_URL_VALUE}"
             docker compose --env-file .env.staging -f docker-compose.staging.yml pull
             docker compose --env-file .env.staging -f docker-compose.staging.yml up -d
             docker compose --env-file .env.staging -f docker-compose.staging.yml exec -T api alembic upgrade head
@@ -164,6 +195,10 @@ jobs:
           COCKTAILDB_API_KEY: ${{ secrets.STAGING_COCKTAILDB_API_KEY || secrets.COCKTAILDB_API_KEY }}
           COCKTAILDB_API_BASE_URL: ${{ secrets.STAGING_COCKTAILDB_API_BASE_URL || 'https://www.thecocktaildb.com/api/json/v1' }}
           COCKTAILDB_REQUEST_TIMEOUT_SECONDS: ${{ secrets.STAGING_COCKTAILDB_REQUEST_TIMEOUT_SECONDS || '15' }}
+          NEXT_PUBLIC_API_URL_VALUE: ${{ secrets.STAGING_NEXT_PUBLIC_API_URL || secrets.STAGING_BASE_URL }}
+          WEB_BASE_URL_VALUE: ${{ secrets.STAGING_WEB_BASE_URL || secrets.STAGING_BASE_URL }}
+          CORS_ALLOWED_ORIGINS_VALUE: ${{ secrets.STAGING_CORS_ALLOWED_ORIGINS || secrets.STAGING_WEB_BASE_URL || secrets.STAGING_BASE_URL }}
+          ENVIRONMENT_VALUE: staging
 
   staging-smoke:
     runs-on: ubuntu-latest
@@ -173,17 +208,25 @@ jobs:
       - name: Validate smoke config
         env:
           STAGING_BASE_URL: ${{ secrets.STAGING_BASE_URL }}
+          STAGING_WEB_BASE_URL: ${{ secrets.STAGING_WEB_BASE_URL || secrets.STAGING_BASE_URL }}
         run: |
           set -euo pipefail
           if [[ -z "${STAGING_BASE_URL}" ]]; then
             echo "Missing STAGING_BASE_URL."
             exit 1
           fi
-      - name: Health check
+          if [[ -z "${STAGING_WEB_BASE_URL}" ]]; then
+            echo "Missing STAGING_WEB_BASE_URL (or fallback STAGING_BASE_URL)."
+            exit 1
+          fi
+      - name: Runtime surface smoke
         env:
-          STAGING_BASE_URL: ${{ secrets.STAGING_BASE_URL }}
+          API_BASE_URL: ${{ secrets.STAGING_BASE_URL }}
+          WEB_BASE_URL: ${{ secrets.STAGING_WEB_BASE_URL || secrets.STAGING_BASE_URL }}
         run: |
-          curl -fsS "${STAGING_BASE_URL}/health"
+          python3 ./infra/staging/runtime_surface_smoke.py \
+            --api-base-url "${API_BASE_URL}" \
+            --web-base-url "${WEB_BASE_URL}"
       - name: Metrics check
         env:
           STAGING_BASE_URL: ${{ secrets.STAGING_BASE_URL }}

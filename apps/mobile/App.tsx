@@ -2,6 +2,7 @@ import { ActivityIndicator, SafeAreaView, StyleSheet, Text } from 'react-native'
 
 import { useAppController } from './src/app/useAppController'
 import { RootNavigator } from './src/navigation/RootNavigator'
+import { LoginScreen } from './src/screens/LoginScreen'
 import { colors } from './src/theme'
 
 export default function App() {
@@ -22,6 +23,16 @@ export default function App() {
         <Text style={styles.errorTitle}>Bootstrap failed</Text>
         <Text style={styles.errorBody}>{controller.bootstrapError}</Text>
       </SafeAreaView>
+    )
+  }
+
+  if (!controller.isAuthenticated) {
+    return (
+      <LoginScreen
+        loading={controller.authLoading}
+        error={controller.authError}
+        onSubmit={controller.loginWithPassword}
+      />
     )
   }
 

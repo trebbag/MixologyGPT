@@ -13,4 +13,7 @@ Each client:
 
 ## Configuration
 - `API_URL` (default: `http://localhost:8000`)
-- `AUTH_TOKEN` (optional bearer token for agent calls)
+- `AUTH_TOKEN` (required outside local development; bearer token for agent calls)
+- `ENVIRONMENT` (`local` by default; set to `staging`/`production` outside local development)
+
+For local setup, copy `.env.example` to `.env` and adjust as needed.

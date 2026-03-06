@@ -7,6 +7,10 @@ on:
         description: "Staging base URL to test (leave empty to use STAGING_BASE_URL secret)."
         required: false
         default: ""
+      web_base_url:
+        description: "Staging web URL to test (leave empty to use STAGING_WEB_BASE_URL or STAGING_BASE_URL)."
+        required: false
+        default: ""
       users:
         description: "Concurrent users for the tuned profile."
         required: false
@@ -28,12 +32,26 @@ jobs:
       - name: Validate required config
         env:
           BASE_URL: ${{ github.event.inputs.base_url || secrets.STAGING_BASE_URL }}
+          WEB_BASE_URL: ${{ github.event.inputs.web_base_url || secrets.STAGING_WEB_BASE_URL || github.event.inputs.base_url || secrets.STAGING_BASE_URL }}
         run: |
           set -euo pipefail
           if [[ -z "${BASE_URL}" ]]; then
             echo "Missing STAGING_BASE_URL (or workflow input base_url)."
             exit 1
           fi
+          if [[ -z "${WEB_BASE_URL}" ]]; then
+            echo "Missing STAGING_WEB_BASE_URL (or workflow input web_base_url)."
+            exit 1
+          fi
+      - name: Runtime surface smoke
+        env:
+          BASE_URL: ${{ github.event.inputs.base_url || secrets.STAGING_BASE_URL }}
+          WEB_BASE_URL: ${{ github.event.inputs.web_base_url || secrets.STAGING_WEB_BASE_URL || github.event.inputs.base_url || secrets.STAGING_BASE_URL }}
+        run: |
+          set -euo pipefail
+          python3 ./infra/staging/runtime_surface_smoke.py \
+            --api-base-url "${BASE_URL}" \
+            --web-base-url "${WEB_BASE_URL}"
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"

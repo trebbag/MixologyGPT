@@ -1,6 +1,6 @@
 # Needs From You
 
-## Current checkpoint (`2026-03-03`)
+## Current checkpoint (`2026-03-06`)
 - Latest all-six run: GitHub Actions `Staging Pilot All-Six` (`22606179707`) -> `PASS`
 - Latest policy baseline freeze evidence: `docs/runbooks/evidence/policy-baseline-freeze-2026-03-03.md`
 - Latest pilot ops drill: GitHub Actions `Staging Pilot Ops Drill` (`22603591164`) -> `PASS`
@@ -9,9 +9,45 @@
 - Source migration decision: `liquor.com` replaced with `thecocktaildb.com` for pilot calibration/maintenance.
 - Current required items before pilot go-live:
   - final owner go/no-go approval with the latest evidence package
+  - run the updated staging deploy path once with explicit non-local runtime envs on deployed surfaces (`CORS_ALLOWED_ORIGINS`, `NEXT_PUBLIC_API_URL`, and `EXPO_PUBLIC_API_URL` where mobile builds are used)
   - staging deploy secret population if CI-driven staging deploys are required
 - Remaining optional item:
   - wire external alert destinations only if you want off-platform paging (internal in-app alert path remains valid).
+- Exact operator sequence:
+  - `/Users/gregorygabbert/Documents/GitHub/BartenderAI/docs/runbooks/staging-redeploy-sequence.md`
+
+## Runtime configuration now required outside local development
+- What is needed:
+  - `CORS_ALLOWED_ORIGINS`
+  - `NEXT_PUBLIC_API_URL`
+  - `EXPO_PUBLIC_API_URL` (if you are shipping a non-local mobile build)
+- Why: the app now fails fast instead of silently defaulting cloud/staging traffic to `localhost`, and the API no longer allows wildcard CORS with credentials outside local development.
+- Good defaults:
+  - `CORS_ALLOWED_ORIGINS=https://mixologygpt-app.onrender.com`
+  - `NEXT_PUBLIC_API_URL=https://mixologygpt.onrender.com`
+  - `EXPO_PUBLIC_API_URL=https://mixologygpt.onrender.com`
+- Safe handling: these are configuration values rather than secrets, but keep them accurate per environment.
+
+## AI agent client runtime outside local development
+- What is needed:
+  - `API_URL`
+  - `AUTH_TOKEN`
+  - `ENVIRONMENT=staging` or `ENVIRONMENT=production`
+- Why: `services/ai_agents` now fails fast outside local development instead of silently calling `localhost` or issuing unauthenticated requests that only fail at runtime.
+- How to obtain:
+  - use the same public API base URL as the web/mobile app
+  - obtain `AUTH_TOKEN` from `/v1/auth/jwt/login` or another approved bearer-token bootstrap flow
+- Safe handling: treat `AUTH_TOKEN` as a secret; do not commit it.
+
+## Mobile non-local bootstrap
+- What is needed:
+  - nothing additional for general mobile pilot usage; a real interactive mobile login/logout/session-restore flow now exists
+  - `EXPO_PUBLIC_E2E_ACCESS_TOKEN` only for automated staging/mobile smoke runs where you intentionally bypass the login screen
+- Why: mobile dev-token bootstrap is now limited to local development so non-local builds stop masking bad configuration, but non-local builds no longer depend on a pre-issued token for human use.
+- Used by:
+  - `apps/mobile` staging Jest suites (token path)
+  - `apps/mobile` production/staging builds (interactive login path)
+- Safe handling: treat `EXPO_PUBLIC_E2E_ACCESS_TOKEN` as a secret; do not commit it.
 
 ## Pilot cutover blockers (as of 2026-02-24)
 - What is needed: real staging API access and internal auth for signoff + E2E execution
@@ -42,6 +78,8 @@
   - `STAGING_INTERNAL_TOKEN`
 - Optional/fallback:
   - `STAGING_E2E_ACCESS_TOKEN` (workflow now bootstraps an ephemeral power token automatically using `STAGING_INTERNAL_TOKEN`)
+  - `STAGING_NEXT_PUBLIC_API_URL` (defaults to `STAGING_BASE_URL`; override only if the web bundle should call a different public API origin)
+  - `STAGING_CORS_ALLOWED_ORIGINS` (defaults to `STAGING_WEB_BASE_URL`; override only if multiple trusted origins must be allowed)
 - Optional:
   - `STAGING_ALERTMANAGER_URL`
   - `STAGING_ALERT_RECEIVER_CONFIRM_URL`
@@ -146,6 +184,8 @@ Local shortcut:
   - `STAGING_DEPLOY_PATH`
   - `STAGING_BASE_URL`
   - `STAGING_WEB_BASE_URL` (required when staging web host differs from API host; used by staging web E2E in all-six workflow)
+  - `STAGING_NEXT_PUBLIC_API_URL` (optional; defaults to `STAGING_BASE_URL` for the web Docker build arg)
+  - `STAGING_CORS_ALLOWED_ORIGINS` (optional; defaults to `STAGING_WEB_BASE_URL` or `STAGING_BASE_URL`)
   - `STAGING_ALERT_WEBHOOK_URL` (recommended; syncs `ALERT_WEBHOOK_URL` during deploy)
   - `STAGING_SLACK_WEBHOOK_URL` (recommended; enables receiver forwarding + CI external smoke validation)
   - `STAGING_PAGERDUTY_ROUTING_KEY` (recommended; enables receiver forwarding + CI external smoke validation)
@@ -171,9 +211,11 @@ Local shortcut:
   - `INTERNAL_TOKEN`
   - `EMBEDDINGS_PROVIDER`, `EMBEDDINGS_MODEL`, `EMBEDDINGS_DIMENSIONS`
   - `LLM_PROVIDER`, `LLM_MODEL`, `LLM_TEMPERATURE`
+  - `CORS_ALLOWED_ORIGINS`
   - `NEXT_PUBLIC_API_URL`
 - Notes:
   - Real staging should NOT set `PAGERDUTY_EVENTS_URL` (local-only smoke override). The deploy workflow now strips it on deploy to avoid accidental non-production forwarding.
+  - The updated staging deploy/signoff path validates this file with `infra/staging/validate_runtime_env.py` and checks the live API/web surface with `infra/staging/runtime_surface_smoke.py`.
 - How to obtain: copy `infra/staging/.env.staging.example` and replace placeholders with real values
 - Safe handling: keep this file only on the staging host; do not commit it
 

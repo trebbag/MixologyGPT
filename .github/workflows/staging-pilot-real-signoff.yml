@@ -7,6 +7,10 @@ on:
         description: "Staging API base URL (optional override for STAGING_BASE_URL)."
         required: false
         default: ""
+      web_base_url:
+        description: "Staging web URL (optional override for STAGING_WEB_BASE_URL)."
+        required: false
+        default: ""
       users:
         description: "Concurrent users for tuned load profile."
         required: false
@@ -32,11 +36,16 @@ jobs:
       - name: Validate required config
         env:
           API_BASE_URL: ${{ github.event.inputs.base_url || secrets.STAGING_BASE_URL }}
+          WEB_BASE_URL: ${{ github.event.inputs.web_base_url || secrets.STAGING_WEB_BASE_URL || github.event.inputs.base_url || secrets.STAGING_BASE_URL }}
           INTERNAL_TOKEN: ${{ secrets.STAGING_INTERNAL_TOKEN }}
         run: |
           set -euo pipefail
           if [[ -z "${API_BASE_URL}" ]]; then
             echo "Missing STAGING_BASE_URL (or workflow input base_url)."
+            exit 1
+          fi
+          if [[ -z "${WEB_BASE_URL}" ]]; then
+            echo "Missing STAGING_WEB_BASE_URL (or workflow input web_base_url)."
             exit 1
           fi
           if [[ -z "${INTERNAL_TOKEN}" ]]; then
@@ -103,6 +112,7 @@ jobs:
         env:
           RUN_ID: gh_signoff_${{ github.run_id }}
           API_BASE_URL: ${{ github.event.inputs.base_url || secrets.STAGING_BASE_URL }}
+          WEB_BASE_URL: ${{ github.event.inputs.web_base_url || secrets.STAGING_WEB_BASE_URL || github.event.inputs.base_url || secrets.STAGING_BASE_URL }}
           ALERTMANAGER_URL: ${{ secrets.STAGING_ALERTMANAGER_URL }}
           ALERT_CONFIRM_URL: ${{ secrets.STAGING_ALERT_RECEIVER_CONFIRM_URL }}
           ALERT_CONFIRM_TOKEN: ${{ secrets.STAGING_ALERT_RECEIVER_CONFIRM_TOKEN }}

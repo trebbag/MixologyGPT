@@ -1,5 +1,6 @@
 import type { GetServerSideProps } from 'next'
 import Link from 'next/link'
+import { buildApiUrl, resolveServerApiBaseUrl } from '../../lib/runtimeConfig'
 
 type SharedPayload = {
   slug: string
@@ -17,8 +18,6 @@ type SharedPayload = {
   }
 }
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'
-
 type SharePageProps = {
   data: SharedPayload | null
   error: string | null
@@ -31,7 +30,7 @@ export const getServerSideProps: GetServerSideProps<SharePageProps> = async (ctx
   }
 
   try {
-    const res = await fetch(`${apiUrl}/v1/studio/share/${encodeURIComponent(slug)}`, {
+    const res = await fetch(buildApiUrl(`/v1/studio/share/${encodeURIComponent(slug)}`, resolveServerApiBaseUrl()), {
       headers: { accept: 'application/json' },
     })
     if (!res.ok) {

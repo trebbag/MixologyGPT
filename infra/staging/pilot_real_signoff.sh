@@ -4,6 +4,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 
 API_BASE_URL="${API_BASE_URL:-${STAGING_BASE_URL:-}}"
+WEB_BASE_URL="${WEB_BASE_URL:-${STAGING_WEB_BASE_URL:-}}"
 ALERTMANAGER_URL="${ALERTMANAGER_URL:-${STAGING_ALERTMANAGER_URL:-}}"
 ALERT_CONFIRM_URL="${ALERT_CONFIRM_URL:-${ALERT_RECEIVER_CONFIRM_URL:-}}"
 INTERNAL_TOKEN="${INTERNAL_TOKEN:-}"
@@ -64,10 +65,18 @@ mkdir -p "${EVIDENCE_DIR}"
 echo "Running real staging pilot sign-off"
 echo "RUN_ID=${RUN_ID}"
 echo "API_BASE_URL=${API_BASE_URL}"
+echo "WEB_BASE_URL=${WEB_BASE_URL:-disabled}"
 echo "ALERTMANAGER_URL=${ALERTMANAGER_URL:-disabled}"
 echo "ALERT_CONFIRM_URL=${ALERT_CONFIRM_URL:-disabled}"
 echo "RUN_EXTERNAL_FORWARD_SMOKE=${RUN_EXTERNAL_FORWARD_SMOKE}"
 echo "EVIDENCE_DIR=${EVIDENCE_DIR}"
+
+if [[ -n "${WEB_BASE_URL}" ]]; then
+  reject_local_endpoint "WEB_BASE_URL" "${WEB_BASE_URL}"
+  python3 "${ROOT_DIR}/infra/staging/runtime_surface_smoke.py" \
+    --api-base-url "${API_BASE_URL}" \
+    --web-base-url "${WEB_BASE_URL}"
+fi
 
 (
   cd "${ROOT_DIR}"

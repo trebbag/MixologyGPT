@@ -1,4 +1,5 @@
 import { FormEvent, useMemo, useState } from 'react'
+import { apiJson } from '../../lib/api'
 
 type IngredientOption = {
   id: string
@@ -31,8 +32,6 @@ type QuickAddPanelProps = {
   itemById: Record<string, string>
   onCompleted: () => Promise<void> | void
 }
-
-const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'
 
 export function QuickAddPanel({
   isOpen,
@@ -115,7 +114,7 @@ export function QuickAddPanel({
     try {
       if (tab === 'ingredient') {
         if (!ingredientName.trim()) throw new Error('Ingredient name is required.')
-        const response = await fetch(`${apiUrl}/v1/inventory/ingredients`, {
+        await apiJson('/v1/inventory/ingredients', {
           method: 'POST',
           headers: postHeaders,
           body: JSON.stringify({
@@ -124,13 +123,12 @@ export function QuickAddPanel({
             subcategory: ingredientSubcategory.trim() || undefined,
           }),
         })
-        if (!response.ok) throw new Error('Failed to create ingredient.')
       }
 
       if (tab === 'item') {
         if (!itemIngredientId) throw new Error('Ingredient is required for inventory items.')
         if (!itemUnit.trim()) throw new Error('Unit is required for inventory items.')
-        const response = await fetch(`${apiUrl}/v1/inventory/items`, {
+        await apiJson('/v1/inventory/items', {
           method: 'POST',
           headers: postHeaders,
           body: JSON.stringify({
@@ -141,13 +139,12 @@ export function QuickAddPanel({
             unit_to_ml: itemUnitToMl ? Number(itemUnitToMl) : undefined,
           }),
         })
-        if (!response.ok) throw new Error('Failed to create inventory item.')
       }
 
       if (tab === 'lot') {
         if (!lotItemId) throw new Error('Inventory item is required for lots.')
         if (!lotQuantity) throw new Error('Lot quantity is required.')
-        const response = await fetch(`${apiUrl}/v1/inventory/lots`, {
+        await apiJson('/v1/inventory/lots', {
           method: 'POST',
           headers: postHeaders,
           body: JSON.stringify({
@@ -156,13 +153,12 @@ export function QuickAddPanel({
             unit: lotUnit.trim() || 'oz',
           }),
         })
-        if (!response.ok) throw new Error('Failed to create lot.')
       }
 
       if (tab === 'event') {
         if (!eventLotId) throw new Error('Lot is required for inventory events.')
         if (!eventQuantity) throw new Error('Event quantity is required.')
-        const response = await fetch(`${apiUrl}/v1/inventory/events`, {
+        await apiJson('/v1/inventory/events', {
           method: 'POST',
           headers: postHeaders,
           body: JSON.stringify({
@@ -173,10 +169,6 @@ export function QuickAddPanel({
             note: eventNote.trim() || undefined,
           }),
         })
-        if (!response.ok) {
-          const payload = await response.json().catch(() => null)
-          throw new Error(payload?.detail || 'Failed to create inventory event.')
-        }
       }
 
       await onCompleted()

@@ -7,12 +7,17 @@ on:
         description: "Staging base URL (optional override for STAGING_BASE_URL)."
         required: false
         default: ""
+      web_base_url:
+        description: "Staging web URL (optional override for STAGING_WEB_BASE_URL)."
+        required: false
+        default: ""
 
 jobs:
   staging-e2e:
     runs-on: ubuntu-latest
     env:
       STAGING_BASE_URL: ${{ github.event.inputs.base_url || secrets.STAGING_BASE_URL }}
+      STAGING_WEB_BASE_URL: ${{ github.event.inputs.web_base_url || secrets.STAGING_WEB_BASE_URL || github.event.inputs.base_url || secrets.STAGING_BASE_URL }}
       STAGING_E2E_ACCESS_TOKEN: ${{ secrets.STAGING_E2E_ACCESS_TOKEN }}
       STAGING_INTERNAL_TOKEN: ${{ secrets.STAGING_INTERNAL_TOKEN }}
     steps:
@@ -22,6 +27,10 @@ jobs:
           set -euo pipefail
           if [[ -z "${STAGING_BASE_URL}" ]]; then
             echo "Missing STAGING_BASE_URL (or workflow input base_url)."
+            exit 1
+          fi
+          if [[ -z "${STAGING_WEB_BASE_URL}" ]]; then
+            echo "Missing STAGING_WEB_BASE_URL (or workflow input web_base_url)."
             exit 1
           fi
           if [[ -z "${STAGING_E2E_ACCESS_TOKEN}" ]]; then
@@ -41,7 +50,8 @@ jobs:
           cd apps/web
           npm ci
           npx playwright install --with-deps chromium
-          E2E_BASE_URL="${STAGING_BASE_URL}" \
+          E2E_BASE_URL="${STAGING_WEB_BASE_URL}" \
+          STAGING_API_BASE_URL="${STAGING_BASE_URL}" \
           STAGING_E2E_ACCESS_TOKEN="${STAGING_E2E_ACCESS_TOKEN}" \
           npm run test:e2e:staging
 

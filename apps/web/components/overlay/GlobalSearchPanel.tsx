@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { apiJson } from '../../lib/api'
 
 type SearchResult = {
   id: string
@@ -29,8 +30,6 @@ type GlobalSearchPanelProps = {
   authHeaders: Record<string, string>
   onNavigate: (route: string) => void
 }
-
-const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'
 
 export function GlobalSearchPanel({ isOpen, onClose, authHeaders, onNavigate }: GlobalSearchPanelProps) {
   const [query, setQuery] = useState('')
@@ -68,15 +67,11 @@ export function GlobalSearchPanel({ isOpen, onClose, authHeaders, onNavigate }: 
       setError('')
       try {
         const encoded = encodeURIComponent(query.trim())
-        const [recipeRes, ingredientRes, studioRes] = await Promise.all([
-          fetch(`${apiUrl}/v1/recipes?q=${encoded}`, { headers: authHeaders }),
-          fetch(`${apiUrl}/v1/inventory/ingredients`, { headers: authHeaders }),
-          fetch(`${apiUrl}/v1/studio/sessions`, { headers: authHeaders }),
+        const [recipes, ingredientsRaw, studioRaw] = await Promise.all([
+          apiJson<RecipeResponse[]>(`/v1/recipes?q=${encoded}`, { headers: authHeaders }),
+          apiJson<IngredientResponse[]>('/v1/inventory/ingredients', { headers: authHeaders }),
+          apiJson<StudioSessionResponse[]>('/v1/studio/sessions', { headers: authHeaders }),
         ])
-
-        const recipes: RecipeResponse[] = recipeRes.ok ? await recipeRes.json() : []
-        const ingredientsRaw: IngredientResponse[] = ingredientRes.ok ? await ingredientRes.json() : []
-        const studioRaw: StudioSessionResponse[] = studioRes.ok ? await studioRes.json() : []
 
         const queryLower = query.toLowerCase()
         const ingredients = ingredientsRaw
@@ -111,7 +106,7 @@ export function GlobalSearchPanel({ isOpen, onClose, authHeaders, onNavigate }: 
         ]
 
         setResults(merged)
-      } catch (err) {
+      } catch {
         setError('Unable to run search.')
         setResults([])
       } finally {

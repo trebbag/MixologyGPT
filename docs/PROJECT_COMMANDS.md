@@ -3,6 +3,7 @@
 - Install:
   - API: `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI/services/api && python3 -m venv .venv && source .venv/bin/activate && python3 -m pip install -r requirements.txt`
   - Workers: `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI/services/workers && python3 -m venv .venv && source .venv/bin/activate && python3 -m pip install -r requirements.txt`
+  - AI agents: `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI/services/ai_agents && python3 -m venv .venv && source .venv/bin/activate && python3 -m pip install -r requirements.txt`
   - Web (Node 20.x recommended): `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI/apps/web && npm install`
   - Mobile: `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI/apps/mobile && npm install`
 
@@ -23,6 +24,7 @@
 
 - Test (unit):
   - API: `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI/services/api && source .venv/bin/activate && pytest tests/unit -q`
+  - AI agents: `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI/services/ai_agents && source .venv/bin/activate && python3 -m unittest discover -s tests -v`
 
 - Test (integration/e2e):
   - API integration + contract: `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI/services/api && source .venv/bin/activate && pytest tests/integration tests/contract -q`
@@ -69,7 +71,9 @@
   - Full all-six pilot continuation (real signoff + web/mobile staging E2E + compliance smoke): `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI && API_BASE_URL=https://<staging-api-host> WEB_BASE_URL=https://<staging-web-host> INTERNAL_TOKEN=<token> STAGING_E2E_ACCESS_TOKEN=<token> ./infra/staging/pilot_all_six.sh`
   - Staging policy calibration preview: `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI/infra/staging && INTERNAL_TOKEN=<token> APPLY=false ./calibrate_alert_thresholds.sh`
   - Staging policy calibration apply: `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI/infra/staging && INTERNAL_TOKEN=<token> APPLY=true ./calibrate_alert_thresholds.sh`
+  - Dispatch deploy + signoff + all-six in order via GitHub CLI: `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI && DEPLOY_REF=<branch> BASE_URL=https://<staging-api-host> WEB_BASE_URL=https://<staging-web-host> ./infra/staging/run_ci_sequence.sh`
   - Drain pending harvest jobs (staging/internal): `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI/infra/staging && INTERNAL_TOKEN=<token> API_BASE_URL=http://localhost:8000 python3 ./drain_pending_jobs.py`
+  - Review crawler warning signal quality from staging telemetry: `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI/infra/staging && API_BASE_URL=https://<staging-host> INTERNAL_TOKEN=<token> python3 ./review_crawler_warning_signal.py --min-jobs 20 --output-md /Users/gregorygabbert/Documents/GitHub/BartenderAI/docs/runbooks/evidence/crawler-warning-review.md`
   - Full pilot ops drill: `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI/infra/staging && API_BASE_URL=https://<staging-host> INTERNAL_TOKEN=<token> APPLY_CALIBRATION=true RUN_LOAD_PROFILE=true LOCK_GATES=true ALERTMANAGER_URL=https://<optional-alertmanager-host> ALERT_CONFIRM_URL=https://<optional-confirm-url> ALERT_CONFIRM_TOKEN=<optional> DRILL_RUN_ID=<optional-run-id> EVIDENCE_DIR=/Users/gregorygabbert/Documents/GitHub/BartenderAI/docs/runbooks/evidence ./pilot_ops_drill.sh`
   - Rejection path smoke (compliance/parse/fetch rejection): `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI/infra/staging && API_BASE_URL=https://<staging-host> INTERNAL_TOKEN=<token> COMPLIANCE_TEST_URL=https://www.diffordsguide.com/encyclopedia/ python3 ./compliance_rejection_smoke.py`
 

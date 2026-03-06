@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
-import { API_BASE_URL, apiFetch, apiJson } from '../../../lib/api'
+import { apiFetch, apiJson, getApiBaseUrl } from '../../../lib/api'
+import { buildApiUrl } from '../../../lib/runtimeConfig'
 import { LoadState } from '../../ui/LoadState'
 
 type MediaAsset = {
@@ -125,7 +126,7 @@ export function MediaManagerView() {
     }
   }
 
-  const baseUrl = useMemo(() => API_BASE_URL.replace(/\/$/, ''), [])
+  const baseUrl = useMemo(() => getApiBaseUrl().replace(/\/$/, ''), [])
 
   return (
     <div className="p-8">
@@ -238,7 +239,7 @@ export function MediaManagerView() {
                   <div className="text-xs text-gray-400 space-y-1">
                     <div>type: {asset.media_type}</div>
                     <div>content-type: {contentType || '—'}</div>
-                    <div>url: {baseUrl}{asset.url}</div>
+                    <div>url: {buildApiUrl(asset.url, baseUrl)}</div>
                     {sizeBytes != null ? <div>size: {Math.round(sizeBytes / 1024)} KB</div> : null}
                   </div>
                   <div className="flex items-center gap-2 flex-wrap">

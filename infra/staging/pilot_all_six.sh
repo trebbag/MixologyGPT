@@ -254,6 +254,17 @@ if [[ "${RUN_WEB_E2E}" == "true" && -n "${WEB_BASE_URL}" ]]; then
   fi
 fi
 
+if [[ ("${RUN_SIGNOFF}" == "true" || "${RUN_WEB_E2E}" == "true") && -n "${WEB_BASE_URL}" && -n "${API_BASE_URL}" ]]; then
+  if python3 "${ROOT_DIR}/infra/staging/runtime_surface_smoke.py" \
+    --api-base-url "${API_BASE_URL}" \
+    --web-base-url "${WEB_BASE_URL}" >/dev/null 2>&1; then
+    PRECHECK_ITEMS+=("- PASS: runtime surface smoke passed for API/Web pair")
+  else
+    PRECHECK_ITEMS+=("- FAIL: runtime surface smoke failed for API/Web pair")
+    MISSING=1
+  fi
+fi
+
 if [[ ("${RUN_WEB_E2E}" == "true" || "${RUN_MOBILE_E2E}" == "true") && -n "${STAGING_E2E_ACCESS_TOKEN}" && -n "${API_BASE_URL}" ]]; then
   TOKEN_PROBE_RESULT="$(probe_access_token "${API_BASE_URL}" "${STAGING_E2E_ACCESS_TOKEN}" || true)"
   TOKEN_PROBE_STATUS="${TOKEN_PROBE_RESULT%%|*}"

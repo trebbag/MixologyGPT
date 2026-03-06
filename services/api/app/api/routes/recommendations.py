@@ -1,9 +1,10 @@
 from datetime import datetime, timedelta
-from typing import List, Optional, Tuple, Dict, Any
+from typing import List, Optional, Tuple, Dict, Any, Sequence
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import aliased
 
 from app.core.deps import current_active_user
 from app.db.session import get_db
@@ -36,6 +37,13 @@ router = APIRouter()
 MAKE_NOW_CACHE_TTL_SECONDS = 30
 MAKE_NOW_CACHE_MAX_RESULTS = 200
 _make_now_cache: Dict[str, Tuple[datetime, List[dict]]] = {}
+
+
+def _recipe_row_identity(recipe_row: Any) -> tuple[str, str]:
+    if isinstance(recipe_row, Recipe):
+        return str(recipe_row.id), recipe_row.canonical_name
+    recipe_id, canonical_name = recipe_row
+    return str(recipe_id), canonical_name
 
 async def _inventory_availability(db: AsyncSession, user: User) -> tuple[list[str], dict[str, float]]:
     inv = await db.execute(
@@ -146,6 +154,54 @@ async def _load_recipe_overrides(db: AsyncSession, recipe_ids: list[str]) -> dic
     return overrides
 
 
+async def _load_recipe_ingredients_by_recipe(
+    db: AsyncSession,
+    recipe_ids: list[str],
+) -> dict[str, list[dict]]:
+    if not recipe_ids:
+        return {}
+    result = await db.execute(
+        select(
+            RecipeIngredient.recipe_id,
+            RecipeIngredient.name,
+            RecipeIngredient.quantity,
+            RecipeIngredient.unit,
+        ).where(RecipeIngredient.recipe_id.in_(recipe_ids))
+    )
+    ingredients_by_recipe: dict[str, list[dict]] = {}
+    for recipe_id, name, quantity, unit in result.all():
+        key = str(recipe_id)
+        ingredients_by_recipe.setdefault(key, []).append(
+            {"name": name, "quantity": quantity, "unit": unit}
+        )
+    return ingredients_by_recipe
+
+
+async def _materialize_recipe_payloads(
+    db: AsyncSession,
+    recipe_rows: Sequence[Any],
+) -> list[dict]:
+    if not recipe_rows:
+        return []
+    recipe_id_pairs = [_recipe_row_identity(recipe_row) for recipe_row in recipe_rows]
+    recipe_ids = [recipe_id for recipe_id, _canonical_name in recipe_id_pairs]
+    ingredients_by_recipe = await _load_recipe_ingredients_by_recipe(db, recipe_ids)
+    overrides = await _load_recipe_overrides(db, recipe_ids)
+    payloads: list[dict] = []
+    for recipe_id, canonical_name in recipe_id_pairs:
+        payloads.append(
+            _apply_override_to_ingredients(
+                {
+                    "id": recipe_id,
+                    "name": canonical_name,
+                    "ingredients": ingredients_by_recipe.get(recipe_id, []),
+                },
+                overrides.get(recipe_id),
+            )
+        )
+    return payloads
+
+
 def _apply_override_to_ingredients(recipe: dict, override: Optional[dict]) -> dict:
     if not override:
         return recipe
@@ -160,16 +216,25 @@ def _apply_override_to_ingredients(recipe: dict, override: Optional[dict]) -> di
 
 
 async def _build_substitution_map(db: AsyncSession, user: User) -> dict[str, list[dict]]:
-    result = await db.execute(select(IngredientEquivalency))
-    equivalencies = result.scalars().all()
+    source_ingredient = aliased(Ingredient)
+    equivalent_ingredient = aliased(Ingredient)
+    result = await db.execute(
+        select(
+            IngredientEquivalency.ratio,
+            IngredientEquivalency.notes,
+            source_ingredient.canonical_name,
+            equivalent_ingredient.canonical_name,
+        )
+        .join(source_ingredient, IngredientEquivalency.ingredient_id == source_ingredient.id)
+        .join(
+            equivalent_ingredient,
+            IngredientEquivalency.equivalent_ingredient_id == equivalent_ingredient.id,
+        )
+    )
     substitutions_map: dict[str, list[dict]] = {}
-    for eq in equivalencies:
-        ing = await db.get(Ingredient, eq.ingredient_id)
-        equiv = await db.get(Ingredient, eq.equivalent_ingredient_id)
-        if not ing or not equiv:
-            continue
-        substitutions_map.setdefault(ing.canonical_name.lower(), []).append(
-            {"name": equiv.canonical_name, "ratio": eq.ratio, "notes": eq.notes}
+    for ratio, notes, source_name, equivalent_name in result.all():
+        substitutions_map.setdefault(source_name.lower(), []).append(
+            {"name": equivalent_name, "ratio": ratio, "notes": notes}
         )
 
     signal_result = await db.execute(
@@ -230,35 +295,10 @@ async def make_now(
 
     inventory_names, availability = await _inventory_availability(db, user)
     recipes_result = await db.execute(select(Recipe.id, Recipe.canonical_name).order_by(Recipe.canonical_name))
-    recipe_rows = list(recipes_result.all())
-    recipe_ids = [row[0] for row in recipe_rows]
-    overrides = await _load_recipe_overrides(db, [str(recipe_id) for recipe_id in recipe_ids])
-
-    ingredients_by_recipe: dict[str, list[dict]] = {}
-    if recipe_ids:
-        ing_result = await db.execute(
-            select(
-                RecipeIngredient.recipe_id,
-                RecipeIngredient.name,
-                RecipeIngredient.quantity,
-                RecipeIngredient.unit,
-            ).where(RecipeIngredient.recipe_id.in_(recipe_ids))
-        )
-        for recipe_id, name, quantity, unit in ing_result.all():
-            key = str(recipe_id)
-            ingredients_by_recipe.setdefault(key, []).append(
-                {"name": name, "quantity": quantity, "unit": unit}
-            )
-
+    recipes = await _materialize_recipe_payloads(db, list(recipes_result.all()))
     make_now_items: list[dict] = []
     # Scan recipes in a deterministic order and stop once we have enough results for typical UI usage.
-    for recipe_id, canonical_name in recipe_rows:
-        item = {
-            "id": str(recipe_id),
-            "name": canonical_name,
-            "ingredients": ingredients_by_recipe.get(str(recipe_id), []),
-        }
-        recipe = _apply_override_to_ingredients(item, overrides.get(str(recipe_id)))
+    for recipe in recipes:
         missing = []
         for ing in recipe.get("ingredients", []):
             name = ing.get("name", "")
@@ -293,20 +333,8 @@ async def missing_one(
 ):
     inventory_names, availability = await _inventory_availability(db, user)
     substitution_map = await _build_substitution_map(db, user)
-    recipes_result = await db.execute(select(Recipe))
-    recipe_rows = list(recipes_result.scalars().all())
-    overrides = await _load_recipe_overrides(db, [str(recipe.id) for recipe in recipe_rows])
-    recipes = []
-    for recipe in recipe_rows:
-        ing_result = await db.execute(
-            select(RecipeIngredient).where(RecipeIngredient.recipe_id == recipe.id)
-        )
-        ingredients = [
-            {"name": ing.name, "quantity": ing.quantity, "unit": ing.unit}
-            for ing in ing_result.scalars().all()
-        ]
-        item = {"id": str(recipe.id), "name": recipe.canonical_name, "ingredients": ingredients}
-        recipes.append(_apply_override_to_ingredients(item, overrides.get(str(recipe.id))))
+    recipes_result = await db.execute(select(Recipe.id, Recipe.canonical_name).order_by(Recipe.canonical_name))
+    recipes = await _materialize_recipe_payloads(db, list(recipes_result.all()))
     missing_one_list = []
     for recipe in recipes:
         missing = []
@@ -346,20 +374,8 @@ async def unlock_score(
     usage_weights = await _usage_weights(db, user)
     for key, value in usage_weights.items():
         weights[key] = weights.get(key, 0.0) + value
-    recipes_result = await db.execute(select(Recipe))
-    recipe_rows = list(recipes_result.scalars().all())
-    overrides = await _load_recipe_overrides(db, [str(recipe.id) for recipe in recipe_rows])
-    recipes = []
-    for recipe in recipe_rows:
-        ing_result = await db.execute(
-            select(RecipeIngredient).where(RecipeIngredient.recipe_id == recipe.id)
-        )
-        ingredients = [
-            {"name": ing.name, "quantity": ing.quantity, "unit": ing.unit}
-            for ing in ing_result.scalars().all()
-        ]
-        item = {"id": str(recipe.id), "name": recipe.canonical_name, "ingredients": ingredients}
-        recipes.append(_apply_override_to_ingredients(item, overrides.get(str(recipe.id))))
+    recipes_result = await db.execute(select(Recipe.id, Recipe.canonical_name).order_by(Recipe.canonical_name))
+    recipes = await _materialize_recipe_payloads(db, list(recipes_result.all()))
     make_now_list, missing_one_list = classify_recipes(recipes, inventory_names)
     total = len(recipes)
     unlock_value = 0.0
@@ -381,20 +397,8 @@ async def tonight_flight(
     user: User = Depends(current_active_user),
 ):
     inventory_names, _availability = await _inventory_availability(db, user)
-    recipes_result = await db.execute(select(Recipe))
-    recipe_rows = list(recipes_result.scalars().all())
-    overrides = await _load_recipe_overrides(db, [str(recipe.id) for recipe in recipe_rows])
-    recipes = []
-    for recipe in recipe_rows:
-        ing_result = await db.execute(
-            select(RecipeIngredient).where(RecipeIngredient.recipe_id == recipe.id)
-        )
-        ingredients = [
-            {"name": ing.name, "quantity": ing.quantity, "unit": ing.unit}
-            for ing in ing_result.scalars().all()
-        ]
-        item = {"id": str(recipe.id), "name": recipe.canonical_name, "ingredients": ingredients}
-        recipes.append(_apply_override_to_ingredients(item, overrides.get(str(recipe.id))))
+    recipes_result = await db.execute(select(Recipe.id, Recipe.canonical_name).order_by(Recipe.canonical_name))
+    recipes = await _materialize_recipe_payloads(db, list(recipes_result.all()))
     make_now_list, _ = classify_recipes(recipes, inventory_names)
     return make_now_list[:3]
 
@@ -414,18 +418,7 @@ async def generate_party_menu(
     user: User = Depends(current_active_user),
 ):
     recipes_result = await db.execute(select(Recipe).where(Recipe.id.in_(payload.recipe_ids)))
-    recipes = []
-    overrides = await _load_recipe_overrides(db, [str(rid) for rid in payload.recipe_ids])
-    for recipe in recipes_result.scalars().all():
-        ing_result = await db.execute(
-            select(RecipeIngredient).where(RecipeIngredient.recipe_id == recipe.id)
-        )
-        ingredients = [
-            {"name": ing.name, "quantity": ing.quantity, "unit": ing.unit}
-            for ing in ing_result.scalars().all()
-        ]
-        item = {"id": str(recipe.id), "name": recipe.canonical_name, "ingredients": ingredients}
-        recipes.append(_apply_override_to_ingredients(item, overrides.get(str(recipe.id))))
+    recipes = await _materialize_recipe_payloads(db, list(recipes_result.scalars().all()))
 
     total_servings = payload.guest_count * payload.servings_per_guest
     servings_by_recipe = None
@@ -443,26 +436,7 @@ async def generate_party_menu(
         servings_by_recipe=servings_by_recipe,
     )
 
-    inv = await db.execute(
-        select(InventoryItem, Ingredient.canonical_name)
-        .join(Ingredient, InventoryItem.ingredient_id == Ingredient.id)
-        .where(InventoryItem.user_id == user.id)
-    )
-    inventory_rows = inv.all()
-    inventory_names = [row[1] for row in inventory_rows]
-
-    availability = {}
-    for item_row, canonical_name in inventory_rows:
-        lots = await db.execute(
-            select(InventoryLot).where(InventoryLot.inventory_item_id == item_row.id)
-        )
-        total = 0.0
-        for lot in lots.scalars().all():
-            try:
-                total += to_ml(lot.quantity, lot.unit)
-            except Exception:
-                continue
-        availability[canonical_name.lower()] = availability.get(canonical_name.lower(), 0.0) + total
+    inventory_names, availability = await _inventory_availability(db, user)
 
     missing = []
     for item in shopping_list:
@@ -509,24 +483,19 @@ async def party_draft_picks(
         avg_ratings[recipe_id] = sum(ratings) / len(ratings)
 
     inventory_names, _availability = await _inventory_availability(db, user)
+    recipe_payloads = await _materialize_recipe_payloads(db, recipes)
     candidates = []
-    for recipe in recipes:
-        ing_result = await db.execute(
-            select(RecipeIngredient).where(RecipeIngredient.recipe_id == recipe.id)
-        )
-        ingredients = [
-            {"name": ing.name, "quantity": ing.quantity, "unit": ing.unit}
-            for ing in ing_result.scalars().all()
-        ]
+    for recipe in recipe_payloads:
+        ingredients = recipe.get("ingredients", [])
         if inventory_only:
             if any(not matches_inventory(ing["name"], inventory_names) for ing in ingredients):
                 continue
         candidates.append(
             {
-                "id": str(recipe.id),
-                "name": recipe.canonical_name,
+                "id": recipe["id"],
+                "name": recipe["name"],
                 "ingredients": ingredients,
-                "avg_rating": avg_ratings.get(str(recipe.id), 0.0),
+                "avg_rating": avg_ratings.get(recipe["id"], 0.0),
             }
         )
 

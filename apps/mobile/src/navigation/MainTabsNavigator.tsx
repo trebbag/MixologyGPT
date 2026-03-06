@@ -145,8 +145,11 @@ export function MainTabsNavigator({ controller }: MainTabsNavigatorProps) {
           {() => (
             <SettingsScreen
               status={controller.sectionStatus.settings}
+              currentUser={controller.currentUser}
+              authLoading={controller.authLoading}
               mfaSecret={controller.mfaSecret}
               mfaStatus={controller.mfaStatus}
+              onLogout={controller.logout}
               onSetupMfa={controller.setupMfa}
               onEnableMfa={controller.enableMfa}
               onDisableMfa={controller.disableMfa}

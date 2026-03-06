@@ -10,6 +10,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint . --max-warnings 0",
+    "test:runtime-config": "sh -c 'rm -rf .runtime-test-dist && tsc -p tsconfig.runtime-test.json && node --test .runtime-test-dist/tests/runtime-config.test.js; status=$?; rm -rf .runtime-test-dist; exit $status'",
     "test:e2e": "playwright test",
     "test:e2e:staging": "playwright test -c playwright.staging.config.ts"
   },

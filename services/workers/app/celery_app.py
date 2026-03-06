@@ -2,6 +2,8 @@ from celery import Celery
 
 from app.config import settings
 
+settings.validate_runtime()
+
 
 celery_app = Celery(
     "bartenderai",

@@ -87,6 +87,24 @@ beforeEach(() => {
     if (url.endsWith('/v1/auth/dev-token') && method === 'POST') {
       return ok({ access_token: 'dev-token' })
     }
+    if (url.endsWith('/v1/auth/jwt/login') && method === 'POST') {
+      return ok({ access_token: 'login-token', refresh_token: 'refresh-token', expires_in: 3600 })
+    }
+    if (url.endsWith('/v1/auth/jwt/refresh') && method === 'POST') {
+      return ok({ access_token: 'refreshed-token', refresh_token: 'refresh-token-2', expires_in: 3600 })
+    }
+    if (url.endsWith('/v1/auth/jwt/logout') && method === 'POST') {
+      return ok({ status: 'ok' })
+    }
+    if (url.endsWith('/v1/users/me') && method === 'GET') {
+      return ok({
+        id: 'user-1',
+        email: 'dev@bartender.ai',
+        role: 'admin',
+        is_active: true,
+        is_verified: true,
+      })
+    }
 
     if (forceInventoryOffline && url.includes('/v1/inventory/')) {
       throw new TypeError('Network request failed')

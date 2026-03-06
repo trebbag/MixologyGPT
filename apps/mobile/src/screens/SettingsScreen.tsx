@@ -8,8 +8,11 @@ const OFFLINE_MESSAGE = 'Network appears offline. Check your connection and try 
 
 type SettingsScreenProps = {
   status: SectionState
+  currentUser: { email: string; role: string } | null
+  authLoading: boolean
   mfaSecret: string
   mfaStatus: string
+  onLogout: () => Promise<void>
   onSetupMfa: () => Promise<void>
   onEnableMfa: (otp: string) => Promise<void>
   onDisableMfa: (otp: string) => Promise<void>
@@ -17,8 +20,11 @@ type SettingsScreenProps = {
 
 export function SettingsScreen({
   status,
+  currentUser,
+  authLoading,
   mfaSecret,
   mfaStatus,
+  onLogout,
   onSetupMfa,
   onEnableMfa,
   onDisableMfa,
@@ -36,6 +42,20 @@ export function SettingsScreen({
       {status.error ? (
         <SectionStateCard mode="error" title="Settings error" message={status.error} />
       ) : null}
+
+      <View style={styles.card}>
+        <Text style={styles.label}>Account</Text>
+        <Text style={styles.meta}>{currentUser?.email || 'Signed-in user'}</Text>
+        <Text style={styles.meta}>Role: {currentUser?.role || 'unknown'}</Text>
+        <Pressable
+          style={[styles.secondaryButton, authLoading ? styles.buttonDisabled : null]}
+          disabled={authLoading}
+          onPress={onLogout}
+          testID="settings-logout"
+        >
+          <Text style={styles.secondaryButtonText}>{authLoading ? 'Signing out...' : 'Sign Out'}</Text>
+        </Pressable>
+      </View>
 
       <View style={styles.card}>
         <Text style={styles.label}>MFA</Text>
@@ -88,8 +108,10 @@ const styles = StyleSheet.create({
   input: ui.input,
   row: ui.row,
   button: ui.primaryButton,
+  secondaryButton: ui.secondaryButton,
   buttonDisabled: ui.buttonDisabled,
   buttonText: ui.primaryButtonText,
+  secondaryButtonText: ui.secondaryButtonText,
   meta: {
     color: colors.textSecondary,
   },

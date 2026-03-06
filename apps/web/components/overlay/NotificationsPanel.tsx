@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { apiJson, apiVoid } from '../../lib/api'
 
 type RawNotification = {
   id: string
@@ -23,8 +24,6 @@ type NotificationsPanelProps = {
   itemNameById: Record<string, string>
   onUnreadCountChange?: (count: number) => void
 }
-
-const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'
 
 function coerceNotification(value: RawNotification): SupportedNotification | null {
   if (value.type !== 'expiry_soon' && value.type !== 'low_stock') return null
@@ -62,9 +61,7 @@ export function NotificationsPanel({
     setLoading(true)
     setError('')
     try {
-      const response = await fetch(`${apiUrl}/v1/notifications`, { headers: authHeaders })
-      if (!response.ok) throw new Error('Failed to load notifications.')
-      const payload: RawNotification[] = await response.json()
+      const payload = await apiJson<RawNotification[]>('/v1/notifications', { headers: authHeaders })
       const normalized = payload.map(coerceNotification).filter(Boolean) as SupportedNotification[]
       setNotifications(normalized)
     } catch (err) {
@@ -75,11 +72,9 @@ export function NotificationsPanel({
   }, [authHeaders])
 
   const markRead = async (notificationId: string) => {
-    const response = await fetch(`${apiUrl}/v1/notifications/${notificationId}/read`, {
-      method: 'POST',
-      headers: authHeaders,
-    })
-    if (!response.ok) {
+    try {
+      await apiVoid(`/v1/notifications/${notificationId}/read`, { method: 'POST', headers: authHeaders })
+    } catch {
       setError('Failed to mark notification as read.')
       return
     }
@@ -87,11 +82,9 @@ export function NotificationsPanel({
   }
 
   const dismissNotification = async (notificationId: string) => {
-    const response = await fetch(`${apiUrl}/v1/notifications/${notificationId}`, {
-      method: 'DELETE',
-      headers: authHeaders,
-    })
-    if (!response.ok) {
+    try {
+      await apiVoid(`/v1/notifications/${notificationId}`, { method: 'DELETE', headers: authHeaders })
+    } catch {
       setError('Failed to dismiss notification.')
       return
     }
@@ -99,11 +92,9 @@ export function NotificationsPanel({
   }
 
   const markAllRead = async () => {
-    const response = await fetch(`${apiUrl}/v1/notifications/read-all`, {
-      method: 'POST',
-      headers: authHeaders,
-    })
-    if (!response.ok) {
+    try {
+      await apiVoid('/v1/notifications/read-all', { method: 'POST', headers: authHeaders })
+    } catch {
       setError('Failed to mark all notifications as read.')
       return
     }
@@ -118,13 +109,7 @@ export function NotificationsPanel({
 
   const refreshNotifications = async () => {
     try {
-      const response = await fetch(`${apiUrl}/v1/notifications/refresh`, {
-        method: 'POST',
-        headers: authHeaders,
-      })
-      if (!response.ok) {
-        setError('Refresh requires admin or internal token.')
-      }
+      await apiVoid('/v1/notifications/refresh', { method: 'POST', headers: authHeaders })
     } catch {
       setError('Failed to refresh notifications.')
     }

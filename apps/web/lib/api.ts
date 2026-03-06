@@ -1,20 +1,15 @@
 import { clearTokens, loadStoredTokens, storeTokens, type StoredTokens } from './auth'
+import { buildApiUrl, resolveClientApiBaseUrl, resolveServerApiBaseUrl } from './runtimeConfig'
 
-const DEFAULT_API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'
 const API_BASE_OVERRIDE_KEY = 'bartenderai.api_base_url'
-// Keep exported default for existing imports while allowing runtime override via getApiBaseUrl().
-export const API_BASE_URL = normalizeBaseUrl(DEFAULT_API_BASE_URL)
-
-function normalizeBaseUrl(url: string): string {
-  return (url || '').trim().replace(/\/+$/, '')
-}
 
 export function getApiBaseUrl(): string {
   if (typeof window !== 'undefined') {
     const override = window.localStorage.getItem(API_BASE_OVERRIDE_KEY)
-    if (override && override.trim()) return normalizeBaseUrl(override)
+    if (override && override.trim()) return resolveClientApiBaseUrl(override)
+    return resolveClientApiBaseUrl()
   }
-  return normalizeBaseUrl(DEFAULT_API_BASE_URL)
+  return resolveServerApiBaseUrl()
 }
 
 export type TokenPair = {
@@ -161,7 +156,7 @@ export type ApiFetchOptions = RequestInit & {
 
 export async function apiFetch(path: string, options: ApiFetchOptions = {}): Promise<Response> {
   const apiBaseUrl = getApiBaseUrl()
-  const url = path.startsWith('http') ? path : `${apiBaseUrl}${path.startsWith('/') ? '' : '/'}${path}`
+  const url = buildApiUrl(path, apiBaseUrl)
 
   const stored = loadStoredTokens()
   const accessToken = options.accessToken ?? stored?.accessToken ?? null

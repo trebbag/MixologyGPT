@@ -51,8 +51,11 @@ services:
 
   web:
     image: ${WEB_IMAGE}
+    env_file:
+      - .env.staging
     environment:
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+      ENVIRONMENT: ${ENVIRONMENT:-staging}
     depends_on:
       api:
         condition: service_started

@@ -1,6 +1,7 @@
 import { defineConfig } from '@playwright/test'
 
-const baseURL = process.env.E2E_BASE_URL || process.env.STAGING_BASE_URL || 'http://localhost:3100'
+const baseURL =
+  process.env.E2E_BASE_URL || process.env.STAGING_WEB_BASE_URL || process.env.STAGING_BASE_URL || 'http://localhost:3100'
 
 export default defineConfig({
   timeout: 90_000,
