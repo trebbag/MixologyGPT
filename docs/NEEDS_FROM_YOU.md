@@ -1,15 +1,23 @@
 # Needs From You
 
 ## Current checkpoint (`2026-03-06`)
-- Latest all-six run: GitHub Actions `Staging Pilot All-Six` (`22606179707`) -> `PASS`
+- Latest deploy attempt: GitHub Actions `Staging Deploy` (`22783809188`) -> `FAIL`
+  - blocker: missing deploy secrets `STAGING_SSH_HOST`, `STAGING_SSH_USER`, `STAGING_SSH_KEY`, `STAGING_GHCR_TOKEN`, `STAGING_DEPLOY_PATH`
+- Latest signoff attempt: GitHub Actions `Staging Sign-Off (Load + Gates)` (`22783919469`) -> `FAIL`
+  - blocker: runtime surface smoke failed because the live API returned `400 Disallowed CORS origin` for `https://mixologygpt-app.onrender.com`
+- Latest all-six attempt: GitHub Actions `Staging Pilot All-Six` (`22783958092`) -> `FAIL`
+  - blocker: precheck failed on the same runtime surface smoke issue; token bootstrap and role checks passed
+- Latest crawler warning review: GitHub Actions `Staging Crawler Warning Review` (`22784025139`) -> `PASS`
+  - result: `305` jobs total, `0` failures, `0` retryable jobs, no actionable alerts, and all approved pilot domains at `MIN_JOBS >= 20`
 - Latest policy baseline freeze evidence: `docs/runbooks/evidence/policy-baseline-freeze-2026-03-03.md`
 - Latest pilot ops drill: GitHub Actions `Staging Pilot Ops Drill` (`22603591164`) -> `PASS`
-- Latest staged load signoff: GitHub Actions `Staging Sign-Off (Load + Gates)` (`22605681114`) -> `PASS`
+- Latest staged load PASS before the new live runtime regression: GitHub Actions `Staging Sign-Off (Load + Gates)` (`22605681114`) -> `PASS`
   - key gates: `search_p95_ms=140`, `studio_generate_p95_ms=240`, `aggregate_p95_ms=200`
 - Source migration decision: `liquor.com` replaced with `thecocktaildb.com` for pilot calibration/maintenance.
 - Current required items before pilot go-live:
-  - final owner go/no-go approval with the latest evidence package
-  - run the updated staging deploy path once with explicit non-local runtime envs on deployed surfaces (`CORS_ALLOWED_ORIGINS`, `NEXT_PUBLIC_API_URL`, and `EXPO_PUBLIC_API_URL` where mobile builds are used)
+  - fix the live staging API `CORS_ALLOWED_ORIGINS` / runtime configuration so `https://mixologygpt-app.onrender.com` is accepted
+  - rerun signoff + all-six after the live runtime smoke passes again
+  - final owner go/no-go approval with the refreshed evidence package
   - staging deploy secret population if CI-driven staging deploys are required
 - Remaining optional item:
   - wire external alert destinations only if you want off-platform paging (internal in-app alert path remains valid).
