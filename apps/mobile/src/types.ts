@@ -11,6 +11,64 @@ export type InventoryItem = {
   unit_to_ml?: number
 }
 
+export type InventoryBatchUploadRow = {
+  row_number: number
+  source_name: string
+  status: 'ready' | 'partial' | 'duplicate' | 'skipped'
+  import_action: string
+  confidence?: number | null
+  notes: string[]
+  missing_fields: string[]
+  import_result?: string | null
+  source_refs: Array<{ label: string; url?: string | null }>
+  resolved: {
+    canonical_name: string
+    display_name?: string | null
+    category?: string | null
+    subcategory?: string | null
+    description?: string | null
+    abv?: number | null
+    is_alcoholic: boolean
+    is_perishable: boolean
+    unit: string
+    preferred_unit?: string | null
+    quantity?: number | null
+    lot_unit?: string | null
+    location?: string | null
+  }
+}
+
+export type InventoryBatchUploadResponse = {
+  filename: string
+  applied: boolean
+  summary: {
+    total_rows: number
+    ready_rows: number
+    partial_rows: number
+    duplicate_rows: number
+    importable_rows: number
+    skipped_rows: number
+    pending_review_rows: number
+    created_ingredients: number
+    reused_ingredients: number
+    created_items: number
+    reused_items: number
+    created_lots: number
+  }
+  lookup_telemetry: {
+    cache_hits: number
+    cache_misses: number
+    cocktaildb_requests: number
+    cocktaildb_failures: number
+    openai_requests: number
+    openai_failures: number
+    openai_input_tokens: number
+    openai_output_tokens: number
+    openai_total_tokens: number
+  }
+  rows: InventoryBatchUploadRow[]
+}
+
 export type Recipe = {
   id: string
   canonical_name: string

@@ -1,4 +1,6 @@
 import { act, fireEvent, render, waitFor } from '@testing-library/react-native'
+import * as DocumentPicker from 'expo-document-picker'
+import * as FileSystem from 'expo-file-system'
 
 import App from '../../App'
 
@@ -11,6 +13,8 @@ type MockRecipe = {
 }
 
 const originalConsoleError = console.error
+const getDocumentAsyncMock = DocumentPicker.getDocumentAsync as jest.Mock
+const readAsStringAsyncMock = FileSystem.readAsStringAsync as jest.Mock
 
 beforeAll(() => {
   jest.spyOn(console, 'error').mockImplementation((...args: any[]) => {
@@ -58,6 +62,38 @@ const ok = (payload: any) =>
     json: async () => payload,
   } as Response)
 
+function buildBatchRows(content: string) {
+  const names = content
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+  return names.map((name, index) => ({
+    row_number: index + 1,
+    source_name: name,
+    status: 'ready',
+    import_action: 'create_ingredient_and_item',
+    confidence: 0.86,
+    notes: [],
+    missing_fields: [],
+    source_refs: [{ label: 'TheCocktailDB ingredient reference', url: 'https://www.thecocktaildb.com/api.php' }],
+    resolved: {
+      canonical_name: name,
+      display_name: null,
+      category: name.toLowerCase().includes('juice') ? 'Juice' : 'Spirit',
+      subcategory: name.toLowerCase().includes('juice') ? 'Fresh juice' : 'Liqueur',
+      description: `${name} imported from batch upload.`,
+      abv: name.toLowerCase().includes('juice') ? null : 24,
+      is_alcoholic: !name.toLowerCase().includes('juice'),
+      is_perishable: name.toLowerCase().includes('juice'),
+      unit: 'oz',
+      preferred_unit: 'oz',
+      quantity: null,
+      lot_unit: null,
+      location: null,
+    },
+  }))
+}
+
 beforeEach(() => {
   ingredients.splice(0, ingredients.length)
   items.splice(0, items.length)
@@ -78,6 +114,8 @@ beforeEach(() => {
   forceKnowledgeOffline = false
   forceInventoryOffline = false
   forceRecommendationsOffline = false
+  getDocumentAsyncMock.mockResolvedValue({ canceled: true, assets: [] })
+  readAsStringAsyncMock.mockResolvedValue('')
 
   global.fetch = jest.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
     const url = typeof input === 'string' ? input : input.toString()
@@ -118,6 +156,78 @@ beforeEach(() => {
     if (url.includes('/v1/inventory/items') && method === 'POST') {
       items.push({ id: nextId('item'), ingredient_id: body.ingredient_id, unit: body.unit })
       return ok(items[items.length - 1])
+    }
+    if (url.includes('/v1/inventory/batch-upload/preview') && method === 'POST') {
+      const rows = buildBatchRows(body.content || '')
+      return ok({
+        filename: body.filename || 'pasted-ingredients.txt',
+        applied: false,
+        summary: {
+          total_rows: rows.length,
+          ready_rows: rows.length,
+          partial_rows: 0,
+          duplicate_rows: 0,
+          importable_rows: rows.length,
+          skipped_rows: 0,
+          pending_review_rows: rows.length,
+          created_ingredients: 0,
+          reused_ingredients: 0,
+          created_items: 0,
+          reused_items: 0,
+          created_lots: 0,
+        },
+        lookup_telemetry: {
+          cache_hits: 0,
+          cache_misses: rows.length,
+          cocktaildb_requests: rows.length,
+          cocktaildb_failures: 0,
+          openai_requests: 0,
+          openai_failures: 0,
+          openai_input_tokens: 0,
+          openai_output_tokens: 0,
+          openai_total_tokens: 0,
+        },
+        rows,
+      })
+    }
+    if (url.includes('/v1/inventory/batch-upload/import') && method === 'POST') {
+      const rows = buildBatchRows(body.content || '')
+      for (const row of rows) {
+        const ingredientId = nextId('ing')
+        ingredients.push({ id: ingredientId, canonical_name: row.resolved.canonical_name })
+        items.push({ id: nextId('item'), ingredient_id: ingredientId, unit: row.resolved.unit })
+        row.import_result = 'created_ingredient, created_item'
+      }
+      return ok({
+        filename: body.filename || 'pasted-ingredients.txt',
+        applied: true,
+        summary: {
+          total_rows: rows.length,
+          ready_rows: rows.length,
+          partial_rows: 0,
+          duplicate_rows: 0,
+          importable_rows: rows.length,
+          skipped_rows: 0,
+          pending_review_rows: rows.length,
+          created_ingredients: rows.length,
+          reused_ingredients: 0,
+          created_items: rows.length,
+          reused_items: 0,
+          created_lots: 0,
+        },
+        lookup_telemetry: {
+          cache_hits: rows.length,
+          cache_misses: 0,
+          cocktaildb_requests: 0,
+          cocktaildb_failures: 0,
+          openai_requests: 0,
+          openai_failures: 0,
+          openai_input_tokens: 0,
+          openai_output_tokens: 0,
+          openai_total_tokens: 0,
+        },
+        rows,
+      })
     }
 
     if (url.includes('/v1/recipes/harvest/jobs') && method === 'GET') {
@@ -339,6 +449,53 @@ test('inventory to recipes to studio journey works', async () => {
 
   await waitFor(() => expect(screen.getByText(/studio-/)).toBeTruthy())
   await flushTimers()
+})
+
+test('inventory batch upload previews and imports on mobile', async () => {
+  const screen = render(<App />)
+
+  await waitFor(() => expect(screen.getByText('BartenderAI')).toBeTruthy())
+  await flushTimers()
+
+  fireEvent.press(screen.getAllByText('Inventory')[0])
+  fireEvent.changeText(
+    screen.getByTestId('inventory-batch-content'),
+    `Campari
+Fresh Lime Juice`,
+  )
+  fireEvent.press(screen.getByTestId('inventory-batch-preview'))
+
+  await waitFor(() => expect(screen.getByText(/#1 Campari/)).toBeTruthy())
+  expect(screen.getByText(/cache 0 hit \/ 2 miss/)).toBeTruthy()
+
+  fireEvent.press(screen.getByTestId('inventory-batch-import'))
+
+  await waitFor(() => expect(screen.getByText(/Imported 2 item\(s\) and 0 lot\(s\)\./)).toBeTruthy())
+  expect(screen.getByText('Campari')).toBeTruthy()
+  expect(screen.getByText('Fresh Lime Juice')).toBeTruthy()
+})
+
+test('inventory batch upload can load from a picked file on mobile', async () => {
+  getDocumentAsyncMock.mockResolvedValue({
+    canceled: false,
+    assets: [{ uri: 'file:///tmp/inventory.txt', name: 'inventory.txt' }],
+  })
+  readAsStringAsyncMock.mockResolvedValue('Campari\nFresh Lime Juice')
+
+  const screen = render(<App />)
+
+  await waitFor(() => expect(screen.getByText('BartenderAI')).toBeTruthy())
+  await flushTimers()
+
+  fireEvent.press(screen.getAllByText('Inventory')[0])
+  fireEvent.press(screen.getByTestId('inventory-batch-pick-file'))
+
+  await waitFor(() => expect(screen.getByText('Loaded inventory.txt')).toBeTruthy())
+  expect(screen.getByDisplayValue('inventory.txt')).toBeTruthy()
+
+  fireEvent.press(screen.getByTestId('inventory-batch-preview'))
+  await waitFor(() => expect(screen.getByText(/#1 Campari/)).toBeTruthy())
+  expect(screen.getByText(/cache 0 hit \/ 2 miss/)).toBeTruthy()
 })
 
 test('harvest shows compliance rejection for tertiary path', async () => {

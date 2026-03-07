@@ -27,6 +27,7 @@ from app.schemas.inventory import (
     InventoryLotRead,
     InventoryLotUpdate,
 )
+from app.schemas.inventory_batch_upload import InventoryBatchUploadRequest, InventoryBatchUploadResponse
 from app.schemas.equipment import EquipmentCreate, EquipmentRead, GlasswareCreate, GlasswareRead
 from app.schemas.syrup import (
     SyrupRecipeCreate,
@@ -39,9 +40,11 @@ from app.schemas.syrup import (
 )
 from app.schemas.conversion import ConversionPlanRequest, ConversionExecuteRequest
 from app.db.models.user import User
+from app.core.metrics import record_inventory_batch_upload_request
 from app.core.schema_validation import validate_schema
 from app.domain.units import to_ml, from_ml, to_ml_with_custom, from_ml_with_custom
 from app.core.paths import resolve_schema_dir
+from app.domain.inventory_batch_upload import apply_inventory_batch_upload, preview_inventory_batch_upload
 from datetime import datetime, timedelta
 
 
@@ -100,6 +103,32 @@ async def get_ingredient(
     if not ingredient:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Ingredient not found")
     return ingredient
+
+
+@router.post("/batch-upload/preview", response_model=InventoryBatchUploadResponse)
+async def preview_batch_upload(
+    payload: InventoryBatchUploadRequest,
+    db: AsyncSession = Depends(get_db),
+    user: User = Depends(current_active_user),
+):
+    try:
+        return await preview_inventory_batch_upload(db, user, payload.filename, payload.content)
+    except ValueError as exc:
+        record_inventory_batch_upload_request("preview", "invalid_request")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc))
+
+
+@router.post("/batch-upload/import", response_model=InventoryBatchUploadResponse)
+async def import_batch_upload(
+    payload: InventoryBatchUploadRequest,
+    db: AsyncSession = Depends(get_db),
+    user: User = Depends(current_active_user),
+):
+    try:
+        return await apply_inventory_batch_upload(db, user, payload.filename, payload.content)
+    except ValueError as exc:
+        record_inventory_batch_upload_request("import", "invalid_request")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc))
 
 
 @router.post("/equivalencies", response_model=IngredientEquivalencyRead)

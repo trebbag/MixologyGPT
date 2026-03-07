@@ -17,12 +17,32 @@
   - key gates: `search_p95_ms=190`, `studio_generate_p95_ms=390`, `aggregate_p95_ms=300`
 - Source migration decision: `liquor.com` replaced with `thecocktaildb.com` for pilot calibration/maintenance.
 - Current required items before pilot go-live:
+  - apply the new API migration (`0020_add_inventory_batch_upload_audits`) anywhere the live app DB runs before using the new ontology audit queue
   - final owner go/no-go approval with the refreshed evidence package
   - only if you want GitHub-driven staging deploys: populate the staging deploy secrets
 - Remaining optional item:
   - wire external alert destinations only if you want off-platform paging (internal in-app alert path remains valid).
 - Exact operator sequence:
   - `/Users/gregorygabbert/Documents/GitHub/BartenderAI/docs/runbooks/staging-redeploy-sequence.md`
+
+## Inventory batch upload audit rollout
+- What is needed:
+  - run `alembic upgrade head` for the API database in local/staging/production after pulling the latest code
+- Why:
+  - the AI-assisted inventory batch upload flow now writes moderation/audit records into the new `inventory_batch_upload_audits` table
+  - the admin ontology review queue depends on that table existing before imports run
+- No new secrets are required:
+  - existing `OPENAI_API_KEY` and `COCKTAILDB_API_KEY` remain the only external-provider keys used by this feature
+- Verification after deploy:
+  - `GET /v1/admin/inventory-batch-audits` should return `200` for an admin/internal token
+  - importing a batch should create pending audit rows for new or low-confidence ingredient ontology entries
+  - smoke command:
+    - `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI && API_BASE_URL=https://<api-host> ACCESS_TOKEN=<bearer-token> INTERNAL_TOKEN=<internal-token> ./infra/staging/inventory_batch_upload_smoke.py`
+  - rollout helper:
+    - `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI && API_BASE_URL=https://<api-host> WEB_BASE_URL=https://<web-host> ACCESS_TOKEN=<bearer-token> INTERNAL_TOKEN=<internal-token> ./infra/staging/inventory_batch_upload_rollout.sh`
+    - or `EMAIL=<user-email> PASSWORD=<user-password>` instead of `ACCESS_TOKEN`
+  - detailed runbook:
+    - `/Users/gregorygabbert/Documents/GitHub/BartenderAI/docs/runbooks/inventory-batch-upload-rollout.md`
 
 ## Runtime configuration now required outside local development
 - What is needed:
@@ -139,7 +159,7 @@
 
 ## OpenAI API access
 - What is needed: `OPENAI_API_KEY`
-- Why: embeddings and LLM-powered studio/copilot flows use OpenAI by default
+- Why: embeddings, studio/copilot flows, and AI-assisted inventory batch upload fallback lookups use OpenAI by default
 - Config keys: `OPENAI_API_KEY`, `EMBEDDINGS_PROVIDER=openai`, `EMBEDDINGS_MODEL`, `LLM_PROVIDER=openai`, `LLM_MODEL`
 - How to obtain: create an API key in the OpenAI dashboard, then add it to your local environment or secret manager
 - Safe handling: do not commit secrets; set locally in `.env` or environment injection only
@@ -153,7 +173,7 @@
 
 ## TheCocktailDB production key
 - What is needed: `COCKTAILDB_API_KEY` (supporter/premium key, not test key `1`) in staging/prod runtime.
-- Why: pilot harvest now includes API-backed `thecocktaildb.com`; missing key yields `fetch_failed:cocktaildb-key-missing` and no ingest volume.
+- Why: pilot harvest and AI-assisted inventory batch upload both use API-backed `thecocktaildb.com`; missing key yields `fetch_failed:cocktaildb-key-missing`, weaker metadata enrichment, and no ingest volume.
 - Config keys: `COCKTAILDB_API_KEY`, optional `COCKTAILDB_API_BASE_URL`, optional `COCKTAILDB_REQUEST_TIMEOUT_SECONDS`.
 - How to obtain: generate/purchase a supporter API key from TheCocktailDB account portal and store it in Render/GitHub/host secret store.
 - Safe handling: treat as secret; never commit into repo or policy JSON.

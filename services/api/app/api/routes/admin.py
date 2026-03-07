@@ -11,10 +11,16 @@ from app.core.deps import current_active_admin
 from app.core.deps import optional_user
 from app.core.config import settings
 from app.core.metrics import update_domain_telemetry_gauges
+from app.db.models.inventory_batch_upload_audit import InventoryBatchUploadAudit
 from app.db.models.user import User
 from app.db.models.recipe import RecipeHarvestJob, RecipeSourcePolicy
 from app.db.models.system import SystemJob
 from app.db.session import get_db
+from app.schemas.inventory_batch_upload_audit import (
+    InventoryBatchUploadAuditListResponse,
+    InventoryBatchUploadAuditRead,
+    InventoryBatchUploadAuditReviewRequest,
+)
 from app.schemas.user import UserRead, UserRoleBootstrapRequest
 from app.schemas.source_policy import (
     ParserRecoverySuggestionRequest,
@@ -140,6 +146,34 @@ def _domain_triage_hints(metric: dict[str, Any]) -> list[str]:
     if not hints and (metric.get("failure_rate") or 0) > 0.2:
         hints.append("High failure rate with weak class signal: inspect latest failures and add domain-specific parser settings.")
     return hints[:5]
+
+
+def _audit_to_read(audit: InventoryBatchUploadAudit) -> InventoryBatchUploadAuditRead:
+    resolved = audit.resolved_payload or {}
+    return InventoryBatchUploadAuditRead(
+        id=audit.id,
+        user_id=audit.user_id,
+        user_email=audit.user_email,
+        ingredient_id=audit.ingredient_id,
+        inventory_item_id=audit.inventory_item_id,
+        inventory_lot_id=audit.inventory_lot_id,
+        filename=audit.filename,
+        source_name=audit.source_name,
+        canonical_name=audit.canonical_name,
+        row_status=audit.row_status,
+        import_action=audit.import_action,
+        import_result=audit.import_result,
+        confidence=audit.confidence,
+        missing_fields=list(audit.missing_fields or []),
+        notes=list(audit.notes or []),
+        source_refs=list(audit.source_refs or []),
+        resolved=resolved,
+        review_status=audit.review_status,
+        review_notes=audit.review_notes,
+        reviewed_at=audit.reviewed_at,
+        reviewed_by_user_id=audit.reviewed_by_user_id,
+        created_at=audit.created_at,
+    )
 
 
 @router.get("/users", response_model=List[UserRead])
@@ -354,6 +388,57 @@ async def upsert_system_job(
     await db.commit()
     await db.refresh(job)
     return job
+
+
+@router.get("/inventory-batch-audits", response_model=InventoryBatchUploadAuditListResponse)
+async def list_inventory_batch_audits(
+    review_status: Optional[str] = Query(default=None),
+    limit: int = Query(default=100, ge=1, le=250),
+    db: AsyncSession = Depends(get_db),
+    internal_token: Optional[str] = Header(default=None, alias="X-Internal-Token"),
+    user: Optional[User] = Depends(optional_user),
+):
+    _require_admin_or_internal(internal_token, user)
+    normalized_review_status = (review_status or "").strip().lower()
+    if normalized_review_status and normalized_review_status not in {"pending", "approved", "rejected"}:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid review_status filter")
+
+    query = select(InventoryBatchUploadAudit).order_by(InventoryBatchUploadAudit.created_at.desc()).limit(limit)
+    if normalized_review_status:
+        query = query.where(InventoryBatchUploadAudit.review_status == normalized_review_status)
+    result = await db.execute(query)
+    rows = list(result.scalars().all())
+
+    counts = {"pending": 0, "approved": 0, "rejected": 0}
+    for row in rows:
+        if row.review_status in counts:
+            counts[row.review_status] += 1
+
+    return InventoryBatchUploadAuditListResponse(
+        counts=counts,
+        rows=[_audit_to_read(row) for row in rows],
+    )
+
+
+@router.patch("/inventory-batch-audits/{audit_id}/review", response_model=InventoryBatchUploadAuditRead)
+async def review_inventory_batch_audit(
+    audit_id: str,
+    payload: InventoryBatchUploadAuditReviewRequest,
+    db: AsyncSession = Depends(get_db),
+    internal_token: Optional[str] = Header(default=None, alias="X-Internal-Token"),
+    user: Optional[User] = Depends(optional_user),
+):
+    _require_admin_or_internal(internal_token, user)
+    audit = await db.get(InventoryBatchUploadAudit, audit_id)
+    if not audit:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Inventory batch audit not found")
+    audit.review_status = payload.review_status
+    audit.review_notes = payload.review_notes
+    audit.reviewed_at = datetime.utcnow()
+    audit.reviewed_by_user_id = user.id if user else None
+    await db.commit()
+    await db.refresh(audit)
+    return _audit_to_read(audit)
 
 
 @router.get("/crawler-ops/telemetry")

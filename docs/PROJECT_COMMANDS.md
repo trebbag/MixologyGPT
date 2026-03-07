@@ -41,7 +41,11 @@
   - Web container: `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI && docker build -f apps/web/Dockerfile -t bartenderai-web:local apps/web`
 
 - Database migrations:
-  - Upgrade: `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI/services/api && source .venv/bin/activate && PYTHONPATH=. alembic upgrade head`
+- Upgrade: `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI/services/api && source .venv/bin/activate && PYTHONPATH=. alembic upgrade head`
+- Inventory batch upload smoke after deploy:
+  - `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI && API_BASE_URL=https://<api-host> ACCESS_TOKEN=<bearer-token> INTERNAL_TOKEN=<internal-token> ./infra/staging/inventory_batch_upload_smoke.py`
+  - One-command rollout helper: `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI && API_BASE_URL=https://<api-host> WEB_BASE_URL=https://<web-host> ACCESS_TOKEN=<bearer-token> INTERNAL_TOKEN=<internal-token> ./infra/staging/inventory_batch_upload_rollout.sh`
+  - Login-first rollout helper: `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI && API_BASE_URL=https://<api-host> WEB_BASE_URL=https://<web-host> EMAIL=<user-email> PASSWORD=<user-password> INTERNAL_TOKEN=<internal-token> ./infra/staging/inventory_batch_upload_rollout.sh`
   - New revision: `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI/services/api && source .venv/bin/activate && PYTHONPATH=. alembic revision -m "<message>"`
 
 - Seed/dev data:

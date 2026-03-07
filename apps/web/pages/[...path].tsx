@@ -20,6 +20,7 @@ import { SourcePoliciesView } from '../components/views/admin/SourcePoliciesView
 import { CrawlerOpsView } from '../components/views/admin/CrawlerOpsView'
 import { AdminJobsView } from '../components/views/admin/AdminJobsView'
 import { MediaManagerView } from '../components/views/admin/MediaManagerView'
+import { InventoryOntologyAuditView } from '../components/views/admin/InventoryOntologyAuditView'
 import { InventoryOverviewView } from '../components/views/inventory/InventoryOverviewView'
 import { InventoryIngredientsView } from '../components/views/inventory/InventoryIngredientsView'
 import { InventoryInsightsView } from '../components/views/inventory/InventoryInsightsView'
@@ -251,7 +252,8 @@ const WebAppPage: NextPage = () => {
             if (parts[1] === 'crawler-ops') return <CrawlerOpsView />
             if (parts[1] === 'jobs') return <AdminJobsView />
             if (parts[1] === 'media') return <MediaManagerView />
-            return <PlaceholderView title="Admin Overview" description="Choose a subpage: Source Policies, Crawler Ops, or System Jobs." />
+            if (parts[1] === 'inventory-audits') return <InventoryOntologyAuditView />
+            return <PlaceholderView title="Admin Overview" description="Choose a subpage: Source Policies, Crawler Ops, System Jobs, Media, or Inventory Ontology Audit." />
           })()
         ) : spec.key === 'inventory/overview' ? (
           <InventoryOverviewView role={role} />

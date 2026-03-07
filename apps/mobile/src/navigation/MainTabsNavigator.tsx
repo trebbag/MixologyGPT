@@ -104,6 +104,8 @@ export function MainTabsNavigator({ controller }: MainTabsNavigatorProps) {
               onRefresh={controller.loadInventory}
               onCreateIngredient={controller.createIngredient}
               onCreateItem={controller.createItem}
+              onPreviewBatchUpload={controller.previewInventoryBatchUpload}
+              onImportBatchUpload={controller.importInventoryBatchUpload}
             />
           )}
         </Tab.Screen>

@@ -12,6 +12,10 @@ def test_openapi_contains_harvest_auto():
     assert "/v1/recipes/harvest/jobs" in paths
     assert "/v1/admin/source-policies" in paths
     assert "/v1/admin/source-policies/{policy_id}/parser-settings/suggest-recovery" in paths
+    assert "/v1/admin/inventory-batch-audits" in paths
+    assert "/v1/admin/inventory-batch-audits/{audit_id}/review" in paths
     assert "/v1/inventory/events" in paths
+    assert "/v1/inventory/batch-upload/preview" in paths
+    assert "/v1/inventory/batch-upload/import" in paths
     assert "/v1/notifications/{notification_id}" in paths
     assert "/v1/notifications/{notification_id}/read" in paths

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 
 import { apiJson } from '../../../lib/api'
 import { LoadState } from '../../ui/LoadState'
+import { InventoryBatchUploadCard } from './InventoryBatchUploadCard'
 
 type Ingredient = {
   id: string
@@ -281,6 +282,8 @@ export function InventoryOverviewView({ role }: { role: string }) {
             </div>
           </div>
         </div>
+
+        <InventoryBatchUploadCard disabled={actionDisabled} onImported={load} />
 
         <div className="bg-black/40 backdrop-blur-xl rounded-2xl border border-white/10 p-6">
           <h3 className="text-lg font-semibold text-white">Expiry Soon</h3>

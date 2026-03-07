@@ -4,6 +4,7 @@ import { canUseLocalDevTokenBootstrap, resolveMobileApiUrl } from './runtimeConf
 
 import type {
   HarvestJob,
+  InventoryBatchUploadResponse,
   Ingredient,
   InventoryItem,
   Recipe,
@@ -131,6 +132,8 @@ export type AppController = {
   loadRecommendations: () => Promise<void>
   createIngredient: (name: string) => Promise<void>
   createItem: (ingredientId: string, unit: string, preferredUnit?: string) => Promise<void>
+  previewInventoryBatchUpload: (payload: { filename: string; content: string }) => Promise<InventoryBatchUploadResponse>
+  importInventoryBatchUpload: (payload: { filename: string; content: string }) => Promise<InventoryBatchUploadResponse>
   ingestRecipe: (payload: {
     canonicalName: string
     sourceUrl: string
@@ -659,6 +662,36 @@ export function useAppController(): AppController {
     [authorizedFetch, loadInventory, readErrorDetail],
   )
 
+  const previewInventoryBatchUpload = useCallback(
+    async (payload: { filename: string; content: string }) => {
+      const res = await authorizedFetch('/v1/inventory/batch-upload/preview', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      })
+      if (!res.ok) {
+        throw new Error(await readErrorDetail(res, 'Unable to preview inventory batch upload.'))
+      }
+      return (await res.json()) as InventoryBatchUploadResponse
+    },
+    [authorizedFetch, readErrorDetail],
+  )
+
+  const importInventoryBatchUpload = useCallback(
+    async (payload: { filename: string; content: string }) => {
+      const res = await authorizedFetch('/v1/inventory/batch-upload/import', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      })
+      if (!res.ok) {
+        throw new Error(await readErrorDetail(res, 'Unable to import inventory batch upload.'))
+      }
+      const response = (await res.json()) as InventoryBatchUploadResponse
+      await loadInventory()
+      return response
+    },
+    [authorizedFetch, loadInventory, readErrorDetail],
+  )
+
   const ingestRecipe = useCallback(
     async (payload: {
       canonicalName: string
@@ -1105,6 +1138,8 @@ export function useAppController(): AppController {
     loadRecommendations,
     createIngredient,
     createItem,
+    previewInventoryBatchUpload,
+    importInventoryBatchUpload,
     ingestRecipe,
     fetchRecipeDetail,
     createStudioSession,

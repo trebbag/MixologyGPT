@@ -78,6 +78,30 @@ crawler_domain_compliance_rejections = _gauge(
     ["domain"],
 )
 
+inventory_batch_upload_requests_total = _counter(
+    "inventory_batch_upload_requests_total",
+    "Inventory batch upload requests by operation and outcome.",
+    ["operation", "outcome"],
+)
+
+inventory_batch_upload_rows_total = _counter(
+    "inventory_batch_upload_rows_total",
+    "Inventory batch upload rows by operation and row status.",
+    ["operation", "row_status"],
+)
+
+inventory_batch_upload_lookup_total = _counter(
+    "inventory_batch_upload_lookup_total",
+    "Inventory batch upload lookup activity by provider and outcome.",
+    ["provider", "outcome"],
+)
+
+inventory_batch_upload_openai_tokens_total = _counter(
+    "inventory_batch_upload_openai_tokens_total",
+    "Inventory batch upload OpenAI token usage.",
+    ["token_type"],
+)
+
 
 def _normalize_domain(url: str) -> str:
     host = (urlparse(url).hostname or "").lower()
@@ -195,3 +219,41 @@ def update_domain_telemetry_gauges(
     crawler_domain_parser_fallback_rate.labels(domain=label).set(max(parser_fallback_rate, 0.0))
     crawler_domain_avg_attempt_count.labels(domain=label).set(max(avg_attempt_count, 0.0))
     crawler_domain_compliance_rejections.labels(domain=label).set(max(float(compliance_rejections), 0.0))
+
+
+def record_inventory_batch_upload_request(operation: str, outcome: str) -> None:
+    inventory_batch_upload_requests_total.labels(
+        operation=_label(operation, "unknown"),
+        outcome=_label(outcome, "unknown"),
+    ).inc()
+
+
+def record_inventory_batch_upload_row_statuses(operation: str, row_counts: dict[str, int]) -> None:
+    for row_status, count in (row_counts or {}).items():
+        if count <= 0:
+            continue
+        inventory_batch_upload_rows_total.labels(
+            operation=_label(operation, "unknown"),
+            row_status=_label(row_status, "unknown"),
+        ).inc(count)
+
+
+def record_inventory_batch_lookup(provider: str, outcome: str, count: int = 1) -> None:
+    if count <= 0:
+        return
+    inventory_batch_upload_lookup_total.labels(
+        provider=_label(provider, "unknown"),
+        outcome=_label(outcome, "unknown"),
+    ).inc(count)
+
+
+def record_inventory_batch_openai_tokens(input_tokens: int = 0, output_tokens: int = 0, total_tokens: int = 0) -> None:
+    token_counts = {
+        "input": max(int(input_tokens or 0), 0),
+        "output": max(int(output_tokens or 0), 0),
+        "total": max(int(total_tokens or 0), 0),
+    }
+    for token_type, count in token_counts.items():
+        if count <= 0:
+            continue
+        inventory_batch_upload_openai_tokens_total.labels(token_type=token_type).inc(count)

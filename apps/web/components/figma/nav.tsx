@@ -101,6 +101,7 @@ export const NAV_ITEMS: NavItem[] = [
       { path: '/admin/sources', label: 'Source Policies' },
       { path: '/admin/crawler-ops', label: 'Crawler Ops' },
       { path: '/admin/jobs', label: 'System Jobs' },
+      { path: '/admin/inventory-audits', label: 'Inventory Audit' },
       { path: '/admin/media', label: 'Media' },
     ],
   },

@@ -22,6 +22,7 @@ from app.db.models.notification import Notification
 from app.db.models.knowledge import KnowledgeDocument
 from app.db.models.system import SystemJob
 from app.db.models.session import RefreshSession
+from app.db.models.inventory_batch_upload_audit import InventoryBatchUploadAudit
 
 __all__ = [
     "User",
@@ -63,4 +64,5 @@ __all__ = [
     "KnowledgeDocument",
     "SystemJob",
     "RefreshSession",
+    "InventoryBatchUploadAudit",
 ]
