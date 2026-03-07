@@ -3,7 +3,7 @@ from typing import Any, Optional
 
 from pydantic import field_validator
 
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import BaseSettings, DotEnvSettingsSource, EnvSettingsSource, SettingsConfigDict
 
 DEFAULT_DATABASE_URL = "postgresql+asyncpg://bartender:bartender@localhost:5433/bartenderai"
 DEFAULT_REDIS_URL = "redis://localhost:6380/0"
@@ -11,6 +11,31 @@ DEFAULT_JWT_SECRET = "dev-secret-change-me"
 DEFAULT_INTERNAL_TOKEN = "dev-internal"
 LOCAL_CORS_ALLOWED_ORIGINS = ["http://localhost:3000", "http://127.0.0.1:3000"]
 LOCAL_ENVIRONMENTS = {"local", "development", "dev", "test"}
+
+
+class _CorsOriginParserMixin:
+    def prepare_field_value(self, field_name: str, field: Any, value: Any, value_is_complex: bool) -> Any:
+        if field_name == "cors_allowed_origins" and isinstance(value, str):
+            stripped = value.strip()
+            if not stripped:
+                return []
+            if stripped.startswith("["):
+                try:
+                    parsed = json.loads(stripped)
+                except json.JSONDecodeError:
+                    parsed = None
+                if isinstance(parsed, list):
+                    return [str(item).strip() for item in parsed if str(item).strip()]
+            return [item.strip() for item in stripped.split(",") if item.strip()]
+        return super().prepare_field_value(field_name, field, value, value_is_complex)
+
+
+class CorsAwareEnvSettingsSource(_CorsOriginParserMixin, EnvSettingsSource):
+    pass
+
+
+class CorsAwareDotEnvSettingsSource(_CorsOriginParserMixin, DotEnvSettingsSource):
+    pass
 
 
 class Settings(BaseSettings):
@@ -53,6 +78,26 @@ class Settings(BaseSettings):
 
     model_config = SettingsConfigDict(env_file=".env")
 
+    @classmethod
+    def settings_customise_sources(
+        cls,
+        settings_cls: type[BaseSettings],
+        init_settings,
+        env_settings,
+        dotenv_settings,
+        file_secret_settings,
+    ):
+        return (
+            init_settings,
+            CorsAwareEnvSettingsSource(settings_cls),
+            CorsAwareDotEnvSettingsSource(
+                settings_cls,
+                env_file=settings_cls.model_config.get("env_file"),
+                env_file_encoding=settings_cls.model_config.get("env_file_encoding"),
+            ),
+            file_secret_settings,
+        )
+
     @field_validator("cors_allowed_origins", mode="before")
     @classmethod
     def _parse_cors_allowed_origins(cls, value: Any) -> list[str]:
@@ -90,6 +135,5 @@ class Settings(BaseSettings):
 
         if issues:
             raise RuntimeError("Invalid runtime configuration: " + " ".join(issues))
-
 
 settings = Settings()

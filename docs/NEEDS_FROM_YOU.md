@@ -31,14 +31,15 @@
   - `EXPO_PUBLIC_API_URL` (if you are shipping a non-local mobile build)
 - Why: the app now fails fast instead of silently defaulting cloud/staging traffic to `localhost`, and the API no longer allows wildcard CORS with credentials outside local development.
 - Good defaults:
-  - `CORS_ALLOWED_ORIGINS=https://mixologygpt-app.onrender.com`
+  - `CORS_ALLOWED_ORIGINS=["https://mixologygpt-app.onrender.com"]`
   - `NEXT_PUBLIC_API_URL=https://mixologygpt.onrender.com`
   - `EXPO_PUBLIC_API_URL=https://mixologygpt.onrender.com`
 - Safe handling: these are configuration values rather than secrets, but keep them accurate per environment.
+- Note: current live Render deploy must use valid JSON for `CORS_ALLOWED_ORIGINS` until the latest API patch is deployed. After that deploy, both JSON array format and comma-separated format will be accepted.
 
 ## Render-specific fix for the current live blocker
 - API service (`https://mixologygpt.onrender.com`) environment values:
-  - `CORS_ALLOWED_ORIGINS=https://mixologygpt-app.onrender.com`
+  - `CORS_ALLOWED_ORIGINS=["https://mixologygpt-app.onrender.com"]`
   - `ENVIRONMENT=production`
 - Web service (`https://mixologygpt-app.onrender.com`) environment values:
   - `NEXT_PUBLIC_API_URL=https://mixologygpt.onrender.com`

@@ -44,6 +44,18 @@ def test_cors_allowed_origins_parses_csv_values():
     assert settings.cors_allowed_origins == ["https://app.example.com", "https://admin.example.com"]
 
 
+def test_cors_allowed_origins_parses_csv_env_values(monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setenv("CORS_ALLOWED_ORIGINS", "https://app.example.com, https://admin.example.com")
+    settings = Settings()
+    assert settings.cors_allowed_origins == ["https://app.example.com", "https://admin.example.com"]
+
+
+def test_cors_allowed_origins_parses_json_env_values(monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setenv("CORS_ALLOWED_ORIGINS", '["https://app.example.com", "https://admin.example.com"]')
+    settings = Settings()
+    assert settings.cors_allowed_origins == ["https://app.example.com", "https://admin.example.com"]
+
+
 def test_cors_allows_configured_origin_and_rejects_unknown_origin():
     app = _build_cors_app(["https://app.example.com"])
     client = TestClient(app)
