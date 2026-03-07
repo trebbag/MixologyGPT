@@ -7,11 +7,6 @@ const STAGING_ACCESS_TOKEN = process.env.STAGING_E2E_ACCESS_TOKEN || process.env
 
 const hasStagingConfig = Boolean(STAGING_API_URL && STAGING_ACCESS_TOKEN)
 const testIfConfigured = hasStagingConfig ? test : test.skip
-if (hasStagingConfig) {
-  process.env.EXPO_PUBLIC_API_URL = STAGING_API_URL
-  process.env.STAGING_E2E_ACCESS_TOKEN = STAGING_ACCESS_TOKEN
-  process.env.EXPO_PUBLIC_E2E_ACCESS_TOKEN = STAGING_ACCESS_TOKEN
-}
 const App = require('../../App').default
 
 async function flushMicrotasks() {
@@ -28,10 +23,6 @@ function renderStagingApp() {
 }
 
 testIfConfigured('mobile staging: studio offline tertiary actions disable with explicit messaging', async () => {
-  const screen = renderStagingApp()
-  await waitFor(() => expect(screen.getByText('BartenderAI')).toBeTruthy())
-  await flushMicrotasks()
-
   const realFetch = global.fetch.bind(globalThis)
   const offlineProxy = jest.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
     const url = typeof input === 'string' ? input : input.toString()
@@ -44,9 +35,11 @@ testIfConfigured('mobile staging: studio offline tertiary actions disable with e
 
   ;(global as any).fetch = offlineProxy
   try {
+    const screen = renderStagingApp()
+    await waitFor(() => expect(screen.getByText('BartenderAI')).toBeTruthy())
+    await flushMicrotasks()
     fireEvent.press(screen.getAllByText('Studio')[0])
     await flushMicrotasks()
-    fireEvent.press(screen.getByTestId('studio-refresh-sessions'))
 
     await waitFor(() => expect(screen.getByText('Offline Mode')).toBeTruthy())
     await waitFor(() => expect(screen.getByText(/Studio session actions are disabled while offline/)).toBeTruthy())

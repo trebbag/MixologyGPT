@@ -10,7 +10,7 @@
     "web": "expo start --web",
     "typecheck": "tsc --noEmit",
     "test:e2e": "jest --runInBand tests/e2e",
-    "test:e2e:staging": "jest --runInBand --config jest.staging.config.js"
+    "test:e2e:staging": "node ./scripts/run-staging-tests.js"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "1.23.1",
