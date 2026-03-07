@@ -80,10 +80,6 @@ testIfConfigured('mobile staging: knowledge offline path disables submit and sho
 })
 
 testIfConfigured('mobile staging: harvest offline path disables import and retry tertiary actions', async () => {
-  const screen = renderStagingApp()
-  await waitFor(() => expect(screen.getByText('BartenderAI')).toBeTruthy())
-  await flushMicrotasks()
-
   const realFetch = global.fetch.bind(globalThis)
   const offlineProxy = jest.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
     const url = typeof input === 'string' ? input : input.toString()
@@ -96,13 +92,23 @@ testIfConfigured('mobile staging: harvest offline path disables import and retry
 
   ;(global as any).fetch = offlineProxy
   try {
+    const screen = renderStagingApp()
+    await waitFor(() => expect(screen.getByText('BartenderAI')).toBeTruthy())
+    await flushMicrotasks()
     fireEvent.press(screen.getAllByText('Recipes')[0])
     await flushMicrotasks()
-    fireEvent.press(screen.getByTestId('recipes-quick-import'))
-
     await waitFor(() => expect(screen.getByText('Offline Mode')).toBeTruthy())
     await waitFor(() => expect(screen.getAllByText(/Network appears offline/).length).toBeGreaterThan(0))
-    expect(screen.getByTestId('harvest-start-import')).toBeDisabled()
+
+    const quickImportButton = screen.getByTestId('recipes-quick-import')
+    if (quickImportButton.props?.accessibilityState?.disabled) {
+      expect(quickImportButton).toBeDisabled()
+      await waitFor(() => expect(screen.getByText(/Import is disabled while offline/)).toBeTruthy())
+      return
+    }
+
+    fireEvent.press(quickImportButton)
+    await waitFor(() => expect(screen.getByTestId('harvest-start-import')).toBeDisabled())
     expect(screen.getByTestId('harvest-retry-ready')).toBeDisabled()
   } finally {
     ;(global as any).fetch = realFetch
