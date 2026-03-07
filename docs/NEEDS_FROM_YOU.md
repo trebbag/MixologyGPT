@@ -1,22 +1,22 @@
 # Needs From You
 
-## Current checkpoint (`2026-03-06`)
-- Latest deploy attempt: GitHub Actions `Staging Deploy` (`22783809188`) -> `FAIL`
-  - blocker: missing deploy secrets `STAGING_SSH_HOST`, `STAGING_SSH_USER`, `STAGING_SSH_KEY`, `STAGING_GHCR_TOKEN`, `STAGING_DEPLOY_PATH`
-- Latest signoff attempt: GitHub Actions `Staging Sign-Off (Load + Gates)` (`22783919469`) -> `FAIL`
-  - blocker: runtime surface smoke failed because the live API returned `400 Disallowed CORS origin` for `https://mixologygpt-app.onrender.com`
-- Latest all-six attempt: GitHub Actions `Staging Pilot All-Six` (`22783958092`) -> `FAIL`
-  - blocker: precheck failed on the same runtime surface smoke issue; token bootstrap and role checks passed
+## Current checkpoint (`2026-03-07`)
+- Latest signoff attempt: GitHub Actions `Staging Sign-Off (Load + Gates)` (`22787611593`) -> `PASS`
+  - runtime surface smoke passed for `https://mixologygpt.onrender.com` + `https://mixologygpt-app.onrender.com`
+  - locked gates passed with `0` failures
+- Latest all-six attempt: GitHub Actions `Staging Pilot All-Six` (`22788567113`) -> `PASS`
+  - precheck, signoff, web E2E, mobile E2E, and compliance smoke all passed
 - Latest crawler warning review: GitHub Actions `Staging Crawler Warning Review` (`22784025139`) -> `PASS`
   - result: `305` jobs total, `0` failures, `0` retryable jobs, no actionable alerts, and all approved pilot domains at `MIN_JOBS >= 20`
+- Latest deploy attempt: GitHub Actions `Staging Deploy` (`22783809188`) -> `FAIL`
+  - blocker: missing deploy secrets `STAGING_SSH_HOST`, `STAGING_SSH_USER`, `STAGING_SSH_KEY`, `STAGING_GHCR_TOKEN`, `STAGING_DEPLOY_PATH`
+  - note: this is optional if Render native deploys are your source of truth
 - Latest policy baseline freeze evidence: `docs/runbooks/evidence/policy-baseline-freeze-2026-03-03.md`
 - Latest pilot ops drill: GitHub Actions `Staging Pilot Ops Drill` (`22603591164`) -> `PASS`
-- Latest staged load PASS before the new live runtime regression: GitHub Actions `Staging Sign-Off (Load + Gates)` (`22605681114`) -> `PASS`
-  - key gates: `search_p95_ms=140`, `studio_generate_p95_ms=240`, `aggregate_p95_ms=200`
+- Latest staged load PASS: GitHub Actions `Staging Sign-Off (Load + Gates)` (`22787611593`) -> `PASS`
+  - key gates: `search_p95_ms=190`, `studio_generate_p95_ms=390`, `aggregate_p95_ms=300`
 - Source migration decision: `liquor.com` replaced with `thecocktaildb.com` for pilot calibration/maintenance.
 - Current required items before pilot go-live:
-  - fix the live staging API `CORS_ALLOWED_ORIGINS` / runtime configuration so `https://mixologygpt-app.onrender.com` is accepted
-  - rerun signoff + all-six after the live runtime smoke passes again
   - final owner go/no-go approval with the refreshed evidence package
   - only if you want GitHub-driven staging deploys: populate the staging deploy secrets
 - Remaining optional item:
@@ -38,6 +38,7 @@
 - Note: current live Render deploy must use valid JSON for `CORS_ALLOWED_ORIGINS` until the latest API patch is deployed. After that deploy, both JSON array format and comma-separated format will be accepted.
 
 ## Render-specific fix for the current live blocker
+- Status: fixed in code + verified in live runtime smoke. Keep these values in place on Render.
 - API service (`https://mixologygpt.onrender.com`) environment values:
   - `CORS_ALLOWED_ORIGINS=["https://mixologygpt-app.onrender.com"]`
   - `ENVIRONMENT=production`
@@ -46,7 +47,7 @@
   - `ENVIRONMENT=production`
 - Optional mobile build value:
   - `EXPO_PUBLIC_API_URL=https://mixologygpt.onrender.com`
-- Why: the latest live API rejects browser preflight from the deployed web origin, which blocks signoff/all-six before load and E2E begin.
+- Why: these values are now the correct deployed pairing for the passing signoff/all-six runs.
 - Verification after redeploy:
   - `cd /Users/gregorygabbert/Documents/GitHub/BartenderAI && python3 ./infra/staging/runtime_surface_smoke.py --api-base-url https://mixologygpt.onrender.com --web-base-url https://mixologygpt-app.onrender.com`
 
