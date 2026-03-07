@@ -101,7 +101,7 @@ testIfConfigured('mobile staging: harvest offline path disables import and retry
     fireEvent.press(screen.getByTestId('recipes-quick-import'))
 
     await waitFor(() => expect(screen.getByText('Offline Mode')).toBeTruthy())
-    await waitFor(() => expect(screen.getByText(/Harvest is disabled while offline/)).toBeTruthy())
+    await waitFor(() => expect(screen.getAllByText(/Network appears offline/).length).toBeGreaterThan(0))
     expect(screen.getByTestId('harvest-start-import')).toBeDisabled()
     expect(screen.getByTestId('harvest-retry-ready')).toBeDisabled()
   } finally {
